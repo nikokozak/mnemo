@@ -1,0 +1,13 @@
+- Build out CI/CD pipeline
+    - Linting
+    - Automated Unit Tests
+    - Automated Integration Tests
+    - Automated End-to-end tests
+    - Automated Documentation Builds
+    - Containerization 
+    - Secrets Management
+    - Staging Server
+    - Prod Server
+    - Rollback Policies
+- Vertical Slice
+- Revise Documentation (should be cohesive)
