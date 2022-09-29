@@ -1,6 +1,4 @@
 - Build out CI/CD pipeline
-    - Linting
-    - Automated Unit Tests
     - Automated Integration Tests
     - Automated End-to-end tests
     - Automated Documentation Builds
