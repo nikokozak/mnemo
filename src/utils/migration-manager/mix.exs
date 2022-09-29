@@ -13,6 +13,7 @@ defmodule MigrationManager.MixProject do
 
   def application do
     [
+      mod: {MigrationManager, []},
       extra_applications: [:logger]
     ]
   end
