@@ -1,6 +1,6 @@
 import Config
 
-config :migration_manager, Mnemo.Repo,
+config :pg_resource, PgResource.Repo,
   database: "mnemo_dev",
   username: "testuser",
   password: "testpass",
