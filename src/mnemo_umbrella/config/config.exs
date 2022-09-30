@@ -9,10 +9,8 @@
 # move said applications out of the umbrella.
 import Config
 
-# Sample configuration:
-#
-#     config :logger, :console,
-#       level: :info,
-#       format: "$date $time [$level] $metadata$message\n",
-#       metadata: [:user_id]
-#
+config :pg_resource, ecto_repos: [PgResource.Repo]
+
+config :pg_resource, PgResource.Repo, migration_primary_key: [name: :id, type: :binary_id]
+
+import_config "#{config_env()}.exs"
