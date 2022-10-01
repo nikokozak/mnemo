@@ -27,8 +27,11 @@ config :web_client, WebClientWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "J+oAPCxp/7Efizzg+2MhBbUT1VGXbsGnX+ce1XYRnx5v3WDmmpVOj4S1XYlFPj4S",
   watchers: [
+    # Watcher for sveltex files
+    node: ["build.js", "--watch", cd: Path.expand("../apps/web_client/assets", __DIR__)],
+
     # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
-    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
+    # # # # # # esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
   ]
 

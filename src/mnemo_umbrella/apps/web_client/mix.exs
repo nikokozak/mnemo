@@ -51,7 +51,9 @@ defmodule WebClient.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:poison, "~> 5.0"},
       # TailwindCSS
-      {:tailwind, "~> 0.1", runtime: Mix.env() == :dev}
+      {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
+      # Svonix
+      {:svonix, "~> 0.6.3"}
     ]
   end
 
