@@ -1,4 +1,0 @@
-# MnemoUmbrella
-
-**TODO: Add description**
-
