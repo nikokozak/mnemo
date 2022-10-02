@@ -3,6 +3,5 @@ defmodule SubjectAccessTest do
   doctest SubjectAccess
 
   test "greets the world" do
-    assert SubjectAccess.hello() == :world
   end
 end

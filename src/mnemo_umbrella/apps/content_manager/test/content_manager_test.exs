@@ -3,6 +3,5 @@ defmodule ContentManagerTest do
   doctest ContentManager
 
   test "greets the world" do
-    assert ContentManager.hello() == :world
   end
 end
