@@ -9,6 +9,9 @@
 # move said applications out of the umbrella.
 import Config
 
+config :core, ecto_repos: [Core.Resources.Postgres.Repo]
+config :core, Core.Resources.Postgres.Repo, migration_primary_key: [name: :id, type: :binary_id]
+
 config :pg_resource, ecto_repos: [PgResource.Repo]
 
 config :pg_resource, PgResource.Repo, migration_primary_key: [name: :id, type: :binary_id]

@@ -55,8 +55,8 @@ defmodule WebClient.MixProject do
       # Svonix
       {:svonix, "~> 0.6.3"},
 
-      # ContentManager
-      {:content_manager, in_umbrella: true}
+      # Logic Core
+      {:core, in_umbrella: true}
     ]
   end
 

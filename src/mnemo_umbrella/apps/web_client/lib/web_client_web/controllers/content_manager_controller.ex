@@ -2,7 +2,7 @@ defmodule WebClientWeb.ContentManagerController do
   use WebClientWeb, :controller
 
   def add_user(conn, %{"email" => email}) do
-    users = ContentManager.add_user(email)
+    users = Core.Managers.Content.add_user(email)
 
     conn
     |> put_status(:created)
@@ -10,7 +10,7 @@ defmodule WebClientWeb.ContentManagerController do
   end
 
   def users(conn, _params) do
-    users = ContentManager.all_users()
+    users = Core.Managers.Content.users()
 
     conn
     |> put_status(:ok)
