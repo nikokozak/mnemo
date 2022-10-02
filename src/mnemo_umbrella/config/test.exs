@@ -1,19 +1,13 @@
 import Config
 
-### PG_RESOURCE CONFIG ###
+### CORE CONFIG ###
 config :core, Core.Resources.Postgres.Repo,
   database: "mnemo_test",
   username: "testuser",
   password: "testpass",
   hostname: "localhost"
 
-config :pg_resource, PgResource.Repo,
-  database: "mnemo_test",
-  username: "testuser",
-  password: "testpass",
-  hostname: "localhost"
-
-### END PG_RESOURCE CONFIG ###
+### END CORE CONFIG ###
 
 ### WEB_CLIENT CONFIG ###
 
