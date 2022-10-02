@@ -1,5 +1,4 @@
 - Build out CI/CD pipeline
-    - Automated Integration Tests
     - Automated End-to-end tests
     - Automated Documentation Builds
     - Containerization 
