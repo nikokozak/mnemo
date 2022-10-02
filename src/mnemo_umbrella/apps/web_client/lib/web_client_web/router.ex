@@ -14,6 +14,12 @@ defmodule WebClientWeb.Router do
     plug :accepts, ["json"]
   end
 
+  scope "/api/content_manager", WebClientWeb do
+    pipe_through :api
+
+    post "/add_user", ContentManagerController, :add_user
+  end
+
   scope "/", WebClientWeb do
     pipe_through :browser
 

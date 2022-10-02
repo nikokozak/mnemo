@@ -3,9 +3,24 @@
 
     let userList = [];
 
-    function submitEmail() { 
+    async function submitEmail() { 
         console.log("submitting " + email);
-        userList = [...userList, email];
+        
+        const response = await doPost({email: email})
+
+        userList = [...userList, response.userList];
+    }
+
+    async function doPost(data = {}) {
+        const res = await fetch('http://localhost:4000/api/content_manager/add_user', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+
+        return await res.json()
     }
 </script> 
 
