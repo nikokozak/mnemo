@@ -53,7 +53,10 @@ defmodule WebClient.MixProject do
       # TailwindCSS
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       # Svonix
-      {:svonix, "~> 0.6.3"}
+      {:svonix, "~> 0.6.3"},
+
+      # ContentManager
+      {:content_manager, in_umbrella: true}
     ]
   end
 

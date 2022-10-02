@@ -1,4 +1,6 @@
 <script>
+    import { onMount } from 'svelte';
+
     let email = null;
 
     let userList = [];
@@ -8,7 +10,15 @@
         
         const response = await doPost({email: email})
 
-        userList = [...userList, response.userList];
+        userList = response.userList;
+    }
+
+    async function doGet() {
+        const res = await fetch('http://localhost:4000/api/content_manager/users', {
+            method: 'GET',
+        })
+
+        return await res.json()
     }
 
     async function doPost(data = {}) {
@@ -22,6 +32,11 @@
 
         return await res.json()
     }
+
+    onMount(async () => {
+        const response = await doGet();
+        userList = response.userList;
+    })
 </script> 
 
 <input type="text" bind:value={email} placeholder="Your email here" />
@@ -29,6 +44,6 @@
 
 <ul>
 {#each userList as user}
-    <li>{user}</li> 
+    <li>{user.email}</li> 
 {/each}
 </ul>

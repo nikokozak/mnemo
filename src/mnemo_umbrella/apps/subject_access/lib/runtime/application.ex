@@ -1,4 +1,4 @@
-defmodule ContentManager.Application do
+defmodule SubjectAccess.Runtime.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -8,13 +8,13 @@ defmodule ContentManager.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: ContentManager.Worker.start_link(arg)
-      # {ContentManager.Worker, arg}
+      # Starts a worker by calling: SubjectAccess.Worker.start_link(arg)
+      # {SubjectAccess.Worker, arg}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: ContentManager.Supervisor]
+    opts = [strategy: :one_for_one, name: SubjectAccess.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

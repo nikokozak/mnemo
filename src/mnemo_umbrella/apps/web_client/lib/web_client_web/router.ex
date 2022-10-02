@@ -18,6 +18,7 @@ defmodule WebClientWeb.Router do
     pipe_through :api
 
     post "/add_user", ContentManagerController, :add_user
+    get "/users", ContentManagerController, :users
   end
 
   scope "/", WebClientWeb do

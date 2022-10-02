@@ -1,18 +1,10 @@
 defmodule SubjectAccess do
-  @moduledoc """
-  Documentation for `SubjectAccess`.
-  """
+  alias SubjectAccess.Schemas.Student
+  alias PgResource.Repo
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> SubjectAccess.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  def add_user(email) do
+    Repo.insert(%Student{email: email})
   end
+
+  def all_users(), do: Student |> Repo.all()
 end

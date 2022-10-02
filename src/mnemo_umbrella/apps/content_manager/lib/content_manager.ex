@@ -1,18 +1,7 @@
 defmodule ContentManager do
-  @moduledoc """
-  Documentation for `ContentManager`.
-  """
+  alias ContentManager.Impl.ContentManager, as: CM
 
-  @doc """
-  Hello world.
+  defdelegate add_user(email), to: CM
 
-  ## Examples
-
-      iex> ContentManager.hello()
-      :world
-
-  """
-  def hello do
-    :world
-  end
+  defdelegate all_users(), to: CM
 end
