@@ -1,0 +1,19 @@
+defmodule MnemoWeb.ContentController do
+  use MnemoWeb, :controller
+  alias Mnemo.Managers
+
+  def create(conn, _params) do
+    {:ok, new_subject} = Managers.Content.create_student_subject("nikokozak@gmail.com")
+
+    conn
+    |> redirect(to: Routes.content_path(conn, :edit, new_subject.id))
+  end
+
+  def edit(conn, %{"subject_id" => subject_id}) do
+    subject = Managers.Content.subject(subject_id)
+
+    conn
+    |> assign(:subject, subject)
+    |> render("edit.html")
+  end
+end

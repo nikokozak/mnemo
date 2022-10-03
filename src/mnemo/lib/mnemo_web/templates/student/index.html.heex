@@ -7,10 +7,13 @@
 <div id="student-subjects-section">
   <h1 class="text-lg font-semibold mb-2">my subjects</h1>
   <hr>
-  <% for subject <- @student_subjects do %>
+  <!-- Subject List -->
+  <%= for subject <- @student_subjects do %>
     <div class="">
       <%= subject.title %>
       <%= subject.published %>
     </div>
   <% end %>
+  <!-- end Subject List -->
+  <%= link("Create a new Subject to study", to: Routes.content_path(@conn, :create), class: "block border rounded-lg py-1 px-2 mt-4") %>
 </div>

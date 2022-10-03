@@ -1,13 +1,15 @@
 defmodule Mnemo.Managers.Content do
-  def add_user(email) do
-    Mnemo.Access.Subject.add_user(email)
-  end
-
-  def users() do
-    Mnemo.Access.Subject.users()
-  end
+  alias Mnemo.Access
 
   def create_student_subject(student_id) do
-    Mnemo.Access.Subject.create(student_id)
+    Access.Subject.new_subject(student_id)
+  end
+
+  def student_subjects(student_id) do
+    Access.Subject.student_subjects(student_id)
+  end
+
+  def subject(subject_id) do
+    Access.Subject.subject(subject_id)
   end
 end
