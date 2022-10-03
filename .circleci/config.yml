@@ -49,6 +49,7 @@ jobs:
         environment:
           DATABASE_URL: postgres://postgres:postgres@localhost/mnemo
           MIX_ENV: prod
+          SECRET_KEY_BASE: lM+qWJHQLhy+R2r9Adkc8DKZufLrcRE3Y0+rbE+TtgOlARdaahf+taOzrEGcBoLY
       - image: cimg/postgres:14.5
         environment:
           POSTGRES_USER: postgres
