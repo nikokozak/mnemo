@@ -19,8 +19,15 @@ jobs:
         #         name: Wait for DB
         #         command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
+          name: Preserve Logs
+          command: exec 3>&1 1>>build_logs 2>&1
+      - run:
           name: Migrate DB
-          command: /app/bin/migrate
+          command: /app/bin/migrate 
+      - store_artifacts:
+          path: build_logs
+          destination: build_logs
+      
 
 workflows:
   main:
