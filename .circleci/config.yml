@@ -91,13 +91,13 @@ jobs:
       - run:
           name: "Migrate DB"
           command: |
-            cd src/mnemo;
-            ./bin/migrate;
+            cd src/mnemo/_build/prod/rel/mnemo/bin/;
+            ./migrate;
       - run:
           name: "Run server"
           command: |
-            cd src/mnemo;
-            ./bin/server;
+            cd src/mnemo/_build/prod/rel/mnemo/bin/;
+            ./server;
 
 workflows:
   main:
