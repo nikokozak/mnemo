@@ -17,16 +17,24 @@ jobs:
           command: mix local.rebar --force
       - run:
           name: "Install mix deps"
-          command: mix deps.get
+          command: |
+            cd src/mnemo;
+            mix deps.get;
       - run:
           name: "Install npm deps"
-          command: npm install --prefix=./assets
+          command: |
+            cd src/mnemo;
+            npm install --prefix=./assets;
       - run:
           name: "Check eilixir formatting"
-          command: mix format --check-formatted --dry-run
+          command: |
+            cd src/mnemo;
+            mix format --check-formatted --dry-run;
       - run:
           name: "Run mix tests"
-          command: MIX_ENV=test mix test
+          command: |
+            cd src/mnemo;
+            MIX_ENV=test mix test;
 
 workflows:
   main:
