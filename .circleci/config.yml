@@ -75,6 +75,7 @@ jobs:
             npm install;
             npm install --prefix=./assets;
             npx playwright install;
+            npx playwright install-deps;
       - run:
           name: "Compile deps and assets"
           command: |
