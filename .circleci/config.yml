@@ -74,6 +74,7 @@ jobs:
             cd src/mnemo;
             npm install;
             npm install --prefix=./assets;
+            npx playwright install;
       - run:
           name: "Compile deps and assets"
           command: |
