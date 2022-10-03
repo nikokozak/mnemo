@@ -3,7 +3,7 @@ version: 2.1
 jobs: 
   build_and_test:
     docker:
-      - image: nikokozak/mnemo:2.0
+      - image: elixir:1.14.0
         environment:
           DATABASE_URL: postgres://postgres:postgres@localhost/mnemo
             #     - image: cimg/postgres:14.5
@@ -19,15 +19,9 @@ jobs:
         #         name: Wait for DB
         #         command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
-          name: Preserve Logs
-          command: exec 3>&1 1>>build_logs 2>&1
-      - run:
-          name: Migrate DB
-          command: /app/bin/migrate 
-      - store_artifacts:
-          path: build_logs
-          destination: build_logs
-      
+          name: Build project
+          command: |
+            ls -al
 
 workflows:
   main:
