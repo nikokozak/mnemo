@@ -109,10 +109,7 @@ jobs:
             cd src/mnemo;
             npx playwright test;
       - run:
-          name: "Deploy to fly"
-          command: |
-                  - run:
-          name: "Install flyctl for deployment"
+          name: "Install flyctl and deploy"
           command: |
             export FLYCTL_INSTALL="/home/circleci/.fly";
             export PATH="$FLYCTL_INSTALL/bin:$PATH";
