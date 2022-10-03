@@ -14,7 +14,7 @@
     }
 
     async function doGet() {
-        const res = await fetch('http://localhost:4000/api/content_manager/users', {
+        const res = await fetch('api/content_manager/users', {
             method: 'GET',
         })
 
@@ -22,7 +22,7 @@
     }
 
     async function doPost(data = {}) {
-        const res = await fetch('http://localhost:4000/api/content_manager/add_user', {
+        const res = await fetch('api/content_manager/add_user', {
             method: 'POST',
             body: JSON.stringify(data),
             headers: {
