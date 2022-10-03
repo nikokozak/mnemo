@@ -6,18 +6,18 @@ jobs:
       - image: nikokozak/mnemo:2.0
         environment:
           DATABASE_URL: postgres://postgres:postgres@localhost/mnemo
-      - image: cimg/postgres:14.5
-        environment: 
-          PGHOST: localhost
-          PGUSER: postgres
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: mnemo
+            #     - image: cimg/postgres:14.5
+            #       environment: 
+            #         PGHOST: localhost
+            #         PGUSER: postgres
+            #         POSTGRES_USER: postgres
+            #         POSTGRES_PASSWORD: postgres
+            #         POSTGRES_DB: mnemo
     steps:
       - checkout
-      - run:
-          name: Wait for DB
-          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+        #     - run:
+        #         name: Wait for DB
+        #         command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
           name: Migrate DB
           command: /app/bin/migrate
