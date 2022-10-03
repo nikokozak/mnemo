@@ -108,6 +108,17 @@ jobs:
           command: |
             cd src/mnemo;
             npx playwright test;
+      - run:
+          name: "Deploy to fly"
+          command: |
+                  - run:
+          name: "Install flyctl for deployment"
+          command: |
+            export FLYCTL_INSTALL="/home/circleci/.fly";
+            export PATH="$FLYCTL_INSTALL/bin:$PATH";
+            curl -L https://fly.io/install.sh | sh;
+            cd src/mnemo;
+            flyctl deploy --remote-only -t $FLYCTL_TOKEN --now --verbose;
 
 workflows:
   main:
