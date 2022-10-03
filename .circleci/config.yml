@@ -69,9 +69,10 @@ jobs:
             cd src/mnemo;
             mix deps.get;
       - run:
-          name: "Install npm deps"
+          name: "Install npm deps (assets & playwright)"
           command: |
             cd src/mnemo;
+            npm install;
             npm install --prefix=./assets;
       - run:
           name: "Compile deps and assets"
@@ -99,6 +100,12 @@ jobs:
           command: |
             cd src/mnemo/_build/prod/rel/mnemo/bin/;
             ./server;
+          background: true
+      - run:
+          name: "Run e2e tests"
+          command: |
+            cd src/mnemo;
+            npx playwright test;
 
 workflows:
   main:
