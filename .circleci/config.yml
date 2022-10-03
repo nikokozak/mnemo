@@ -6,7 +6,13 @@ jobs:
   build-and-test:
     docker:
       - image: cimg/elixir:1.14.0-browsers
+        #environment:
+          #DATABASE_URL: postgres://postgres:postgres@localhost/mnemo
       - image: cimg/postgres:14.5
+        environment:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: mnemo_test
     steps:
       - checkout
       - run: 
