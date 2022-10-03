@@ -6,7 +6,7 @@ jobs:
       - image: nikokozak/mnemo:1.0
         environment:
           DATABASE_URL: postgres://postgres:postgres@localhost/mnemo
-      - image: cimg/postgres:14.5.0
+      - image: cimg/postgres:14.5
         environment: 
           PGHOST: localhost
           PGUSER: postgres
