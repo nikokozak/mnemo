@@ -3,9 +3,10 @@ version: 2.1
 description: Build and test Mnemo
 
 jobs:
-  build-and-test:
+  # Build and test mnemo imitating a dev enviroment
+  Dev-Test:
     docker:
-      - image: cimg/elixir:1.14.0-browsers
+      - image: cimg/elixir:1.14.0-node
         #environment:
           #DATABASE_URL: postgres://postgres:postgres@localhost/mnemo
       - image: cimg/postgres:14.5
@@ -41,8 +42,65 @@ jobs:
           command: |
             cd src/mnemo;
             MIX_ENV=test mix test;
+  # Build and Test as release, including e2e
+  Prod-Test:
+    docker:
+      - image: cimg/elixir:1.14.0-browsers
+        environment:
+          DATABASE_URL: postgres://postgres:postgres@localhost/mnemo
+          MIX_ENV: prod
+      - image: cimg/postgres:14.5
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: mnemo
+    steps:
+      - checkout
+      - run: 
+          name: "Install hex"
+          command: mix local.hex --force
+      - run:
+          name: "Install rebar"
+          command: mix local.rebar --force
+      - run:
+          name: "Install mix deps"
+          command: |
+            cd src/mnemo;
+            mix deps.get;
+      - run:
+          name: "Install npm deps"
+          command: |
+            cd src/mnemo;
+            npm install --prefix=./assets;
+      - run:
+          name: "Compile deps and assets"
+          command: |
+            cd src/mnemo;
+            mix deps.compile;
+            mix assets.deploy;
+      - run:
+          name: "Compile the release"
+          command: |
+            cd src/mnemo;
+            mix compile;
+      - run:
+          name: "Make release"
+          command: |
+            cd src/mnemo;
+            mix release;
+      - run:
+          name: "Migrate DB"
+          command: |
+            cd src/mnemo;
+            ./app/bin/migrate;
+      - run:
+          name: "Run server"
+          command: |
+            cd src/mnemo;
+            ./app/bin/server;
 
 workflows:
   main:
     jobs:
-      - build-and-test
+      - Dev-Test
+      - Prod-Test
