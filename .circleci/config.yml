@@ -5,8 +5,8 @@ description: Build and test Mnemo
 executors:
   builder:
     docker:
-      -image: cimg/elixir:1.14.0-browsers
-      -image: cimg/postgres:14.5
+      - image: cimg/elixir:1.14.0-browsers
+      - image: cimg/postgres:14.5
     working_directory: ~/project      
 
 commands:
@@ -63,12 +63,3 @@ jobs:
       - install-deps:
           include-assets: false
       - mix-test
-
-
-
-workflows:
-  main:
-    jobs:
-      - check-formatting
-      - run-unit-tests
-
