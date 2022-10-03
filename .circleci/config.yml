@@ -92,12 +92,12 @@ jobs:
           name: "Migrate DB"
           command: |
             cd src/mnemo;
-            ./app/bin/migrate;
+            ./bin/migrate;
       - run:
           name: "Run server"
           command: |
             cd src/mnemo;
-            ./app/bin/server;
+            ./bin/server;
 
 workflows:
   main:
