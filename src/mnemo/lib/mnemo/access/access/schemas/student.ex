@@ -1,10 +1,12 @@
 defmodule Mnemo.Access.Schemas.Student do
-  use Mnemo.Access.Schemas.Schema
+  use Ecto.Schema
+  alias Mnemo.Access.Schemas.Subject
 
   @derive {Jason.Encoder, only: [:email]}
+  @primary_key {:email, :string, autogenerate: false}
 
   schema "students" do
-    field(:email, :string)
+    has_many :subjects, Subject, foreign_key: :owner_id
 
     timestamps()
   end

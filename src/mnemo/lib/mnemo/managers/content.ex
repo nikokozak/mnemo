@@ -6,4 +6,8 @@ defmodule Mnemo.Managers.Content do
   def users() do
     Mnemo.Access.Subject.users()
   end
+
+  def create_student_subject(student_id) do
+    Mnemo.Access.Subject.create(student_id)
+  end
 end

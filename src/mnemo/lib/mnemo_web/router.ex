@@ -21,6 +21,12 @@ defmodule MnemoWeb.Router do
     get "/users", APIController, :users
   end
 
+  scope "/student", MnemoWeb do
+    pipe_through :browser
+
+    get "/", StudentController, :index
+  end
+
   scope "/", MnemoWeb do
     pipe_through :browser
 

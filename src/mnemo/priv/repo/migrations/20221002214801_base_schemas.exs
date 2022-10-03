@@ -2,14 +2,14 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
   use Ecto.Migration
 
   def change do
-    create table(:students) do
-      add(:email, :string)
+    create table(:students, primary_key: false) do
+      add(:email, :string, primary_key: true)
 
       timestamps()
     end
 
     create table(:subjects) do
-      add(:owner, references(:students))
+      add(:owner_id, references(:students, column: :email, type: :string))
       add(:title, :string)
       add(:description, :string)
       add(:published, :boolean)
@@ -50,7 +50,7 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
     end
 
     create table(:student_progression) do
-      add(:student_id, references(:students))
+      add(:owner_id, references(:students, column: :email, type: :string))
       add(:subject_id, references(:subjects))
       add(:enrollment_pending, :boolean)
       add(:completed_blocks, references(:content_blocks))
@@ -60,20 +60,20 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
     end
 
     create table(:scheduled_content_blocks) do
-      add(:student_id, references(:students))
+      add(:owner_id, references(:students, column: :email, type: :string))
       add(:subject_id, references(:subjects))
       add(:block_id, references(:content_blocks))
       add(:review_at, :date)
     end
 
     create table(:student_review_queue) do
-      add(:student_id, references(:students))
+      add(:owner_id, references(:students, column: :email, type: :string))
       add(:subject_id, references(:subjects))
       add(:content_block_id, references(:content_blocks))
     end
 
     create table(:student_completed_reviews) do
-      add(:student_id, references(:students))
+      add(:owner_id, references(:students, column: :email, type: :string))
       add(:subject_id, references(:subjects))
       add(:content_block_id, references(:content_blocks))
       add(:succeeded, :boolean)
