@@ -2,64 +2,33 @@ version: 2.1
 
 description: Build and test Mnemo
 
-executors:
-  builder:
+jobs:
+  build-and-test:
     docker:
       - image: cimg/elixir:1.14.0-browsers
       - image: cimg/postgres:14.5
-    working_directory: ~/project      
-
-commands:
-  install-deps:
-    description: Install mix and npm deps
-    parameters:
-      include-assets:
-        type: boolean
-        default: true
     steps:
-      - run:
-          name: Install hex
+      - checkout
+      - run: 
+          name: "Install hex"
           command: mix local.hex --force
       - run:
-          name: Install rebar
+          name: "Install rebar"
           command: mix local.rebar --force
       - run:
-          name: Install mix deps
+          name: "Install mix deps"
           command: mix deps.get
-      - when:
-          condition: << parameters.include-assets >>
-          steps:
-            - run:
-                name: Install npm deps
-                command: npm install --prefix=./assets
+      - run:
+          name: "Install npm deps"
+          command: npm install --prefix=./assets
+      - run:
+          name: "Check eilixir formatting"
+          command: mix format --check-formatted --dry-run
+      - run:
+          name: "Run mix tests"
+          command: MIX_ENV=test mix test
 
-  mix-format:
-    description: Validate formatting
-    steps:
-      -run:
-        name: Check eilixir formatting
-        command: mix format --check-formatted --dry-run
-
-  mix-test:
-    description: Run all mix tests
-    steps:
-      -run:
-        name: Run mix tests
-        command: MIX_ENV=test mix test
-
-jobs: 
-  check-formatting:
-    executor: builder
-    steps: 
-      - checkout
-      - install-deps:
-          include-assets: false
-      - mix-format
-
-  run-unit-tests:
-    executor: builder
-    steps:
-      - checkout
-      - install-deps:
-          include-assets: false
-      - mix-test
+workflows:
+  main:
+    jobs:
+      - build-and-test
