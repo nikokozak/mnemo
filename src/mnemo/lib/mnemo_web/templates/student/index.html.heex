@@ -9,10 +9,13 @@
   <hr>
   <!-- Subject List -->
   <%= for subject <- @student_subjects do %>
-    <div class="">
-      <%= subject.title %>
-      <%= subject.published %>
-    </div>
+    <%= link to: Routes.content_path(@conn, :edit, subject.id) do %>
+      <div class="border px-2 py-1 rounded-lg mt-4 flex justify-between">
+        <p class="text-md"><%= subject.title %></p>
+        <p class="text-sm text-slate-900"><%= subject.published %></p>
+        <p class="text-sm text-slate-900">editicon</p>
+      </div>
+    <% end %>
   <% end %>
   <!-- end Subject List -->
   <%= link("Create a new Subject to study", to: Routes.content_path(@conn, :create), class: "block border rounded-lg py-1 px-2 mt-4") %>

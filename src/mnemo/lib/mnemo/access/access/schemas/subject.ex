@@ -2,7 +2,15 @@ defmodule Mnemo.Access.Schemas.Subject do
   use Mnemo.Access.Schemas.Schema
   alias Mnemo.Access.Schemas.Student
 
-  @derive Jason.Encoder
+  @derive {Jason.Encoder,
+           only: [
+             :title,
+             :description,
+             :published,
+             :private,
+             :institution_only,
+             :price
+           ]}
 
   schema "subjects" do
     belongs_to :owner, Student, on_replace: :delete, type: :string
