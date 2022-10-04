@@ -26,6 +26,7 @@ defmodule MnemoWeb.Router do
 
     get "/create", ContentController, :create
     get "/edit/:subject_id", ContentController, :edit
+    get "/delete/:subject_id", ContentController, :delete
   end
 
   scope "/student", MnemoWeb do

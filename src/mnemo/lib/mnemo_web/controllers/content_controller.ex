@@ -16,4 +16,11 @@ defmodule MnemoWeb.ContentController do
     |> assign(:subject, subject)
     |> render("edit.html")
   end
+
+  def delete(conn, %{"subject_id" => subject_id}) do
+    {:ok, deleted_subject} = Managers.Content.delete_student_subject(subject_id)
+
+    conn
+    |> redirect(to: Routes.student_path(conn, :index))
+  end
 end

@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
 
     export let subject = {};
+    let delete_route = "/content/delete/" + subject.id;
 
     async function submitEmail() { 
         console.log("submitting " + email);
@@ -55,11 +56,9 @@
 <h1 class="text-sm text-gray-400 mt-12">subject options</h1>
 <hr class="border-gray-400">
 
-<button class="py-2 px-4 border border-red-400 rounded-lg mt-4">
-    <p class="text-sm">
-        Delete Subject
-    </p>
-</button>
+<a href={delete_route} class="block py-2 px-4 border border-red-400 rounded-lg mt-4 w-40">
+    Delete Subject
+</a>
 
 <h1 class="text-sm text-gray-400 mt-12">subject content</h1>
 <hr class="border-gray-400">

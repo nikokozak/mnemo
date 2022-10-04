@@ -8,6 +8,11 @@ defmodule Mnemo.Access.Subject do
     |> PGRepo.insert()
   end
 
+  def delete_subject(subject_id) do
+    PGRepo.get(Subject, subject_id)
+    |> PGRepo.delete()
+  end
+
   def student_subjects(student_id) do
     case PGRepo.get(Student, student_id) do
       nil ->

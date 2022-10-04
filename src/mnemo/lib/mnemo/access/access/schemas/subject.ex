@@ -4,6 +4,7 @@ defmodule Mnemo.Access.Schemas.Subject do
 
   @derive {Jason.Encoder,
            only: [
+             :id,
              :title,
              :description,
              :published,
