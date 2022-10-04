@@ -23,4 +23,12 @@ defmodule MnemoWeb.ContentController do
     conn
     |> redirect(to: Routes.student_path(conn, :index))
   end
+
+  def save(conn, subject) do
+    Managers.Content.save_student_subject(subject)
+
+    conn
+    |> put_status(:created)
+    |> json(%{status: :ok})
+  end
 end

@@ -13,6 +13,20 @@ defmodule Mnemo.Access.Subject do
     |> PGRepo.delete()
   end
 
+  def save_subject(subject) do
+    Ecto.Changeset.cast(%Subject{id: subject["id"]}, subject, [
+      :id,
+      :title,
+      :description,
+      :published,
+      :private,
+      :institution_only,
+      :price
+    ])
+    |> IO.inspect()
+    |> PGRepo.update()
+  end
+
   def student_subjects(student_id) do
     case PGRepo.get(Student, student_id) do
       nil ->

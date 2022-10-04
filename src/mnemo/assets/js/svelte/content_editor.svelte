@@ -1,8 +1,15 @@
 <script>
     import { onMount } from 'svelte';
+    import { Circle } from 'svelte-loading-spinners';
+    import debounce from 'lodash/debounce';
 
     export let subject = {};
     let delete_route = "/content/delete/" + subject.id;
+    let saving = false;
+
+    const handleInput = debounce(e => {
+        saveContent();
+    }, 500);
 
     async function submitEmail() { 
         console.log("submitting " + email);
@@ -20,8 +27,15 @@
         return await res.json()
     }
 
-    async function doPost(data = {}) {
-        const res = await fetch('api/content_manager/add_user', {
+    async function saveContent() {
+        saving = true;
+        const res = await doPost(subject, "/api/content/save");
+        saving = false;
+        console.log(res)
+    }
+
+    async function doPost(data = {}, route) {
+        const res = await fetch(route, {
             method: 'POST',
             body: JSON.stringify(data),
             headers: {
@@ -29,16 +43,22 @@
             }
         })
 
-        return await res.json()
+        return await res.body
     }
 </script> 
 
-<h1 class="text-sm text-gray-400">subject information</h1>
+<div class="flex justify-between">
+    <h1 class="text-sm text-gray-400">subject information</h1>
+    {#if saving}
+        <Circle size="15" unit="px"></Circle>
+    {/if}
+</div>
 <hr class="border-gray-400">
 
 <input 
     type="text" 
     bind:value={subject.title} 
+    on:input={handleInput}
     class="text-xl border-none pl-0 text-black text-semibold underline underline-offset-8 mt-8"/>
 
 <textarea 

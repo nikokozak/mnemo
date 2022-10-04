@@ -29,6 +29,12 @@ defmodule MnemoWeb.Router do
     get "/delete/:subject_id", ContentController, :delete
   end
 
+  scope "/api/content", MnemoWeb do
+    pipe_through :api
+
+    post "/save", ContentController, :save
+  end
+
   scope "/student", MnemoWeb do
     pipe_through :browser
 
