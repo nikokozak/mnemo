@@ -1,8 +1,12 @@
 import { writable } from 'svelte/store';
+import StaticContentBlock from '../content_blocks/_static_block.svelte';
+import MCQuestionContentBlock from '../content_blocks/_mc_question_block.svelte';
 import TextContent from '../content_blocks/inner_content/_text_content.svelte';
 import ImageContent from '../content_blocks/inner_content/_image_content.svelte';
 
 const subjectSections = () => new Array();
+
+// Schemas
 
 let sectionSidx = 0;;
 const section = () => { 
@@ -18,14 +22,37 @@ const section = () => {
 };
 
 let blockSidx = 0;
-const block = () => {
+const staticContentBlock = () => {
     return {
         // _sidx is just a dumb counter that serves to index sections
         // in the #each loop. 
         _sidx: blockSidx++,
+        _componentType: StaticContentBlock,
         _editing: true,
         testable: false,
         inner_content: [],
+    }
+}
+
+const mcQuestionContentBlock = () => {
+    return {
+        _sidx: blockSidx++,
+        _editing: false, 
+        _componentType: MCQuestionContentBlock,
+        testable: false,
+        inner_content: {
+            question: {
+                image: "",
+                text: "A question related to the multiple choice answers below.",
+            },
+            answer: {
+                choices: {
+                    "a": "A first answer",
+                    "b": "A second answer"
+                },
+                correct: "b"
+            }
+        }
     }
 }
 
@@ -48,6 +75,8 @@ const innerImageContent = () => {
     }
 }
 
+// Interface
+
 const addSection = (update_fn) => {
     return () => {
         update_fn(sectionArray => {
@@ -66,16 +95,33 @@ const removeSection = (update_fn) => {
     }
 }
 
-const addBlock = (update_fn) => {
+const addStaticContentBlock = (update_fn) => {
     return (sectionIdx = null) => {
         update_fn(sectionArray => {
             if (sectionArray.length == 0 || sectionIdx == null) {
                 const newSection = section();
-                newSection.blocks.push(block());
+                newSection.blocks.push(staticContentBlock());
                 sectionArray.push(newSection);
             } else {
                 const section = sectionArray[sectionIdx];
-                section.blocks.push(block());
+                section.blocks.push(staticContentBlock());
+//                _markChange(section);
+            }
+            return sectionArray;
+        })
+    }
+}
+
+const addMCQuestionContentBlock = (update_fn) => {
+    return (sectionIdx = null) => {
+        update_fn(sectionArray => {
+            if (sectionArray.length == 0 || sectionIdx == null) {
+                const newSection = section();
+                newSection.blocks.push(mcQuestionContentBlock());
+                sectionArray.push(newSection);
+            } else {
+                const section = sectionArray[sectionIdx];
+                section.blocks.push(mcQuestionContentBlock());
 //                _markChange(section);
             }
             return sectionArray;
@@ -117,22 +163,22 @@ const editBlock = (update_fn) => {
 }
 
 const addInnerTextContent = (update_fn) => {
-    return (sectionIdx, blockIdx) => {
-        addInnerContent(update_fn, sectionIdx, blockIdx, innerTextContent());
+    return (sectionIdx, staticContentBlockIdx) => {
+        addInnerContent(update_fn, sectionIdx, staticContentBlockIdx, innerTextContent());
     }
 }
 
 const addInnerImageContent = (update_fn) => {
-    return (sectionIdx, blockIdx) => {
-        addInnerContent(update_fn, sectionIdx, blockIdx, innerImageContent());
+    return (sectionIdx, staticContentBlockIdx) => {
+        addInnerContent(update_fn, sectionIdx, staticContentBlockIdx, innerImageContent());
     }
 }
 
-function addInnerContent(updateFn, sectionIdx, blockIdx, content) {
+function addInnerContent(updateFn, sectionIdx, staticContentBlockIdx, content) {
     updateFn(sectionArray => {
         const section = sectionArray[sectionIdx];
-        const block = section.blocks[blockIdx];
-        block.inner_content = [...block.inner_content, content];
+        const staticContentBlock = section.blocks[staticContentBlockIdx];
+        staticContentBlock.inner_content = [...staticContentBlock.inner_content, content];
         return sectionArray;
     })
 }
@@ -145,7 +191,8 @@ function createsubjectSectionsStore() {
         subscribe,
         addSection: addSection(update),
         removeSection: removeSection(update),
-        addBlock: addBlock(update),
+        addStaticContentBlock: addStaticContentBlock(update),
+        addMCQuestionContentBlock: addMCQuestionContentBlock(update),
         removeBlock: removeBlock(update),
         saveBlock: saveBlock(update),
         editBlock: editBlock(update),

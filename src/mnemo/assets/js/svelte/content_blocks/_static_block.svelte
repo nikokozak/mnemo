@@ -1,9 +1,7 @@
 <script>
     import { sectionStore } from '../stores/subject_section_store.js';
-    import { createEventDispatcher } from 'svelte';
     import TextContent from './inner_content/_text_content.svelte';
     import ImageContent from './inner_content/_image_content.svelte';
-    const dispatch = createEventDispatcher();
 
     // _underscored variables denote vars that are relevant only to the frontend client.
     export let _block_idx = 0;
@@ -16,38 +14,6 @@
 
     function toggleTestable() {
         $sectionStore[_section_idx].blocks[_block_idx].testable = !$sectionStore[_section_idx].blocks[_block_idx].testable
-    }
-
-    function addInnerTextContent() {
-        const textBlock = {
-            _id: inner_content.length,
-            _componentType: TextContent,
-            data: undefined,
-        }
-        
-        inner_content = [...inner_content, textBlock];
-
-        dispatch('inner_content', {
-            _block_idx,
-            _section_idx,
-            inner_content,
-        })
-    }
-
-    function addInnerImageContent() {
-        const imageBlock = {
-            _id: inner_content.length,
-            _componentType: ImageContent,
-            data: undefined,
-        }
-
-        inner_content = [...inner_content, imageBlock];
-
-        dispatch('inner_content', {
-            _block_idx,
-            _section_idx,
-            inner_content,
-        })
     }
 </script>
 
