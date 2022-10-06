@@ -1,4 +1,5 @@
 <script>
+    import { sectionStore } from './stores/subject_section_store.js';
     import { testMe } from './utils.js';
     import { onMount } from 'svelte';
     import { Circle } from 'svelte-loading-spinners';
@@ -15,7 +16,7 @@
 
     export let subject = {};
     let sections = [];
-    $: sections_empty = sections.length == 0;
+    $: sections_empty = $sectionStore.length == 0;
     let delete_route = "/content/delete/" + subject.id;
     let saving = false;
     let editing_block = false;
@@ -27,56 +28,6 @@
     }, 500);
 
     /** FUNCTIONS **/
-
-    function createBlock(section_idx = null, type = "static") {
-        editing_block = true;
-
-        console.log(section_idx)
-        if (sections_empty && section_idx === null) {
-            createSection();
-            addBlockToSection(0, type);
-        } else {
-            addBlockToSection(section_idx, type);
-        }
-    }
-
-    function addBlockToSection(section_idx, block_type) {
-        const section = sections[section_idx];
-        section.blocks = [...section.blocks, {id: section.blocks.length}];
-        sections = sections;
-    }
-
-    function saveBlock(sidx, bidx) {
-        editing_block = false;
-    }
-
-    function deleteBlock(sidx, bidx) {
-        const section = sections[sidx];
-        section.blocks.splice(bidx, 1);
-        section.blocks = section.blocks;
-        sections = sections;
-        editing_block = false;
-    }
-
-    function editBlock(sidx, bidx) {
-        editing_block = true;
-    }
-
-    function createSection() {
-        const section = {
-            id: null,
-            subject_id: subject.id,
-            title: null,
-            blocks: []
-        }
-
-        sections = [...sections, section];
-    }
-
-    function deleteSection(section_index) {
-        sections.splice(section_index, 1);
-        sections = sections;
-    }
 
     async function saveContent() {
         saving = true;
@@ -136,12 +87,12 @@ You can also arrange them according to chapters or
 sections, or simply create all of the blocks without a 
 structure.</p>
 
-{#each sections as section, idx}
+{#each $sectionStore as section, idx (section._sidx)}
     <div class="mt-4">
         <!-- Section Title -->
         <div class="flex justify-between">
             <input type="text" bind:value={section.title} class="text-md text-semibold underline underline-offset-6 border-0 p-0 mb-4" placeholder="Optional Section Title" />
-            <svg on:click={() => deleteSection(idx)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width={1.5} stroke="currentColor" class="gray-400 w-4 h-4 mt-1">
+            <svg on:click={() => sectionStore.removeSection(idx)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width={1.5} stroke="currentColor" class="gray-400 w-4 h-4 mt-1">
               <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
             </svg>
         </div>
@@ -155,15 +106,15 @@ structure.</p>
         the Component. Instead, we have to bind to a "ref" property inside the 
         object, which will allow us to pull info from the original block, like
         its ID for mounting the sub-block -->
-        {#each section.blocks as block, bidx (block.id)}
+        {#each section.blocks as block, bidx (block._sidx)}
             <StaticContentBlock 
-                on:save={() => saveBlock(idx, bidx)}
-                on:delete={() => deleteBlock(idx, bidx)}
+                _block_idx={bidx}
+                _section_idx={idx}
             />
         {/each}
  
         {#if !editing_block}
-        <button on:click={() => createBlock(idx)} class="block py-2 px-4 border rounded-lg mt-4 text-xs">
+        <button on:click={() => sectionStore.addBlock(idx)} class="block py-2 px-4 border rounded-lg mt-4 text-xs">
             Create a new Content Block
         </button>
         {/if}
@@ -171,14 +122,14 @@ structure.</p>
 {/each}
 
 {#if sections_empty}
-<button on:click={() => createBlock()} class="block py-2 px-4 border rounded-lg mt-4 text-xs">
+    <button on:click={() => sectionStore.addBlock()} class="block py-2 px-4 border rounded-lg mt-4 text-xs">
     Create a new Content Block
 </button>
 {/if}
 
 <p class="text-xs text-gray-400 mt-2">or...</p>
 
-<button on:click={createSection} class="block py-2 px-4 border rounded-lg mt-4 text-xs">
+<button on:click={sectionStore.addSection} class="block py-2 px-4 border rounded-lg mt-4 text-xs">
     Create a new Section
 </button>
 

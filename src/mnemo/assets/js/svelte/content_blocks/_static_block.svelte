@@ -1,4 +1,5 @@
 <script>
+    import { sectionStore } from '../stores/subject_section_store.js';
     import { createEventDispatcher } from 'svelte';
     import TextContent from './inner_content/_text_content.svelte';
     import ImageContent from './inner_content/_image_content.svelte';
@@ -6,60 +7,15 @@
 
     // _underscored variables denote vars that are relevant only to the frontend client.
     export let _block_idx = 0;
-    export let _subject_idx = 0;
-    export let subject_id = "subject_id";
-    export let testable = false;
+    export let _section_idx = 0;
     export const type = "static";
     export let inner_content = [];
-    export let _editing = true;
 
-    // TODO: Declare and export a function that returns the final datastructure,
-    // so that it can then be called from outside as "block.export()" once we
-    // wish to save it, so that we don't have to worry about declaring the
-    // relevant data structures twice, once outside and once inside.
-
-    export function _export() {
-        return {
-            subject_id,
-            testable,
-            type,
-            inner_content
-        }
-    }
-
-    function saveBlock() {
-        _editing = false;
-
-        dispatch('save', {
-            _block_idx,
-            _subject_idx
-        })
-    }
-
-    function deleteBlock() {
-        dispatch('delete', {
-            _block_idx,
-            _subject_idx,
-        })
-    }
-
-    function editBlock() {
-        _editing = true;
-
-        dispatch('edit', {
-            _block_idx,
-            _subject_idx
-        })
-    }
+    $: testable = $sectionStore[_section_idx].blocks[_block_idx].testable;
+    $: editing = $sectionStore[_section_idx].blocks[_block_idx]._editing;
 
     function toggleTestable() {
-        testable = !testable;
-
-        dispatch('edit', {
-            _block_idx,
-            _subject_idx,
-            testable,
-        })
+        $sectionStore[_section_idx].blocks[_block_idx].testable = !$sectionStore[_section_idx].blocks[_block_idx].testable
     }
 
     function addInnerTextContent() {
@@ -73,7 +29,7 @@
 
         dispatch('inner_content', {
             _block_idx,
-            _subject_idx,
+            _section_idx,
             inner_content,
         })
     }
@@ -89,7 +45,7 @@
 
         dispatch('inner_content', {
             _block_idx,
-            _subject_idx,
+            _section_idx,
             inner_content,
         })
     }
@@ -130,24 +86,24 @@
 
     <!-- Block Controls -->
     <div class="flex justify-between text-xs border-t mt-4"> 
-        {#if _editing}
-            <div on:click={() => deleteBlock()} class="border-r w-1/2 flex pl-6 py-2">
+        {#if editing}
+            <div on:click={() => sectionStore.removeBlock(_section_idx, _block_idx)} class="border-r w-1/2 flex pl-6 py-2">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 mr-2">
                     <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" />
                 </svg>
                 Delete Block
             </div>
-            <div on:click={() => saveBlock()} class="w-1/2 flex pl-6 py-2">
+            <div on:click={() => sectionStore.saveBlock(_section_idx, _block_idx)} class="w-1/2 flex pl-6 py-2">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 mr-2">
                     <path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5zM10 8a.75.75 0 01.75.75v1.5h1.5a.75.75 0 010 1.5h-1.5v1.5a.75.75 0 01-1.5 0v-1.5h-1.5a.75.75 0 010-1.5h1.5v-1.5A.75.75 0 0110 8z" clip-rule="evenodd" />
                 </svg>
                 Save Block
             </div>
         {:else}
-            <div on:click={() => editBlock()} class="border-r w-1/2 flex pl-6 py-2">
+            <div on:click={() => sectionStore.editBlock(_section_idx, _block_idx)} class="border-r w-1/2 flex pl-6 py-2">
                 Edit Block
             </div>
-            <div on:click={() => toggleTestable()} class="border-r w-1/2 pl-6 py-2">Testable? {testable}</div>
+            <div on:click={toggleTestable} class="border-r w-1/2 pl-6 py-2">Testable? {testable}</div>
         {/if}
     </div>
     <!-- End Block Controls -->
