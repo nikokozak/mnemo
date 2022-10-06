@@ -1,4 +1,5 @@
 <script>
+    import { testMe } from './utils.js';
     import { onMount } from 'svelte';
     import { Circle } from 'svelte-loading-spinners';
     import debounce from 'lodash/debounce';
@@ -7,6 +8,8 @@
     async function loadComponent() {
         return await import(`./content_blocks/_static_block.svelte`);
     }
+
+    testMe();
 
     /** DATA **/
 
