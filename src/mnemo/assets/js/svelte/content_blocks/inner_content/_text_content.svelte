@@ -1,4 +1,5 @@
 <script>
+    import { sectionStore } from '../../stores/subject_section_store.js';
     import { createEventDispatcher } from 'svelte';
 
     const dispatch = createEventDispatcher();

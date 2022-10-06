@@ -1,4 +1,6 @@
 import { writable } from 'svelte/store';
+import TextContent from '../content_blocks/inner_content/_text_content.svelte';
+import ImageContent from '../content_blocks/inner_content/_image_content.svelte';
 
 const subjectSections = () => new Array();
 
@@ -23,6 +25,26 @@ const block = () => {
         _sidx: blockSidx++,
         _editing: true,
         testable: false,
+        inner_content: [],
+    }
+}
+
+let innerContentSidx = 0;
+const innerTextContent = () => {
+    return {
+        _sidx: innerContentSidx++,
+        _componentType: TextContent,
+        type: "text",
+        data: undefined,
+    }
+}
+
+const innerImageContent = () => {
+    return {
+        _sidx: innerContentSidx++,
+        _componentType: ImageContent,
+        type: "text",
+        data: undefined,
     }
 }
 
@@ -94,6 +116,27 @@ const editBlock = (update_fn) => {
     }
 }
 
+const addInnerTextContent = (update_fn) => {
+    return (sectionIdx, blockIdx) => {
+        addInnerContent(update_fn, sectionIdx, blockIdx, innerTextContent());
+    }
+}
+
+const addInnerImageContent = (update_fn) => {
+    return (sectionIdx, blockIdx) => {
+        addInnerContent(update_fn, sectionIdx, blockIdx, innerImageContent());
+    }
+}
+
+function addInnerContent(updateFn, sectionIdx, blockIdx, content) {
+    updateFn(sectionArray => {
+        const section = sectionArray[sectionIdx];
+        const block = section.blocks[blockIdx];
+        block.inner_content = [...block.inner_content, content];
+        return sectionArray;
+    })
+}
+
 function createsubjectSectionsStore() {
 
     const { subscribe, set, update } = writable(subjectSections());
@@ -106,6 +149,8 @@ function createsubjectSectionsStore() {
         removeBlock: removeBlock(update),
         saveBlock: saveBlock(update),
         editBlock: editBlock(update),
+        addInnerTextContent: addInnerTextContent(update),
+        addInnerImageContent: addInnerImageContent(update),
         set,
     }
 }
