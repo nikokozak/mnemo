@@ -1,11 +1,13 @@
 <script>
     import { createEventDispatcher } from 'svelte';
+    import TextContent from './inner_content/_text_content.svelte';
+    import ImageContent from './inner_content/_image_content.svelte';
     const dispatch = createEventDispatcher();
 
     // _underscored variables denote vars that are relevant only to the frontend client.
-    export let _block_idx;
-    export let _subject_idx;
-    export let subject_id;
+    export let _block_idx = 0;
+    export let _subject_idx = 0;
+    export let subject_id = "subject_id";
     export let testable = false;
     export const type = "static";
     export let inner_content = [];
@@ -16,8 +18,13 @@
     // wish to save it, so that we don't have to worry about declaring the
     // relevant data structures twice, once outside and once inside.
 
-    export function test() {
-        return testable;
+    export function _export() {
+        return {
+            subject_id,
+            testable,
+            type,
+            inner_content
+        }
     }
 
     function saveBlock() {
@@ -57,8 +64,9 @@
 
     function addInnerTextContent() {
         const textBlock = {
-            type: "text",
-            data: "Some text goes here"
+            _id: inner_content.length,
+            _componentType: TextContent,
+            data: undefined,
         }
         
         inner_content = [...inner_content, textBlock];
@@ -72,8 +80,9 @@
 
     function addInnerImageContent() {
         const imageBlock = {
-            type: "image",
-            data: "href_to_img"
+            _id: inner_content.length,
+            _componentType: ImageContent,
+            data: undefined,
         }
 
         inner_content = [...inner_content, imageBlock];
@@ -97,10 +106,8 @@
     <!-- End Block Type Title -->
 
     <!-- Inner Block Content -->
-    {#each inner_content as content}
-        <div>
-            Hello
-        </div>
+    {#each inner_content as content (content._id)}
+        <svelte:component this={content._componentType} bind:data={content.data} />
     {/each}
     <!-- End Inner Block Content -->
 

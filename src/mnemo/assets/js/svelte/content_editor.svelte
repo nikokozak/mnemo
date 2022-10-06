@@ -4,12 +4,15 @@
     import debounce from 'lodash/debounce';
     import StaticContentBlock from './content_blocks/_static_block.svelte';
 
+    async function loadComponent() {
+        return await import(`./content_blocks/_static_block.svelte`);
+    }
+
     /** DATA **/
 
     export let subject = {};
     let sections = [];
     $: sections_empty = sections.length == 0;
-    let blocks = [{testable: true, ref: {}}, {testable: false, ref: {}}];
     let delete_route = "/content/delete/" + subject.id;
     let saving = false;
     let editing_block = false;
@@ -25,37 +28,27 @@
     function createBlock(section_idx = null, type = "static") {
         editing_block = true;
 
-        const block = {
-            subject_id: subject.id,
-            testable: false,
-            type,
-            inner_content: [],
-            _editing: true,
-        }
-
+        console.log(section_idx)
         if (sections_empty && section_idx === null) {
             createSection();
-            let section = sections[0];
-            section.blocks = [...section.blocks, block];
-            sections = sections;
+            addBlockToSection(0, type);
         } else {
-            let section = sections[section_idx];
-            section.blocks = [...section.blocks, block];
-            sections = sections;
+            addBlockToSection(section_idx, type);
         }
     }
 
-    function saveBlock(sidx, bidx) {
-        let section = sections[sidx];
-        let block = section.blocks[bidx];
-        block._editing = false;
-        section.blocks = section.blocks;
+    function addBlockToSection(section_idx, block_type) {
+        const section = sections[section_idx];
+        section.blocks = [...section.blocks, {id: section.blocks.length}];
         sections = sections;
+    }
+
+    function saveBlock(sidx, bidx) {
         editing_block = false;
     }
 
     function deleteBlock(sidx, bidx) {
-        let section = sections[sidx];
+        const section = sections[sidx];
         section.blocks.splice(bidx, 1);
         section.blocks = section.blocks;
         sections = sections;
@@ -63,46 +56,7 @@
     }
 
     function editBlock(sidx, bidx) {
-        let section = sections[sidx];
-        let block = section.blocks[bidx];
-        block._editing = true;
-        section.blocks = section.blocks;
-        sections = sections;
         editing_block = true;
-    }
-
-    function toggleTestableBlock(sidx, bidx) {
-        let section = sections[sidx];
-        let block = section.blocks[bidx];
-        block.testable = !block.testable;
-        section.blocks = section.blocks;
-        sections = sections;
-    }
-
-    function addInnerTextContent(sidx, bidx) {
-        const textBlock = {
-            type: "text",
-            data: "Some text goes here"
-        }
-        
-        let section = sections[sidx];
-        let block = section.blocks[bidx];
-        block.inner_content = [...block.inner_content, textBlock];
-        section.blocks = section.blocks;
-        sections = sections;
-    }
-
-    function addInnerImageContent(sidx, bidx) {
-        const imageBlock = {
-            type: "image",
-            data: "href_to_img"
-        }
-
-        let section = sections[sidx];
-        let block = section.blocks[bidx];
-        block.inner_content = [...block.inner_content, imageBlock];
-        section.blocks = section.blocks;
-        sections = sections;
     }
 
     function createSection() {
@@ -126,14 +80,6 @@
         const res = await doPost(subject, "/api/content/save");
         saving = false;
         console.log(res)
-    }
-
-    async function doGet() {
-        const res = await fetch('api/content_manager/users', {
-            method: 'GET',
-        })
-
-        return await res.json()
     }
 
     async function doPost(data = {}, route) {
@@ -206,14 +152,10 @@ structure.</p>
         the Component. Instead, we have to bind to a "ref" property inside the 
         object, which will allow us to pull info from the original block, like
         its ID for mounting the sub-block -->
-        {#each blocks as block, bidx}
+        {#each section.blocks as block, bidx (block.id)}
             <StaticContentBlock 
-                _block_idx={bidx}
-                _subject_idx={idx}
-                subject_id={subject.id}
-                testable={block.testable}
-                bind:this={block.ref}
-                on:save={() => console.log(block.ref.test())}
+                on:save={() => saveBlock(idx, bidx)}
+                on:delete={() => deleteBlock(idx, bidx)}
             />
         {/each}
  
