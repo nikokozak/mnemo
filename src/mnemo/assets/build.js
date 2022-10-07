@@ -141,7 +141,7 @@ if (watch) {
   opts = {
     ...opts,
     watch,
-    sourcemap: 'inline'
+    sourcemap: 'linked'
   }
 }
 

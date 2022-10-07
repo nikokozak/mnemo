@@ -1,14 +1,15 @@
 <script>
-    export let _inner_content;
-    $: choices = $_inner_content.answer.choices;
-    $: correct = $_inner_content.answer.correct;
+    export let inner_content;
+    $: choices = inner_content.answer.choices;
+    $: correct = inner_content.answer.correct;
+    $: question = inner_content.question;
 </script>
 
 <!-- Inner Block Content -->
 <h1 class="text-md ml-4 mt-4">Question</h1>
 
 <div class="w-4/5 h-20 bg-gray-100 rounded-lg border border-dashed mt-4 ml-4"></div>
-<div contenteditable=true class="ml-4 mt-4 w-4/5 text-sm" bind:innerHTML={$_inner_content.question.text}></div>
+<div contenteditable=true class="ml-4 mt-4 w-4/5 text-sm" bind:innerHTML={question.text}></div>
 
 <hr class="mt-4">
 
@@ -30,7 +31,7 @@
     </div>
 {/each}
 
-<button on:click={() => _blockStore.addInnerTextContent(_section_idx, _block_idx)} class="flex text-xs border rounded-lg py-2 px-4 mt-4">
+<button on:click={() => {}} class="flex text-xs border rounded-lg py-2 px-4 mt-4">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
     </svg>
