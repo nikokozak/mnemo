@@ -29,6 +29,40 @@ defmodule MnemoWeb.Router do
     get "/delete/:subject_id", ContentController, :delete
   end
 
+  scope "/api/content_block", MnemoWeb do
+    pipe_through :api
+
+    put "/:content_block_id", APIController, :save_content_block
+    delete "/:content_block_id", APIController, :delete_content_block
+    post "/", APIController, :create_content_block
+  end
+
+  scope "/api/section", MnemoWeb do
+    pipe_through :api
+
+    get "/:section_id/content_blocks", APIController, :content_blocks
+
+    get "/:section_id", APIController, :section
+    delete "/:section_id", APIController, :delete_section
+    put "/", APIController, :save_section
+    post "/", APIController, :create_section
+  end
+
+  scope "/api/subjects", MnemoWeb do
+    pipe_through :api
+
+    get "/:subject_id/sections", APIController, :sections
+
+    delete "/:subject_id", APIController, :delete_subject
+    get "/:subject_id", APIController, :subject
+    put "/", APIController, :save_subject
+    post "/", APIController, :create_subject
+  end
+
+  scope "/api/student", MnemoWeb do
+    get "/:student_id/subjects", APIController, :subjects
+  end
+
   scope "/api/content", MnemoWeb do
     pipe_through :api
 

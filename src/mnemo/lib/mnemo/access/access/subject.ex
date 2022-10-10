@@ -2,20 +2,19 @@ defmodule Mnemo.Access.Subject do
   alias Mnemo.Resources.Postgres.Repo, as: PGRepo
   alias Mnemo.Access.Schemas.{Student, Subject}
 
-  def new_subject(student_id) do
+  def create(student_id) do
     PGRepo.get(Student, student_id)
     |> Ecto.build_assoc(:subjects)
     |> PGRepo.insert()
   end
 
-  def delete_subject(subject_id) do
+  def delete(subject_id) do
     PGRepo.get(Subject, subject_id)
     |> PGRepo.delete()
   end
 
-  def save_subject(subject) do
+  def save(subject) do
     Ecto.Changeset.cast(%Subject{id: subject["id"]}, subject, [
-      :id,
       :title,
       :description,
       :published,
@@ -23,11 +22,10 @@ defmodule Mnemo.Access.Subject do
       :institution_only,
       :price
     ])
-    |> IO.inspect()
     |> PGRepo.update()
   end
 
-  def student_subjects(student_id) do
+  def all(student_id) do
     case PGRepo.get(Student, student_id) do
       nil ->
         []
@@ -38,7 +36,13 @@ defmodule Mnemo.Access.Subject do
     end
   end
 
-  def subject(subject_id) do
+  def one(subject_id) do
     PGRepo.get(Subject, subject_id)
+  end
+
+  def sections(subject_id) do
+    PGRepo.get(Subject, subject_id)
+    |> PGRepo.preload(:sections)
+    |> Map.get(:sections, [])
   end
 end

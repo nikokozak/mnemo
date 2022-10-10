@@ -52,7 +52,9 @@ defmodule Mnemo.MixProject do
       # TailwindCSS
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       # Svonix
-      {:svonix, "~> 0.6.3"}
+      {:svonix, "~> 0.6.3"},
+      # CORS
+      {:cors_plug, "~> 3.0"}
     ]
   end
 
