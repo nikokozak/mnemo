@@ -9,6 +9,11 @@
             class="px-4 py-2 text-sm border border-red-600 rounded-lg">
             Delete Subject
         </button>
+
+        <button @click="navigateToStudent" 
+            class="px-4 py-2 text-sm ml-4 border border-grey-600 rounded-lg">
+            back
+        </button>
     </div>
 
     <Teleport to="body">
@@ -39,6 +44,10 @@
     const subjectId = props.subjectId;
     const student = "nikokozak@gmail.com";
     const showDeleteModal = ref(false);
+
+    function navigateToStudent() {
+        window.location.href = '/student'
+    }
 
     function deleteSubject() {
         useFetch(`${config.public.baseURL}/api/subjects/${subjectId}`, {
