@@ -54,7 +54,9 @@ defmodule Mnemo.MixProject do
       # Svonix
       {:svonix, "~> 0.6.3"},
       # CORS
-      {:cors_plug, "~> 3.0"}
+      {:cors_plug, "~> 3.0"},
+      # Faker for tests
+      {:faker, "~> 0.17", only: :test}
     ]
   end
 

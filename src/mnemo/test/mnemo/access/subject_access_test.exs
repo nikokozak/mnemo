@@ -1,6 +1,6 @@
 defmodule Mnemo.Access.SubjectTest do
   use Mnemo.DataCase
-  alias Mnemo.Access.{Subject, UserProperties}
+  alias Mnemo.Access.{Subjects, UserProperties}
 
   test "create/1 successfully creates a subject" do
   end

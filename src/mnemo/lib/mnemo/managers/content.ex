@@ -1,28 +1,36 @@
 defmodule Mnemo.Managers.Content do
   alias Mnemo.Access
 
+  def enroll(student_id, subject_id) do
+    Access.StudentProgressions.create(student_id, subject_id)
+  end
+
+  def save_progress(student_id, subject_id, section_id, block_id) do
+    Access.StudentProgressions.save(student_id, subject_id, section_id, block_id)
+  end
+
   def create_student_subject(student_id) do
-    Access.Subject.create(student_id)
+    Access.Subjects.create(student_id)
   end
 
   def delete_student_subject(subject_id) do
-    Access.Subject.delete(subject_id)
+    Access.Subjects.delete(subject_id)
   end
 
   def save_student_subject(subject) do
-    Access.Subject.save(subject)
+    Access.Subjects.save(subject)
   end
 
   def student_subjects(student_id) do
-    Access.Subject.all(student_id)
+    Access.Subjects.all(student_id)
   end
 
   def student_subject(subject_id) do
-    Access.Subject.one(subject_id)
+    Access.Subjects.one(subject_id)
   end
 
   def subject_sections(subject_id) do
-    Access.Subject.sections(subject_id)
+    Access.Subjects.sections(subject_id)
   end
 
   def create_section(subject_id) do

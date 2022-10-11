@@ -10,7 +10,7 @@ defmodule MnemoWeb.ContentController do
   end
 
   def edit(conn, %{"subject_id" => subject_id}) do
-    subject = Managers.Content.subject(subject_id)
+    subject = Managers.Content.student_subject(subject_id)
 
     conn
     |> assign(:subject, subject)
@@ -18,7 +18,7 @@ defmodule MnemoWeb.ContentController do
   end
 
   def delete(conn, %{"subject_id" => subject_id}) do
-    {:ok, deleted_subject} = Managers.Content.delete_student_subject(subject_id)
+    {:ok, _deleted_subject} = Managers.Content.delete_student_subject(subject_id)
 
     conn
     |> redirect(to: Routes.student_path(conn, :index))

@@ -1,6 +1,6 @@
 defmodule Mnemo.Access.Schemas.ContentBlock do
   use Mnemo.Access.Schemas.Schema
-  alias Mnemo.Access.Schemas.{SubjectSection}
+  alias Mnemo.Access.Schemas.{SubjectSection, StudentProgression}
 
   @derive {Jason.Encoder,
            only: [
@@ -65,6 +65,10 @@ defmodule Mnemo.Access.Schemas.ContentBlock do
     field :fibq_question_img, :string
     # This is "raw" text, i.e. "the color of the sky is {{ blue }}"
     field :fibq_question_text_template, :string
+
+    many_to_many :student_progressions, StudentProgression,
+      join_through: "student_progression_content_block",
+      on_replace: :delete
 
     timestamps()
   end

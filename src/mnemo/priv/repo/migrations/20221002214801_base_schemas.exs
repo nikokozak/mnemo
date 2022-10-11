@@ -27,6 +27,7 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
     end
 
     create table(:content_blocks) do
+      # See ContentBlock Schema for info on defaults, types in maps.
       add(:type, :string)
       add(:testable, :boolean)
       add(:order_in_section, :integer)
@@ -68,14 +69,48 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
       add(:subject_section_id, references(:subject_sections, on_delete: :delete_all))
     end
 
-    create table(:student_progression) do
+    create table(:student_progressions) do
       add(:owner_id, references(:students, column: :email, type: :string, on_delete: :delete_all))
-      add(:subject_id, references(:subjects))
+      add(:subject_id, references(:subjects, on_delete: :delete_all))
       add(:enrollment_pending, :boolean)
-      add(:completed_sections, references(:subject_sections))
-      add(:subject_section_cursor, references(:subject_sections))
-      add(:completed_blocks, references(:content_blocks))
-      add(:content_block_cursor, references(:content_blocks))
+      add(:subject_section_cursor_id, references(:subject_sections))
+      add(:content_block_cursor_id, references(:content_blocks))
+
+      timestamps()
+    end
+
+    # Many-to-Many Student Progressions <-> Subject Sections
+    create table(:student_progression_subject_section, primary_key: false) do
+      add(
+        :student_progression_id,
+        references(:student_progressions, on_delete: :delete_all),
+        primary_key: true
+      )
+
+      add(
+        :subject_section_id,
+        references(:subject_sections, on_delete: :delete_all),
+        primary_key: true
+      )
+
+      timestamps()
+    end
+
+    # Many-to-Many Student Progressions <-> Content Blocks
+    create table(:student_progression_content_block, primary_key: false) do
+      add(
+        :student_progression_id,
+        references(:student_progressions, on_delete: :delete_all),
+        primary_key: true
+      )
+
+      add(
+        :content_block_id,
+        references(:content_blocks, on_delete: :delete_all),
+        primary_key: true
+      )
+
+      timestamps()
     end
 
     create table(:scheduled_content_blocks) do
