@@ -34,18 +34,16 @@ import ScaleLoader from 'vue-spinner/src/ScaleLoader.vue';
 import { debounce } from 'lodash';
 import { ref, reactive } from 'vue';
 
-const config = useRuntimeConfig();
 const props = defineProps(['subjectId']);
 const subjectId = props.subjectId;
 const student = "nikokozak@gmail.com";
-const { data: subject, pending } = 
-    await useFetch(`${config.public.baseURL}/api/subjects/${subjectId}`,
-        {server: false, initialCache: false});
+const { data: subject, pending } = await useFetchAPI(`/api/subjects/${subjectId}`, {key: subjectId});
+
 const updating = ref(false);
 
 const handleInput = debounce(function() {
     updating.value = true; 
-    useFetch(`${config.public.baseURL}/api/subjects`, {
+    useSimpleFetch(`/api/subjects`, {
         method: 'PUT',
         body: { subject: subject.value }
     }).then(response => {

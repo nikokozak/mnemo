@@ -23,13 +23,13 @@ defmodule Mnemo.Access.ContentBlocks do
       :static_content,
       :saq_question_img,
       :saq_question_text,
-      :saq_answer_correct,
+      :saq_answer_choices,
       :mcq_question_img,
       :mcq_question_text,
       :mcq_answer_choices,
       :mcq_answer_correct,
       :fibq_question_img,
-      :fibq_template_text,
+      :fibq_question_text_template,
       :fc_front_content,
       :fc_back_content
     ])

@@ -1,10 +1,22 @@
-export const fetchAPI = async (request, opts={}) => {
-    opts.baseURL = 'http://localhost:4000';
-    return await $fetch(request, opts);
+// Wraps the $fetch api with a baseURL
+export const useSimpleFetch = (request, opts={}) => {
+    const config = useRuntimeConfig();    
+
+    return $fetch(request, {
+        baseURL: config.public.baseURL, 
+        ...opts
+    })
 }
 
-// This is broken for some reason
-export function useFetchAPI(request, opts={}) {
-    return useFetch(request, { baseURL: 'http://localhost:4000', server: false, initialCache: false, ...opts});
+// Wraps the useFetch composable with defaults for client-side fetching.
+export const useFetchAPI = (request, opts={}) => {
+    const config = useRuntimeConfig();    
+    
+    return useFetch(request, { 
+        baseURL: config.public.baseURL, 
+        server: false, 
+        initialCache: false,
+        ...opts
+    });
 }
 

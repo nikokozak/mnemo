@@ -23,21 +23,18 @@
 import ScaleLoader from 'vue-spinner/src/ScaleLoader.vue';
 import { ref, reactive } from 'vue';
 
-const config = useRuntimeConfig();
 const props = defineProps(['subjectId']);
 const subjectId = props.subjectId;
 const student = "nikokozak@gmail.com";
-const { data: sections, pending, refresh } = 
-    await useFetch(`${config.public.baseURL}/api/subjects/${subjectId}/sections`,
-        {server: false, initialCache: false});
+const { data: sections, pending, refresh } = await useFetchAPI(`/api/subjects/${subjectId}/sections`);
 
 function createSection() {
-    $fetch(`${config.public.baseURL}/api/section`, {
+    useSimpleFetch(`/api/section`, {
         method: 'POST',
         body: { subject_id: subjectId }
     }).then(response => {
-        //sections.value.push(response);
-        refresh();
+        sections.value.push(response);
+        //refresh();
         console.log(`created new section ${response.id}`);
     });
 }

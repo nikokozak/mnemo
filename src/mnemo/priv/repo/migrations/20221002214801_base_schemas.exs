@@ -38,7 +38,7 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
       # Single Answer Question
       add(:saq_question_img, :string)
       add(:saq_question_text, :string)
-      add(:saq_answer_correct, {:array, :string})
+      add(:saq_answer_choices, {:array, :map})
 
       # Multiple Choice Question
       add(:mcq_question_img, :string)
@@ -48,7 +48,7 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
 
       # Fill in the Blank Question
       add(:fibq_question_img, :string)
-      add(:fibq_template_text, :string)
+      add(:fibq_question_text_template, :string)
 
       # FlashCard
       add(:fc_front_content, {:array, :map})

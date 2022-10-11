@@ -10,7 +10,7 @@
           <h1 class="text-lg font-semibold mb-2">my subjects</h1>
           <hr>
           <!-- Subject List -->
-          <ScaleLoader v-if="pending" />
+          <ScaleLoader :height="'15px'" :width="'2px'" class="mt-6" v-if="pending" />
           <template v-else v-for="subject in subjects">
               <NuxtLink :to="'/subject/' + subject.id">
                   <div class="border px-2 py-1 rounded-lg mt-4 flex justify-between">
@@ -33,12 +33,11 @@
 import ScaleLoader from 'vue-spinner/src/ScaleLoader.vue';
 import { ref, reactive } from 'vue';
 
-const config = useRuntimeConfig();
 const student = "nikokozak@gmail.com";
-const { data: subjects, pending } = await useFetch(`${config.public.baseURL}/api/student/${student}/subjects`, { server: false });
+const { data: subjects, pending } = await useFetchAPI(`/api/student/${student}/subjects`);
 
 function createSubject() {
-    $fetch(`${config.public.baseURL}/api/subjects/`, {
+    useSimpleFetch(`/api/subjects/`, {
         method: 'POST',
         body: { student_id: student }
     }).then(response => {

@@ -5,7 +5,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mr-2 w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
         </svg>
-        <h1>Multiple Choice Question</h1>
+        <h1>Single Answer Question</h1>
     </div>
     <hr>
     <!-- End Block Type Title -->
@@ -24,37 +24,17 @@
 
     <!-- Inner Answers -->
     <div class="p-4">
-        <h2>Answers</h2>
+        <h2>Possible Answers</h2>
 
-        <template v-for="(choice, index) in contentBlock.mcq_answer_choices">
+        <template v-for="(choice, index) in contentBlock.saq_answer_choices">
             <div class="flex justify-between border rounded-lg text-xs mt-4 mr-4">
-                <div class="w-8 pl-3 border-r">
-                    <p class="pr-2 py-2">{{ choice.key }}</p>
+                <input v-model="choice.text" placeholder="An answer here" class="pl-2 py-2 w-full rounded-lg" />
+
+                <div v-if="index > 0" class="pl-2 border-l justify-self-end w-8">
+                        <svg @click="removeAnswerChoice(choice)" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="my-2 mr-0 w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                        </svg>
                 </div>
-                <textarea v-model="choice.text" class="pl-2 py-2">
-                </textarea>
-                <!-- answer picker for first two choices -->
-                <template v-if="index < 2">
-                    <div class="pl-2 border-l justify-self-end w-8">
-                        <svg v-if="contentBlock.mcq_answer_correct == choice.key" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 mt-2"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
-                        <svg v-else @click="markCorrect(choice.key)" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mt-2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    </div>
-                </template>
-                <!-- answer picker for other choices -->
-                <template v-else>
-                    <div class="border-l justify-self-end w-8">
-                        <div class="pl-2 py-2">
-                            <svg v-if="contentBlock.mcq_answer_correct == choice.key" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
-                            <svg v-else @click="markCorrect(choice.key)" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        </div>
-                        <hr>
-                        <div class="pl-2">
-                            <svg @click="removeAnswerChoice(choice)" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="my-2 mr-0 w-4 h-4">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                            </svg>
-                        </div>
-                    </div>
-                </template>
             </div>
         </template>
     </div>
@@ -66,7 +46,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
             </svg>
-            <p>Add another answer</p>
+            <p>Add another possible answer</p>
         </button>
     </div>
     <!-- End Inner Block Controls -->
@@ -109,41 +89,17 @@ const contentBlock = ref(props.contentBlock);
 
 const editing = ref(true);
 // Avoids a warning being thrown??
-const key = "";
+// const key = "";
 
 function addAnswerChoice() {
-    contentBlock.value.mcq_answer_choices.push({
-        key: getNextKey(),
-        text: "Another answer"
+    contentBlock.value.saq_answer_choices.push({
+        text: ""
     })
 }
 
 function removeAnswerChoice(choice) {
-    const idx = contentBlock.value.mcq_answer_choices.indexOf(choice, 1);
-    contentBlock.value.mcq_answer_choices.splice(idx, 1);
-    resetAnswerKeys();
-}
-
-function markCorrect(choice_key) {
-    contentBlock.value.mcq_answer_correct = choice_key;
-}
-
-function getNextKey() {
-    const ac = contentBlock.value.mcq_answer_choices;
-    const last_key = ac[ac.length - 1].key;
-    return String.fromCharCode(last_key.charCodeAt(0) + 1);
-}
-
-function resetAnswerKeys() {
-    contentBlock.value.mcq_answer_choices.forEach((choice, idx) => {
-        choice.key = String.fromCharCode(idx + 97); 
-    });
-
-    const correctCharCode = contentBlock.value.mcq_answer_correct.charCodeAt(0);
-    const maxCharCode = contentBlock.value.mcq_answer_choices.length + 96;
-    if (correctCharCode > maxCharCode) {
-        contentBlock.value.mcq_answer_correct = String.fromCharCode(maxCharCode);
-    }
+    const idx = contentBlock.value.saq_answer_choices.indexOf(choice, 1);
+    contentBlock.value.saq_answer_choices.splice(idx, 1);
 }
 
 function deleteContentBlock() {

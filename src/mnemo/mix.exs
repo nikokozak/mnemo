@@ -74,7 +74,8 @@ defmodule Mnemo.MixProject do
         "tailwind default --minify",
         "cmd --cd assets node build.js --deploy",
         "phx.digest"
-      ]
+      ],
+      reset: ["ecto.drop", "ecto.setup"]
     ]
   end
 end

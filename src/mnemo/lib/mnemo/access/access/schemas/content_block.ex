@@ -13,13 +13,13 @@ defmodule Mnemo.Access.Schemas.ContentBlock do
              :static_content,
              :saq_question_img,
              :saq_question_text,
-             :saq_answer_correct,
+             :saq_answer_choices,
              :mcq_question_img,
              :mcq_question_text,
              :mcq_answer_choices,
              :mcq_answer_correct,
              :fibq_question_img,
-             :fibq_template_text,
+             :fibq_question_text_template,
              :fc_front_content,
              :fc_back_content
            ]}
@@ -33,13 +33,22 @@ defmodule Mnemo.Access.Schemas.ContentBlock do
     field :media, :map
 
     # This should be an array of maps of 
-    # %{ type: "text" | "img", data: :string }
+    # %{ type: "text" | "img", content: :string }
     field :static_content, {:array, :map}, default: []
+
+    # This should be an array of maps of 
+    # %{ type: "text" | "img", content: :string }
+    field :fc_front_content, {:array, :map}, default: []
+    field :fc_back_content, {:array, :map}, default: []
 
     field :saq_question_img, :string
     field :saq_question_text, :string
     # This allows for multiple correct answers to the same question.
-    field :saq_answer_correct, {:array, :string}, default: []
+    # %{ text: :string }
+    field :saq_answer_choices, {:array, :map},
+      default: [
+        %{"text" => nil}
+      ]
 
     field :mcq_question_img, :string
     field(:mcq_question_text, :string)
@@ -55,10 +64,7 @@ defmodule Mnemo.Access.Schemas.ContentBlock do
 
     field :fibq_question_img, :string
     # This is "raw" text, i.e. "the color of the sky is {{ blue }}"
-    field :fibq_template_text, :string
-
-    field :fc_front_content, {:array, :map}, default: []
-    field :fc_back_content, {:array, :map}, default: []
+    field :fibq_question_text_template, :string
 
     timestamps()
   end
