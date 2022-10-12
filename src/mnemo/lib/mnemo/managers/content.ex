@@ -74,8 +74,10 @@ defmodule Mnemo.Managers.Content do
   end
 
   def reorder_content_block(content_block_id, new_idx, new_section_idx) do
+    Access.ContentBlocks.reorder(content_block_id, new_idx, new_section_idx)
   end
 
   def reorder_content_block(content_block_id, new_idx) do
+    Access.ContentBlocks.reorder(content_block_id, new_idx)
   end
 end

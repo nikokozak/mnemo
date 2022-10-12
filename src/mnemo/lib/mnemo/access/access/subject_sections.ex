@@ -10,7 +10,13 @@ defmodule Mnemo.Access.SubjectSections do
   end
 
   def create(subject_id) do
-    current_count = PGRepo.one(Ecto.Query.from(s in "subject_sections", select: count(s.id)))
+    current_count =
+      PGRepo.one(
+        from(s in SubjectSection,
+          where: s.subject_id == ^subject_id,
+          select: count(s.id)
+        )
+      )
 
     PGRepo.get(Subject, subject_id)
     |> Ecto.build_assoc(:sections)
@@ -50,7 +56,8 @@ defmodule Mnemo.Access.SubjectSections do
       PGRepo.all(
         from(s in SubjectSection,
           where: s.order_in_subject > ^section_in_question.order_in_subject,
-          where: s.order_in_subject <= ^new_idx
+          where: s.order_in_subject <= ^new_idx,
+          where: s.subject_id == ^section_in_question.subject_id
         )
       )
 
@@ -68,7 +75,8 @@ defmodule Mnemo.Access.SubjectSections do
       PGRepo.all(
         from(s in SubjectSection,
           where: s.order_in_subject < ^section_in_question.order_in_subject,
-          where: s.order_in_subject >= ^new_idx
+          where: s.order_in_subject >= ^new_idx,
+          where: s.subject_id == ^section_in_question.subject_id
         )
       )
 

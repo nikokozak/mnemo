@@ -2,7 +2,6 @@ defmodule Mnemo.Managers.ContentTest do
   use Mnemo.DataCase
   alias Mnemo.Managers.Content
   alias Test.Fixtures
-  alias Mnemo.Access
 
   describe "create_section/1" do
     test "successfully creates a section" do
@@ -45,9 +44,9 @@ defmodule Mnemo.Managers.ContentTest do
       student = Fixtures.create!(:student)
       subject = Fixtures.create!(:subject, %{owner_id: student.email})
       section = Fixtures.create!(:subject_section, %{subject_id: subject.id})
-      content_block = Fixtures.create!(:content_block, %{subject_section_id: section.id})
+      _content_block = Fixtures.create!(:content_block, %{subject_section_id: section.id})
 
-      {:ok, student_progression} = Content.enroll(student.email, subject.id)
+      {:ok, _student_progression} = Content.enroll(student.email, subject.id)
       {:error, error_changeset} = Content.enroll(student.email, subject.id)
 
       refute error_changeset.valid?
@@ -72,7 +71,7 @@ defmodule Mnemo.Managers.ContentTest do
 
       new_section = Fixtures.create!(:subject_section, %{subject_id: subject.id})
       new_content_block = Fixtures.create!(:content_block, %{subject_section_id: new_section.id})
-      {:ok, student_progression} = Content.enroll(student.email, subject.id)
+      {:ok, _student_progression} = Content.enroll(student.email, subject.id)
 
       assert {:ok, updated_progression} =
                Content.save_progress(
@@ -108,7 +107,7 @@ defmodule Mnemo.Managers.ContentTest do
       assert second_section.order_in_subject == 1
       assert third_section.order_in_subject == 2
 
-      assert {:ok, multi} = Content.reorder_subject_section(first_section.id, 2)
+      assert {:ok, _multi} = Content.reorder_subject_section(first_section.id, 2)
 
       first_section_updated = Content.subject_section(first_section.id)
       second_section_updated = Content.subject_section(second_section.id)
@@ -130,7 +129,7 @@ defmodule Mnemo.Managers.ContentTest do
       assert second_section.order_in_subject == 1
       assert third_section.order_in_subject == 2
 
-      assert {:ok, multi} = Content.reorder_subject_section(third_section.id, 0)
+      assert {:ok, _multi} = Content.reorder_subject_section(third_section.id, 0)
 
       first_section_updated = Content.subject_section(first_section.id)
       second_section_updated = Content.subject_section(second_section.id)
@@ -152,7 +151,7 @@ defmodule Mnemo.Managers.ContentTest do
       assert second_section.order_in_subject == 1
       assert third_section.order_in_subject == 2
 
-      assert {:ok, multi} = Content.reorder_subject_section(third_section.id, 2)
+      assert {:ok, _multi} = Content.reorder_subject_section(third_section.id, 2)
 
       first_section_updated = Content.subject_section(first_section.id)
       second_section_updated = Content.subject_section(second_section.id)
@@ -161,6 +160,77 @@ defmodule Mnemo.Managers.ContentTest do
       assert first_section_updated.order_in_subject == 0
       assert second_section_updated.order_in_subject == 1
       assert third_section_updated.order_in_subject == 2
+    end
+  end
+
+  describe "reorder_content_block/2" do
+    test "correctly updates section order when shifting up" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+      {:ok, section} = Content.create_section(subject.id)
+      {:ok, first_content_block} = Content.create_content_block(section.id, "static")
+      {:ok, second_content_block} = Content.create_content_block(section.id, "static")
+      {:ok, third_content_block} = Content.create_content_block(section.id, "static")
+
+      assert first_content_block.order_in_section == 0
+      assert second_content_block.order_in_section == 1
+      assert third_content_block.order_in_section == 2
+
+      assert {:ok, _multi} = Content.reorder_content_block(first_content_block.id, 2)
+
+      first_content_block_updated = Content.content_block(first_content_block.id)
+      second_content_block_updated = Content.content_block(second_content_block.id)
+      third_content_block_updated = Content.content_block(third_content_block.id)
+
+      assert first_content_block_updated.order_in_section == 2
+      assert second_content_block_updated.order_in_section == 0
+      assert third_content_block_updated.order_in_section == 1
+    end
+
+    test "correctly updates section order when shifting down" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+      {:ok, section} = Content.create_section(subject.id)
+      {:ok, first_content_block} = Content.create_content_block(section.id, "static")
+      {:ok, second_content_block} = Content.create_content_block(section.id, "static")
+      {:ok, third_content_block} = Content.create_content_block(section.id, "static")
+
+      assert first_content_block.order_in_section == 0
+      assert second_content_block.order_in_section == 1
+      assert third_content_block.order_in_section == 2
+
+      assert {:ok, _multi} = Content.reorder_content_block(third_content_block.id, 0)
+
+      first_content_block_updated = Content.content_block(first_content_block.id)
+      second_content_block_updated = Content.content_block(second_content_block.id)
+      third_content_block_updated = Content.content_block(third_content_block.id)
+
+      assert first_content_block_updated.order_in_section == 1
+      assert second_content_block_updated.order_in_section == 2
+      assert third_content_block_updated.order_in_section == 0
+    end
+
+    test "ignores a shift into its same index" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+      {:ok, section} = Content.create_section(subject.id)
+      {:ok, first_content_block} = Content.create_content_block(section.id, "static")
+      {:ok, second_content_block} = Content.create_content_block(section.id, "static")
+      {:ok, third_content_block} = Content.create_content_block(section.id, "static")
+
+      assert first_content_block.order_in_section == 0
+      assert second_content_block.order_in_section == 1
+      assert third_content_block.order_in_section == 2
+
+      assert {:ok, _multi} = Content.reorder_content_block(third_content_block.id, 2)
+
+      first_content_block_updated = Content.content_block(first_content_block.id)
+      second_content_block_updated = Content.content_block(second_content_block.id)
+      third_content_block_updated = Content.content_block(third_content_block.id)
+
+      assert first_content_block_updated.order_in_section == 0
+      assert second_content_block_updated.order_in_section == 1
+      assert third_content_block_updated.order_in_section == 2
     end
   end
 end
