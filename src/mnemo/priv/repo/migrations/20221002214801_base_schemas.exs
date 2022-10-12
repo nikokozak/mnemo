@@ -79,6 +79,17 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
       timestamps()
     end
 
+    create(index(:student_progressions, [:owner_id]))
+    create(index(:student_progressions, [:subject_id]))
+
+    create(
+      unique_index(
+        :student_progressions,
+        [:owner_id, :subject_id],
+        name: :owner_id_subject_id_unique_index
+      )
+    )
+
     # Many-to-Many Student Progressions <-> Subject Sections
     create table(:student_progression_subject_section, primary_key: false) do
       add(
@@ -96,6 +107,17 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
       timestamps()
     end
 
+    create(index(:student_progression_subject_section, [:student_progression_id]))
+    create(index(:student_progression_subject_section, [:subject_section_id]))
+
+    create(
+      unique_index(
+        :student_progression_subject_section,
+        [:student_progression_id, :subject_section_id],
+        name: :student_progression_id_subject_section_id_unique_index
+      )
+    )
+
     # Many-to-Many Student Progressions <-> Content Blocks
     create table(:student_progression_content_block, primary_key: false) do
       add(
@@ -112,6 +134,17 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
 
       timestamps()
     end
+
+    create(index(:student_progression_content_block, [:student_progression_id]))
+    create(index(:student_progression_content_block, [:content_block_id]))
+
+    create(
+      unique_index(
+        :student_progression_content_block,
+        [:student_progression_id, :content_block_id],
+        name: :student_progression_id_content_block_id_unique_index
+      )
+    )
 
     create table(:scheduled_content_blocks) do
       add(:owner_id, references(:students, column: :email, type: :string, on_delete: :delete_all))

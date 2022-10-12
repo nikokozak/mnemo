@@ -23,6 +23,9 @@ defmodule Mnemo.Access.StudentProgressions do
     |> Ecto.Changeset.put_assoc(:content_block_cursor, first_content_block)
     |> Ecto.Changeset.put_assoc(:completed_sections, [])
     |> Ecto.Changeset.put_assoc(:completed_blocks, [])
+    |> Ecto.Changeset.unique_constraint([:owner_id, :subject_id],
+      name: :owner_id_subject_id_unique_index
+    )
     |> PGRepo.insert()
   end
 

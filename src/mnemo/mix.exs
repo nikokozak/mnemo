@@ -10,7 +10,10 @@ defmodule Mnemo.MixProject do
       compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      preferred_cli_env: [
+        "ecto.test.reset": :test
+      ]
     ]
   end
 
@@ -71,13 +74,13 @@ defmodule Mnemo.MixProject do
       setup: ["deps.get", "ecto.setup"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "ecto.test.reset": ["ecto.drop", "ecto.create", "ecto.migrate"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.deploy": [
         "tailwind default --minify",
         "cmd --cd assets node build.js --deploy",
         "phx.digest"
-      ],
-      reset: ["ecto.drop", "ecto.setup"]
+      ]
     ]
   end
 end

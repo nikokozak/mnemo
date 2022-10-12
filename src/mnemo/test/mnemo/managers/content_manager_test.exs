@@ -19,5 +19,15 @@ defmodule Mnemo.Managers.ContentTest do
       assert student_progression.completed_sections == []
       assert student_progression.completed_blocks == []
     end
+
+    test "rejects duplicate enrollments" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+      section = Fixtures.create!(:subject_section, %{subject_id: subject.id})
+      content_block = Fixtures.create!(:content_block, %{subject_section_id: section.id})
+
+      {:ok, student_progression} = Content.enroll(student.email, subject.id)
+      {:error, error_changeset} = Content.enroll(student.email, subject.id)
+    end
   end
 end
