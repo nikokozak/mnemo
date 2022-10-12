@@ -1,6 +1,6 @@
 defmodule Mnemo.Access.StudentProgressions do
   alias Mnemo.Resources.Postgres.Repo, as: PGRepo
-  alias Mnemo.Access.Schemas.{Student, Subject, StudentProgression}
+  alias Mnemo.Access.Schemas.{Student, Subject, SubjectSection, ContentBlock, StudentProgression}
   require Ecto.Query
 
   def get(student_id, subject_id) do
@@ -38,12 +38,21 @@ defmodule Mnemo.Access.StudentProgressions do
       |> Ecto.Query.where(owner_id: ^student_id)
       |> Ecto.Query.where(subject_id: ^subject_id)
       |> PGRepo.one()
-      |> PGRepo.preload([:completed_sections, :completed_blocks])
+      |> PGRepo.preload([
+        :completed_sections,
+        :completed_blocks,
+        :subject_section_cursor,
+        :content_block_cursor
+      ])
 
     progression
     |> Ecto.Changeset.change()
-    |> Ecto.Changeset.put_assoc(:completed_sections, [section | progression.completed_sections])
-    |> Ecto.Changeset.put_assoc(:completed_blocks, [block | progression.completed_blocks])
+    |> Ecto.Changeset.put_assoc(:completed_sections, [
+      progression.subject_section_cursor | progression.completed_sections
+    ])
+    |> Ecto.Changeset.put_assoc(:completed_blocks, [
+      progression.content_block_cursor | progression.completed_blocks
+    ])
     |> Ecto.Changeset.put_assoc(:subject_section_cursor, section)
     |> Ecto.Changeset.put_assoc(:content_block_cursor, block)
     |> PGRepo.update()

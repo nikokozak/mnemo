@@ -5,8 +5,8 @@ defmodule Mnemo.Managers.Content do
     Access.StudentProgressions.create(student_id, subject_id)
   end
 
-  def save_progress(student_id, subject_id, section_id, block_id) do
-    Access.StudentProgressions.save(student_id, subject_id, section_id, block_id)
+  def save_progress(student_id, subject_id, new_section_id, new_block_id) do
+    Access.StudentProgressions.save(student_id, subject_id, new_section_id, new_block_id)
   end
 
   def create_student_subject(student_id) do

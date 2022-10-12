@@ -103,8 +103,6 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
         references(:subject_sections, on_delete: :delete_all),
         primary_key: true
       )
-
-      timestamps()
     end
 
     create(index(:student_progression_subject_section, [:student_progression_id]))
@@ -131,8 +129,6 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
         references(:content_blocks, on_delete: :delete_all),
         primary_key: true
       )
-
-      timestamps()
     end
 
     create(index(:student_progression_content_block, [:student_progression_id]))
