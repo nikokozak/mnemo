@@ -29,6 +29,10 @@ defmodule Mnemo.Managers.Content do
     Access.Subjects.one(subject_id)
   end
 
+  def subject_section(section_id) do
+    Access.SubjectSections.one(section_id)
+  end
+
   def subject_sections(subject_id) do
     Access.Subjects.sections(subject_id)
   end
@@ -43,6 +47,10 @@ defmodule Mnemo.Managers.Content do
 
   def delete_section(section_id) do
     Access.SubjectSections.delete(section_id)
+  end
+
+  def reorder_subject_section(section_id, new_idx) do
+    Access.SubjectSections.reorder(section_id, new_idx)
   end
 
   def content_block(content_block_id) do
@@ -63,5 +71,11 @@ defmodule Mnemo.Managers.Content do
 
   def delete_content_block(content_block_id) do
     Access.ContentBlocks.delete(content_block_id)
+  end
+
+  def reorder_content_block(content_block_id, new_idx, new_section_idx) do
+  end
+
+  def reorder_content_block(content_block_id, new_idx) do
   end
 end

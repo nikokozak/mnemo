@@ -6,13 +6,15 @@ defmodule Mnemo.Access.Schemas.SubjectSection do
            only: [
              :id,
              :title,
-             :subject_id
+             :subject_id,
+             :order_in_subject
            ]}
 
   schema "subject_sections" do
     belongs_to :subject, Subject, on_replace: :delete
 
     field(:title, :string)
+    field(:order_in_subject, :integer, default: 0)
 
     has_many :content_blocks, ContentBlock
 

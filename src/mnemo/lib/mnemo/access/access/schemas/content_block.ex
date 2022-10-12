@@ -29,7 +29,7 @@ defmodule Mnemo.Access.Schemas.ContentBlock do
 
     field :type, :string, default: "static"
     field :testable, :boolean, default: false
-    field :order_in_section, :integer
+    field :order_in_section, :integer, default: 0
     field :media, :map
 
     # This should be an array of maps of 

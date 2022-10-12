@@ -22,6 +22,7 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
 
     create table(:subject_sections) do
       add(:title, :string)
+      add(:order_in_subject, :integer)
 
       timestamps()
     end

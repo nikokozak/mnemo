@@ -2,6 +2,27 @@ defmodule Mnemo.Managers.ContentTest do
   use Mnemo.DataCase
   alias Mnemo.Managers.Content
   alias Test.Fixtures
+  alias Mnemo.Access
+
+  describe "create_section/1" do
+    test "successfully creates a section" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+
+      {:ok, subject_section} = Content.create_section(subject.id)
+    end
+
+    test "successfully auto-increments section order on creation" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+
+      {:ok, subject_section} = Content.create_section(subject.id)
+      {:ok, subject_section_2} = Content.create_section(subject.id)
+
+      assert subject_section.order_in_subject == 0
+      assert subject_section_2.order_in_subject == 1
+    end
+  end
 
   describe "enroll/2" do
     test "enrolls a student into a subject, with valid associations" do
@@ -72,6 +93,74 @@ defmodule Mnemo.Managers.ContentTest do
       assert updated_progression.subject_section_cursor_id == new_section.id
       assert updated_progression.completed_sections == [first_section]
       assert updated_progression.completed_blocks == [first_content_block]
+    end
+  end
+
+  describe "reorder_subject_section/2" do
+    test "correctly updates section order when shifting up" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+      {:ok, first_section} = Content.create_section(subject.id)
+      {:ok, second_section} = Content.create_section(subject.id)
+      {:ok, third_section} = Content.create_section(subject.id)
+
+      assert first_section.order_in_subject == 0
+      assert second_section.order_in_subject == 1
+      assert third_section.order_in_subject == 2
+
+      assert {:ok, multi} = Content.reorder_subject_section(first_section.id, 2)
+
+      first_section_updated = Content.subject_section(first_section.id)
+      second_section_updated = Content.subject_section(second_section.id)
+      third_section_updated = Content.subject_section(third_section.id)
+
+      assert first_section_updated.order_in_subject == 2
+      assert second_section_updated.order_in_subject == 0
+      assert third_section_updated.order_in_subject == 1
+    end
+
+    test "correctly updates section order when shifting down" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+      {:ok, first_section} = Content.create_section(subject.id)
+      {:ok, second_section} = Content.create_section(subject.id)
+      {:ok, third_section} = Content.create_section(subject.id)
+
+      assert first_section.order_in_subject == 0
+      assert second_section.order_in_subject == 1
+      assert third_section.order_in_subject == 2
+
+      assert {:ok, multi} = Content.reorder_subject_section(third_section.id, 0)
+
+      first_section_updated = Content.subject_section(first_section.id)
+      second_section_updated = Content.subject_section(second_section.id)
+      third_section_updated = Content.subject_section(third_section.id)
+
+      assert first_section_updated.order_in_subject == 1
+      assert second_section_updated.order_in_subject == 2
+      assert third_section_updated.order_in_subject == 0
+    end
+
+    test "ignores a shift into its same index" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+      {:ok, first_section} = Content.create_section(subject.id)
+      {:ok, second_section} = Content.create_section(subject.id)
+      {:ok, third_section} = Content.create_section(subject.id)
+
+      assert first_section.order_in_subject == 0
+      assert second_section.order_in_subject == 1
+      assert third_section.order_in_subject == 2
+
+      assert {:ok, multi} = Content.reorder_subject_section(third_section.id, 2)
+
+      first_section_updated = Content.subject_section(first_section.id)
+      second_section_updated = Content.subject_section(second_section.id)
+      third_section_updated = Content.subject_section(third_section.id)
+
+      assert first_section_updated.order_in_subject == 0
+      assert second_section_updated.order_in_subject == 1
+      assert third_section_updated.order_in_subject == 2
     end
   end
 end
