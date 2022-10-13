@@ -3,16 +3,16 @@ defmodule Mnemo.Access.Schemas.StudentProgression do
   alias Mnemo.Access.Schemas.{Student, Subject, ContentBlock, SubjectSection}
 
   @derive {Jason.Encoder,
-           only: [
-             :id,
-             :owner,
-             :subject,
-             :enrollment_pending,
-             :subject_section_cursor,
-             :content_block_cursor,
-             :completed_blocks,
-             :completed_sections
-           ]}
+   only: [
+     :id,
+     :owner_id,
+     :subject_id,
+     :enrollment_pending,
+     :subject_section_cursor_id,
+     :content_block_cursor_id
+     # :completed_blocks,
+     # :completed_sections
+   ]}
 
   # TODO:
   # - what happens when, during editing, one of the sections or content blocks is deleted? -> invoke update.

@@ -118,6 +118,30 @@ defmodule MnemoWeb.APIController do
     |> json(content_block)
   end
 
+  def student_progressions(conn, %{"student_id" => student_id}) do
+    progressions = Mnemo.Managers.Content.student_progressions(student_id)
+
+    conn
+    |> put_status(:ok)
+    |> json(progressions)
+  end
+
+  def create_student_progression(conn, %{"student_id" => student_id, "subject_id" => subject_id}) do
+    {:ok, progression} = Mnemo.Managers.Content.enroll(student_id, subject_id)
+
+    conn
+    |> put_status(:ok)
+    |> json(progression)
+  end
+
+  def delete_student_progression(conn, %{"progression_id" => progression_id}) do
+    {:ok, deleted_progression} = Mnemo.Managers.Content.delete_student_progression(progression_id)
+
+    conn
+    |> put_status(:accepted)
+    |> json(deleted_progression)
+  end
+
   def add_user(conn, %{"email" => email}) do
     users = Mnemo.Managers.Content.add_user(email)
 

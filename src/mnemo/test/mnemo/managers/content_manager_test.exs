@@ -47,16 +47,7 @@ defmodule Mnemo.Managers.ContentTest do
       _content_block = Fixtures.create!(:content_block, %{subject_section_id: section.id})
 
       {:ok, _student_progression} = Content.enroll(student.email, subject.id)
-      {:error, error_changeset} = Content.enroll(student.email, subject.id)
-
-      refute error_changeset.valid?
-
-      assert %{
-               errors: [
-                 owner_id:
-                   {_, [constraint: :unique, constraint_name: "owner_id_subject_id_unique_index"]}
-               ]
-             } = error_changeset
+      {:error, :already_enrolled} = Content.enroll(student.email, subject.id)
     end
   end
 

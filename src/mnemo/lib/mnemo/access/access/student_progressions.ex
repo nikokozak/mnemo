@@ -3,6 +3,10 @@ defmodule Mnemo.Access.StudentProgressions do
   alias Mnemo.Access.Schemas.{Student, Subject, SubjectSection, ContentBlock, StudentProgression}
   require Ecto.Query
 
+  def one(progression_id) do
+    PGRepo.get(StudentProgression, progression_id)
+  end
+
   def get(student_id, subject_id) do
     StudentProgression
     |> Ecto.Query.where(owner_id: ^student_id)
@@ -10,10 +14,31 @@ defmodule Mnemo.Access.StudentProgressions do
     |> PGRepo.one()
   end
 
+  def all(student_id) do
+    progressions =
+      Ecto.Query.from(
+        sp in StudentProgression,
+        where: sp.owner_id == ^student_id,
+        join: s in Subject,
+        on: s.id == sp.subject_id,
+        select: %{id: sp.id, subject: %{id: s.id, title: s.title}}
+      )
+      |> PGRepo.all()
+
+    case progressions do
+      nil -> []
+      progs -> progs
+    end
+  end
+
   def create(student_id, subject_id) do
     student = PGRepo.get(Student, student_id)
-    subject = PGRepo.get(Subject, subject_id) |> PGRepo.preload([:sections])
-    first_section = subject.sections |> List.first()
+    subject = PGRepo.get(Subject, subject_id) |> PGRepo.preload(:sections)
+
+    sections =
+      Ecto.Query.from(s in SubjectSection, where: s.subject_id == ^subject.id) |> PGRepo.all()
+
+    first_section = sections |> List.first()
     section_content = first_section |> PGRepo.preload([:content_blocks])
     first_content_block = section_content.content_blocks |> List.first()
 

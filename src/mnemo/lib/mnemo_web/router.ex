@@ -29,6 +29,13 @@ defmodule MnemoWeb.Router do
     get "/delete/:subject_id", ContentController, :delete
   end
 
+  scope "/api/progressions", MnemoWeb do
+    pipe_through :api
+
+    delete "/:progression_id", APIController, :delete_student_progression
+    post "/", APIController, :create_student_progression
+  end
+
   scope "/api/content_block", MnemoWeb do
     pipe_through :api
 
@@ -60,7 +67,10 @@ defmodule MnemoWeb.Router do
   end
 
   scope "/api/student", MnemoWeb do
+    pipe_through :api
+
     get "/:student_id/subjects", APIController, :subjects
+    get "/:student_id/progressions", APIController, :student_progressions
   end
 
   scope "/api/content", MnemoWeb do

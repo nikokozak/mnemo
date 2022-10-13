@@ -2,11 +2,33 @@ defmodule Mnemo.Managers.Content do
   alias Mnemo.Access
 
   def enroll(student_id, subject_id) do
-    Access.StudentProgressions.create(student_id, subject_id)
+    case Access.StudentProgressions.create(student_id, subject_id) do
+      {:error, %{errors: [owner_id: {_, [constraint: :unique, constraint_name: _]}]}} ->
+        {:error, :already_enrolled}
+
+      success ->
+        success
+    end
+  end
+
+  def student_progressions(student_id) do
+    Access.StudentProgressions.all(student_id)
+  end
+
+  def student_progression(progression_id) do
+    Access.StudentProgressions.one(progression_id)
+  end
+
+  def student_progression(student_id, subject_id) do
+    Access.StudentProgressions.get(student_id, subject_id)
   end
 
   def save_progress(student_id, subject_id, new_section_id, new_block_id) do
     Access.StudentProgressions.save(student_id, subject_id, new_section_id, new_block_id)
+  end
+
+  def delete_student_progression(progression_id) do
+    Access.StudentProgressions.delete(progression_id)
   end
 
   def create_student_subject(student_id) do
