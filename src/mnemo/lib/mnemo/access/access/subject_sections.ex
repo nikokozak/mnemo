@@ -57,7 +57,8 @@ defmodule Mnemo.Access.SubjectSections do
         from(s in SubjectSection,
           where: s.order_in_subject > ^section_in_question.order_in_subject,
           where: s.order_in_subject <= ^new_idx,
-          where: s.subject_id == ^section_in_question.subject_id
+          where: s.subject_id == ^section_in_question.subject_id,
+          order_by: s.order_in_subject
         )
       )
 
@@ -76,7 +77,8 @@ defmodule Mnemo.Access.SubjectSections do
         from(s in SubjectSection,
           where: s.order_in_subject < ^section_in_question.order_in_subject,
           where: s.order_in_subject >= ^new_idx,
-          where: s.subject_id == ^section_in_question.subject_id
+          where: s.subject_id == ^section_in_question.subject_id,
+          order_by: s.order_in_subject
         )
       )
 

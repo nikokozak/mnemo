@@ -63,20 +63,40 @@ defmodule Mnemo.Access.ContentBlocks do
     PGRepo.get(ContentBlock, content_block_id)
   end
 
+  # Ignore transferring section in the off chance the section is the same.
+  def reorder(content_block_id, new_idx, new_section_id)
+      when new_section_id == content_block_id.subject_section_id do
+    reorder(content_block_id, new_idx)
+  end
+
   # Will both reorder AND redefine the block's parent section.
+  # Removes block from previous section, reordering all blocks,
+  # Inserts block in new section at given idx, reordering blocks in new section,
+  # Updates block's parent section to match new section.
   def reorder(content_block_id, new_idx, new_section_id) do
     content_block_in_question = PGRepo.get(ContentBlock, content_block_id)
+    original_content_block_idx = content_block_in_question.order_in_section
 
-    blocks_to_reorder =
+    blocks_to_reorder_old_section =
       PGRepo.all(
         from(c in ContentBlock,
-          where: c.order_in_section >= ^content_block_in_question.order_in_section,
-          where: c.subject_section_id == ^new_section_id
+          where: c.order_in_section > ^content_block_in_question.order_in_section,
+          where: c.subject_section_id == ^content_block_in_question.subject_section_id,
+          order_by: c.order_in_section
         )
       )
 
-    reorder_multi(blocks_to_reorder, content_block_in_question, new_idx + 1, new_idx)
-    # We also update the parent section of the object here.
+    blocks_to_reorder_new_section =
+      PGRepo.all(
+        from(c in ContentBlock,
+          where: c.order_in_section >= ^content_block_in_question.order_in_section,
+          where: c.subject_section_id == ^new_section_id,
+          order_by: c.order_in_section
+        )
+      )
+
+    reorder_multi(blocks_to_reorder_new_section, content_block_in_question, new_idx + 1, new_idx)
+    |> remove_multi(blocks_to_reorder_old_section, original_content_block_idx)
     |> Multi.update(
       {:new_section_content_block, content_block_in_question.id},
       Ecto.Changeset.cast(content_block_in_question, %{subject_section_id: new_section_id}, [
@@ -107,7 +127,8 @@ defmodule Mnemo.Access.ContentBlocks do
         from(c in ContentBlock,
           where: c.order_in_section > ^content_block_in_question.order_in_section,
           where: c.order_in_section <= ^new_idx,
-          where: c.subject_section_id == ^content_block_in_question.subject_section_id
+          where: c.subject_section_id == ^content_block_in_question.subject_section_id,
+          order_by: c.order_in_section
         )
       )
 
@@ -126,7 +147,8 @@ defmodule Mnemo.Access.ContentBlocks do
         from(c in ContentBlock,
           where: c.order_in_section < ^content_block_in_question.order_in_section,
           where: c.order_in_section >= ^new_idx,
-          where: c.subject_section_id == ^content_block_in_question.subject_section_id
+          where: c.subject_section_id == ^content_block_in_question.subject_section_id,
+          order_by: c.order_in_section
         )
       )
 
@@ -134,11 +156,29 @@ defmodule Mnemo.Access.ContentBlocks do
     |> PGRepo.transaction()
   end
 
-  defp reorder_multi(blocks_to_reorder, content_block_in_question, reduce_start_idx, target_idx) do
+  defp remove_multi(multi = %Ecto.Multi{}, blocks_to_reorder, content_block_in_question_idx) do
+    Enum.reduce(blocks_to_reorder, {content_block_in_question_idx, multi}, fn reorder_block,
+                                                                              {idx, multi} ->
+      {idx + 1,
+       Multi.update(
+         multi,
+         {:remove_content_block, reorder_block.id},
+         Ecto.Changeset.cast(reorder_block, %{order_in_section: idx}, [:order_in_section])
+       )}
+    end)
+    |> elem(1)
+  end
+
+  defp reorder_multi(
+         multi = %Ecto.Multi{} \\ Multi.new(),
+         blocks_to_reorder,
+         content_block_in_question,
+         reduce_start_idx,
+         target_idx
+       ) do
     # We pass in {new_idx + 1, _} as the first value so we have a way of keeping track of the
     # idx, which we use to increment the order_in_section of each section.
-    Enum.reduce(blocks_to_reorder, {reduce_start_idx, Multi.new()}, fn reorder_block,
-                                                                       {idx, multi} ->
+    Enum.reduce(blocks_to_reorder, {reduce_start_idx, multi}, fn reorder_block, {idx, multi} ->
       {idx + 1,
        Multi.update(
          multi,

@@ -163,8 +163,13 @@ defmodule Mnemo.Managers.ContentTest do
     end
   end
 
+  # TODO: Tests are randomly failing, changing orders. Something's up with the
+  # transaction or the Multi.
+  # ANSWER: MAKE SURE YOU ORDER BY ORDER_IN_SECTION WHEN YOU FETCH, BEFORE REDUCE
+  # SEE: https://groups.google.com/g/elixir-ecto/c/e3DFZUyB4aw
+  # Maybe have to lock rows during transactions.
   describe "reorder_content_block/2" do
-    test "correctly updates section order when shifting up" do
+    test "correctly updates block order when shifting up" do
       student = Fixtures.create!(:student)
       subject = Fixtures.create!(:subject, %{owner_id: student.email})
       {:ok, section} = Content.create_section(subject.id)
@@ -187,7 +192,7 @@ defmodule Mnemo.Managers.ContentTest do
       assert third_content_block_updated.order_in_section == 1
     end
 
-    test "correctly updates section order when shifting down" do
+    test "correctly updates block order when shifting down" do
       student = Fixtures.create!(:student)
       subject = Fixtures.create!(:subject, %{owner_id: student.email})
       {:ok, section} = Content.create_section(subject.id)
@@ -231,6 +236,63 @@ defmodule Mnemo.Managers.ContentTest do
       assert first_content_block_updated.order_in_section == 0
       assert second_content_block_updated.order_in_section == 1
       assert third_content_block_updated.order_in_section == 2
+    end
+  end
+
+  describe "reorder_content_block/3" do
+    test "correctly updates new block order when inserting into new section" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+      {:ok, section_0} = Content.create_section(subject.id)
+      {:ok, section_0_cb_0} = Content.create_content_block(section_0.id, "static")
+      {:ok, section_0_cb_1} = Content.create_content_block(section_0.id, "static")
+      {:ok, section_0_cb_2} = Content.create_content_block(section_0.id, "static")
+      {:ok, section_1} = Content.create_section(subject.id)
+      {:ok, section_1_cb_0} = Content.create_content_block(section_1.id, "static")
+      {:ok, section_1_cb_1} = Content.create_content_block(section_1.id, "static")
+      {:ok, section_1_cb_2} = Content.create_content_block(section_1.id, "static")
+
+      assert section_0_cb_0.order_in_section == 0
+      assert section_0_cb_0.subject_section_id == section_0.id
+      assert section_1_cb_0.order_in_section == 0
+      assert section_1_cb_0.subject_section_id == section_1.id
+
+      assert {:ok, _multi} = Content.reorder_content_block(section_0_cb_1.id, 1, section_1.id)
+
+      section_1_cb_0_updated = Content.content_block(section_1_cb_0.id)
+      section_1_cb_1_updated = Content.content_block(section_1_cb_1.id)
+      section_1_cb_2_updated = Content.content_block(section_1_cb_2.id)
+      section_0_cb_1_updated = Content.content_block(section_0_cb_1.id)
+
+      assert section_1_cb_0_updated.order_in_section == 0
+      assert section_1_cb_1_updated.order_in_section == 2
+      assert section_1_cb_2_updated.order_in_section == 3
+      assert section_0_cb_1_updated.order_in_section == 1
+      assert section_0_cb_1_updated.subject_section_id == section_1.id
+    end
+
+    test "correctly updates blocks from old section when inserted into new section" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+      {:ok, section_0} = Content.create_section(subject.id)
+      {:ok, section_0_cb_0} = Content.create_content_block(section_0.id, "static")
+      {:ok, section_0_cb_1} = Content.create_content_block(section_0.id, "static")
+      {:ok, section_0_cb_2} = Content.create_content_block(section_0.id, "static")
+      {:ok, section_1} = Content.create_section(subject.id)
+      {:ok, section_1_cb_0} = Content.create_content_block(section_1.id, "static")
+      {:ok, section_1_cb_1} = Content.create_content_block(section_1.id, "static")
+      {:ok, section_1_cb_2} = Content.create_content_block(section_1.id, "static")
+
+      assert {:ok, _multi} = Content.reorder_content_block(section_0_cb_1.id, 1, section_1.id)
+
+      section_0_cb_0_updated = Content.content_block(section_0_cb_0.id)
+      section_0_cb_2_updated = Content.content_block(section_0_cb_2.id)
+      section_0_cb_1_updated = Content.content_block(section_0_cb_1.id)
+
+      assert section_0_cb_0_updated.order_in_section == 0
+      assert section_0_cb_2_updated.order_in_section == 1
+      assert section_0_cb_1_updated.order_in_section == 1
+      assert section_0_cb_1_updated.subject_section_id == section_1.id
     end
   end
 end
