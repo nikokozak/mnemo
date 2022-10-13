@@ -283,4 +283,29 @@ defmodule Mnemo.Managers.ContentTest do
       assert section_0_cb_1_updated.subject_section_id == section_1.id
     end
   end
+
+  describe "delete_section/1" do
+    test "correctly deletes a section" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+      {:ok, section_0} = Content.create_section(subject.id)
+
+      {:ok, deleted_section} = Content.delete_section(section_0.id)
+
+      assert Content.subject_section(deleted_section.id) == nil
+    end
+
+    test "correctly deletes student_progressions if no sections left" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+      {:ok, section_0} = Content.create_section(subject.id)
+      {:ok, section_0_cb_0} = Content.create_content_block(section_0.id, "static")
+      {:ok, student_progression} = Content.enroll(student.email, subject.id)
+
+      {:ok, deleted_section} = Content.delete_section(section_0.id)
+      updated_student_progression = Content.student_progression(student_progression.id)
+
+      assert updated_student_progression.content_block_cursor == nil
+    end
+  end
 end

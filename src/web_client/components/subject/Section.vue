@@ -108,7 +108,7 @@ function getComponentFromType(type) {
             return ContentBlockSAQ;
         case "fc":
             return ContentBlockFC;
-        case "fibq":
+        case "fib":
             return ContentBlockFIBQ;
     }
 }

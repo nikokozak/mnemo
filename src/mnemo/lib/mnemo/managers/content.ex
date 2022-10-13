@@ -77,11 +77,17 @@ defmodule Mnemo.Managers.Content do
   # And replace both the section and the content_block.
   def delete_section(section_id) do
     {:ok, deleted_section} = Access.SubjectSections.delete(section_id)
+    subject_id = deleted_section.subject_id
 
-    next_section = Access.SubjectSections.latest(deleted_section.subject_id)
-    next_block = Access.ContentBlocks.latest(next_section.id)
+    case Access.SubjectSections.latest(subject_id) do
+      nil ->
+        {:ok, deleted_section}
 
-    {_num_replaced, _} = Access.StudentProgressions.replace_content_block_cursors(next_block)
+      next_section ->
+        next_block = Access.ContentBlocks.latest(next_section.id)
+        {_num_replaced, _} = Access.StudentProgressions.replace_content_block_cursors(next_block)
+        {:ok, deleted_section}
+    end
   end
 
   def reorder_subject_section(section_id, new_idx) do

@@ -10,10 +10,10 @@ defmodule Mnemo.Access.StudentProgressions do
       where: sp.id == ^progression_id,
       join: sub in Subject,
       on: sub.id == sp.subject_id,
-      join: cb in ContentBlock,
+      left_join: cb in ContentBlock,
       on: cb.id == sp.content_block_cursor_id,
-      join: sec in SubjectSection,
-      on: sec.id == cb.section_id,
+      left_join: sec in SubjectSection,
+      on: sec.id == cb.subject_section_id,
       select: %{
         id: sp.id,
         subject: sub,
@@ -130,5 +130,13 @@ defmodule Mnemo.Access.StudentProgressions do
   def delete(student_progression_id) do
     PGRepo.get(StudentProgression, student_progression_id)
     |> PGRepo.delete()
+  end
+
+  def delete_all_with_subject(subject_id) do
+    Ecto.Query.from(
+      s in StudentProgression,
+      where: s.subject_id == ^subject_id
+    )
+    |> PGRepo.delete_all()
   end
 end

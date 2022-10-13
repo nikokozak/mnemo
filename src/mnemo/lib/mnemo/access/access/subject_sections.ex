@@ -53,7 +53,7 @@ defmodule Mnemo.Access.SubjectSections do
       order_by: s.order_in_subject,
       limit: 1
     )
-    |> Repo.one()
+    |> PGRepo.one()
   end
 
   def reorder(section_id, new_idx) do
