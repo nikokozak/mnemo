@@ -63,6 +63,18 @@ defmodule Mnemo.Access.ContentBlocks do
     PGRepo.get(ContentBlock, content_block_id)
   end
 
+  @doc """
+  Returns the "latest", i.e. the content_block with the highest order.
+  """
+  def latest(section_id) do
+    from(cb in ContentBlock,
+      where: cb.section_id == ^section_id,
+      order_by: cb.order_in_section,
+      limit: 1
+    )
+    |> Repo.one()
+  end
+
   # Ignore transferring section in the off chance the section is the same.
   def reorder(content_block_id, new_idx, new_section_id)
       when new_section_id == content_block_id.subject_section_id do

@@ -9,14 +9,22 @@ defmodule Mnemo.Access.SubjectSections do
     PGRepo.get(SubjectSection, section_id)
   end
 
+  def all(subject_id) do
+    from(
+      s in SubjectSection,
+      where: s.subject_id == ^subject_id,
+      order_by: s.order_in_subject
+    )
+    |> PGRepo.all()
+  end
+
   def create(subject_id) do
     current_count =
-      PGRepo.one(
-        from(s in SubjectSection,
-          where: s.subject_id == ^subject_id,
-          select: count(s.id)
-        )
+      from(s in SubjectSection,
+        where: s.subject_id == ^subject_id,
+        select: count(s.id)
       )
+      |> PGRepo.one()
 
     PGRepo.get(Subject, subject_id)
     |> Ecto.build_assoc(:sections)
@@ -34,6 +42,18 @@ defmodule Mnemo.Access.SubjectSections do
   def delete(section_id) do
     PGRepo.get(SubjectSection, section_id)
     |> PGRepo.delete()
+  end
+
+  @doc """
+  Returns the "latest", i.e. the section with the highest order.
+  """
+  def latest(subject_id) do
+    from(s in SubjectSection,
+      where: s.subject_id == ^subject_id,
+      order_by: s.order_in_subject,
+      limit: 1
+    )
+    |> Repo.one()
   end
 
   def reorder(section_id, new_idx) do

@@ -126,6 +126,14 @@ defmodule MnemoWeb.APIController do
     |> json(progressions)
   end
 
+  def student_progression(conn, %{"progression_id" => progression_id}) do
+    progression = Mnemo.Managers.Content.student_progression(progression_id)
+
+    conn
+    |> put_status(:ok)
+    |> json(progression)
+  end
+
   def create_student_progression(conn, %{"student_id" => student_id, "subject_id" => subject_id}) do
     {:ok, progression} = Mnemo.Managers.Content.enroll(student_id, subject_id)
 

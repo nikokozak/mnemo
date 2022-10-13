@@ -8,7 +8,6 @@ defmodule Mnemo.Access.Schemas.StudentProgression do
      :owner_id,
      :subject_id,
      :enrollment_pending,
-     :subject_section_cursor_id,
      :content_block_cursor_id
      # :completed_blocks,
      # :completed_sections
@@ -24,7 +23,7 @@ defmodule Mnemo.Access.Schemas.StudentProgression do
 
     field :enrollment_pending, :boolean, default: false
 
-    belongs_to :subject_section_cursor, SubjectSection, on_replace: :nilify
+    # belongs_to :subject_section_cursor, SubjectSection, on_replace: :nilify
     belongs_to :content_block_cursor, ContentBlock, on_replace: :nilify
 
     many_to_many :completed_sections, SubjectSection,

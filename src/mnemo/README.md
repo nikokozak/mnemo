@@ -1,3 +1,6 @@
+# TODO
+- Edits in content creator adjust enrollments
+
 # Mnemo
 
 To start your Phoenix server:

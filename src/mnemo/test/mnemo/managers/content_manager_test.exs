@@ -34,7 +34,6 @@ defmodule Mnemo.Managers.ContentTest do
 
       assert student_progression.owner_id == student.email
       assert student_progression.subject_id == subject.id
-      assert student_progression.subject_section_cursor_id == section.id
       assert student_progression.content_block_cursor_id == content_block.id
       assert student_progression.completed_sections == []
       assert student_progression.completed_blocks == []
@@ -55,20 +54,19 @@ defmodule Mnemo.Managers.ContentTest do
     test "correctly updates cursors in student_progression" do
       student = Fixtures.create!(:student)
       subject = Fixtures.create!(:subject, %{owner_id: student.email})
-      first_section = Fixtures.create!(:subject_section, %{subject_id: subject.id})
+      {:ok, first_section} = Content.create_section(subject.id)
 
-      first_content_block =
-        Fixtures.create!(:content_block, %{subject_section_id: first_section.id})
+      {:ok, first_content_block} = Content.create_content_block(first_section.id, "static")
 
-      new_section = Fixtures.create!(:subject_section, %{subject_id: subject.id})
-      new_content_block = Fixtures.create!(:content_block, %{subject_section_id: new_section.id})
+      {:ok, new_section} = Content.create_section(subject.id)
+      {:ok, new_content_block} = Content.create_content_block(new_section.id, "static")
+
       {:ok, _student_progression} = Content.enroll(student.email, subject.id)
 
       assert {:ok, updated_progression} =
                Content.save_progress(
                  student.email,
                  subject.id,
-                 new_section.id,
                  new_content_block.id
                )
 
@@ -80,7 +78,6 @@ defmodule Mnemo.Managers.ContentTest do
       # TODO: We have to build-in a global check for progressions inside the `delete` and `edit` methods of
       # our content manager to update subscribed progressions.
       assert updated_progression.content_block_cursor_id == new_content_block.id
-      assert updated_progression.subject_section_cursor_id == new_section.id
       assert updated_progression.completed_sections == [first_section]
       assert updated_progression.completed_blocks == [first_content_block]
     end

@@ -23,8 +23,8 @@ defmodule Mnemo.Managers.Content do
     Access.StudentProgressions.get(student_id, subject_id)
   end
 
-  def save_progress(student_id, subject_id, new_section_id, new_block_id) do
-    Access.StudentProgressions.save(student_id, subject_id, new_section_id, new_block_id)
+  def save_progress(student_id, subject_id, new_block_id) do
+    Access.StudentProgressions.save(student_id, subject_id, new_block_id)
   end
 
   def delete_student_progression(progression_id) do
@@ -56,7 +56,7 @@ defmodule Mnemo.Managers.Content do
   end
 
   def subject_sections(subject_id) do
-    Access.Subjects.sections(subject_id)
+    Access.SubjectSections.all(subject_id)
   end
 
   def create_section(subject_id) do
@@ -67,8 +67,21 @@ defmodule Mnemo.Managers.Content do
     Access.SubjectSections.save(section)
   end
 
+  # TODO: ponder whether section_cursor is necessary, or we can derive it all
+  # from the content block. Might only be necessary here: in order to sift
+  # through progressions we would need to access the section_id of every
+  # content_block, making it much more expensive than simply looking up the one value.
+  # That said, maybe it *should* be expensive for simplicity's sake.
+  #
+  # Needs to look for progressions where this section_id was in the cursor
+  # And replace both the section and the content_block.
   def delete_section(section_id) do
-    Access.SubjectSections.delete(section_id)
+    {:ok, deleted_section} = Access.SubjectSections.delete(section_id)
+
+    next_section = Access.SubjectSections.latest(deleted_section.subject_id)
+    next_block = Access.ContentBlocks.latest(next_section.id)
+
+    {_num_replaced, _} = Access.StudentProgressions.replace_content_block_cursors(next_block)
   end
 
   def reorder_subject_section(section_id, new_idx) do
@@ -91,6 +104,8 @@ defmodule Mnemo.Managers.Content do
     Access.ContentBlocks.save(content_block)
   end
 
+  # Needs to look for progressions where this content_block_id was in the cursor
+  # And replace the content_block and the section if necessary.
   def delete_content_block(content_block_id) do
     Access.ContentBlocks.delete(content_block_id)
   end
