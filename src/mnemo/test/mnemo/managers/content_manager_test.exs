@@ -8,7 +8,7 @@ defmodule Mnemo.Managers.ContentTest do
       student = Fixtures.create!(:student)
       subject = Fixtures.create!(:subject, %{owner_id: student.email})
 
-      {:ok, subject_section} = Content.create_section(subject.id)
+      {:ok, _subject_section} = Content.create_section(subject.id)
     end
 
     test "successfully auto-increments section order on creation" do
@@ -29,7 +29,7 @@ defmodule Mnemo.Managers.ContentTest do
       subject = Fixtures.create!(:subject, %{owner_id: student.email})
       {:ok, s0} = Content.create_section(subject.id)
       {:ok, s0_cb0} = Content.create_content_block(s0.id, "static")
-      {:ok, s0_cb1} = Content.create_content_block(s0.id, "static")
+      {:ok, _s0_cb1} = Content.create_content_block(s0.id, "static")
 
       {:ok, student_progression} = Content.enroll(student.email, subject.id)
 
@@ -235,7 +235,7 @@ defmodule Mnemo.Managers.ContentTest do
       {:ok, section_0} = Content.create_section(subject.id)
       {:ok, section_0_cb_0} = Content.create_content_block(section_0.id, "static")
       {:ok, section_0_cb_1} = Content.create_content_block(section_0.id, "static")
-      {:ok, section_0_cb_2} = Content.create_content_block(section_0.id, "static")
+      {:ok, _section_0_cb_2} = Content.create_content_block(section_0.id, "static")
       {:ok, section_1} = Content.create_section(subject.id)
       {:ok, section_1_cb_0} = Content.create_content_block(section_1.id, "static")
       {:ok, section_1_cb_1} = Content.create_content_block(section_1.id, "static")
@@ -268,9 +268,9 @@ defmodule Mnemo.Managers.ContentTest do
       {:ok, section_0_cb_1} = Content.create_content_block(section_0.id, "static")
       {:ok, section_0_cb_2} = Content.create_content_block(section_0.id, "static")
       {:ok, section_1} = Content.create_section(subject.id)
-      {:ok, section_1_cb_0} = Content.create_content_block(section_1.id, "static")
-      {:ok, section_1_cb_1} = Content.create_content_block(section_1.id, "static")
-      {:ok, section_1_cb_2} = Content.create_content_block(section_1.id, "static")
+      {:ok, _section_1_cb_0} = Content.create_content_block(section_1.id, "static")
+      {:ok, _section_1_cb_1} = Content.create_content_block(section_1.id, "static")
+      {:ok, _section_1_cb_2} = Content.create_content_block(section_1.id, "static")
 
       assert {:ok, _multi} = Content.reorder_content_block(section_0_cb_1.id, 1, section_1.id)
 
@@ -300,10 +300,10 @@ defmodule Mnemo.Managers.ContentTest do
       student = Fixtures.create!(:student)
       subject = Fixtures.create!(:subject, %{owner_id: student.email})
       {:ok, section_0} = Content.create_section(subject.id)
-      {:ok, section_0_cb_0} = Content.create_content_block(section_0.id, "static")
+      {:ok, _section_0_cb_0} = Content.create_content_block(section_0.id, "static")
       {:ok, student_progression} = Content.enroll(student.email, subject.id)
 
-      {:ok, deleted_section} = Content.delete_section(section_0.id)
+      {:ok, _deleted_section} = Content.delete_section(section_0.id)
       updated_student_progression = Content.student_progression(student_progression.id)
 
       assert updated_student_progression.content_block_cursor == nil
@@ -334,8 +334,8 @@ defmodule Mnemo.Managers.ContentTest do
       {:ok, section_0_cb_2} = Content.create_content_block(section_0.id, "static")
       {:ok, student_progression} = Content.enroll(student.email, subject.id)
 
-      {:ok, progression} = Content.consume_content_block(student_progression.id)
-      {:ok, progression} = Content.consume_content_block(student_progression.id)
+      {:ok, _progression} = Content.consume_content_block(student_progression.id)
+      {:ok, _progression} = Content.consume_content_block(student_progression.id)
       {:ok, progression} = Content.consume_content_block(student_progression.id)
 
       progression = progression |> Repo.preload(:completed_blocks)
@@ -350,7 +350,7 @@ defmodule Mnemo.Managers.ContentTest do
       student = Fixtures.create!(:student)
       subject = Fixtures.create!(:subject, %{owner_id: student.email})
       {:ok, section_0} = Content.create_section(subject.id)
-      {:ok, section_0_cb_0} = Content.create_content_block(section_0.id, "static")
+      {:ok, _section_0_cb_0} = Content.create_content_block(section_0.id, "static")
       {:ok, section_0_cb_1} = Content.create_content_block(section_0.id, "static")
       {:ok, section_1} = Content.create_section(subject.id)
       {:ok, section_1_cb_0} = Content.create_content_block(section_1.id, "static")
@@ -371,9 +371,9 @@ defmodule Mnemo.Managers.ContentTest do
       student = Fixtures.create!(:student)
       subject = Fixtures.create!(:subject, %{owner_id: student.email})
       {:ok, section_0} = Content.create_section(subject.id)
-      {:ok, section_0_cb_0} = Content.create_content_block(section_0.id, "static")
+      {:ok, _section_0_cb_0} = Content.create_content_block(section_0.id, "static")
       {:ok, section_1} = Content.create_section(subject.id)
-      {:ok, section_1_cb_0} = Content.create_content_block(section_1.id, "static")
+      {:ok, _section_1_cb_0} = Content.create_content_block(section_1.id, "static")
       {:ok, student_progression} = Content.enroll(student.email, subject.id)
 
       assert student_progression.cursor_at_end == false
@@ -387,9 +387,9 @@ defmodule Mnemo.Managers.ContentTest do
       student = Fixtures.create!(:student)
       subject = Fixtures.create!(:subject, %{owner_id: student.email})
       {:ok, section_0} = Content.create_section(subject.id)
-      {:ok, section_0_cb_0} = Content.create_content_block(section_0.id, "static")
+      {:ok, _section_0_cb_0} = Content.create_content_block(section_0.id, "static")
       {:ok, section_1} = Content.create_section(subject.id)
-      {:ok, section_1_cb_0} = Content.create_content_block(section_1.id, "static")
+      {:ok, _section_1_cb_0} = Content.create_content_block(section_1.id, "static")
       {:ok, student_progression} = Content.enroll(student.email, subject.id)
 
       assert student_progression.completed == false
@@ -407,9 +407,9 @@ defmodule Mnemo.Managers.ContentTest do
       {:ok, section_0} = Content.create_section(subject.id)
       {:ok, section_0_cb_0} = Content.create_content_block(section_0.id, "static")
       {:ok, section_1} = Content.create_section(subject.id)
-      {:ok, section_1_cb_0} = Content.create_content_block(section_1.id, "static")
+      {:ok, _section_1_cb_0} = Content.create_content_block(section_1.id, "static")
       {:ok, section_1_cb_1} = Content.create_content_block(section_1.id, "static")
-      {:ok, section_1_cb_2} = Content.create_content_block(section_1.id, "static")
+      {:ok, _section_1_cb_2} = Content.create_content_block(section_1.id, "static")
       {:ok, student_progression} = Content.enroll(student.email, subject.id)
 
       assert student_progression.content_block_cursor_id == section_0_cb_0.id
