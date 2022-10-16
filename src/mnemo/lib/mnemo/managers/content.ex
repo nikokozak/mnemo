@@ -51,6 +51,10 @@ defmodule Mnemo.Managers.Content do
     Access.Subjects.one(subject_id)
   end
 
+  def sections_and_blocks(progression_id) do
+    Access.StudentProgressions.sections_and_blocks(progression_id)
+  end
+
   def subject_section(section_id) do
     Access.SubjectSections.one(section_id)
   end

@@ -51,6 +51,14 @@ defmodule MnemoWeb.APIController do
     |> json(sections)
   end
 
+  def sections_and_blocks(conn, %{"progression_id" => progression_id}) do
+    sections_and_blocks = Mnemo.Managers.Content.sections_and_blocks(progression_id)
+
+    conn
+    |> put_status(:ok)
+    |> json(sections_and_blocks)
+  end
+
   def create_section(conn, %{"subject_id" => subject_id}) do
     {:ok, section} = Mnemo.Managers.Content.create_section(subject_id)
 

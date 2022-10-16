@@ -32,6 +32,7 @@ defmodule MnemoWeb.Router do
   scope "/api/progressions", MnemoWeb do
     pipe_through :api
 
+    get "/:progression_id/sections_and_blocks", APIController, :sections_and_blocks
     post "/consume", APIController, :consume_block
     get "/:progression_id", APIController, :student_progression
     delete "/:progression_id", APIController, :delete_student_progression

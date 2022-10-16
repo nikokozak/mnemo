@@ -50,6 +50,49 @@ defmodule Mnemo.Access.StudentProgressions do
     end
   end
 
+  def sections_and_blocks(progression_id) do
+    from(sp in StudentProgression,
+      where: sp.id == ^progression_id,
+      join: sub in Subject,
+      where: sp.subject_id == sub.id,
+      left_join: sec in SubjectSection,
+      where: sec.subject_id == sub.id,
+      order_by: sec.order_in_subject,
+      left_join: block in ContentBlock,
+      where: block.subject_section_id == sec.id,
+      order_by: block.order_in_section,
+      select: %{
+        section: %{
+          id: sec.id,
+          title: sec.title,
+          blocks: [],
+          order_in_subject: sec.order_in_subject
+        },
+        block: %{id: block.id, type: block.type, order_in_section: block.order_in_section}
+      }
+    )
+    |> PGRepo.all()
+    |> Enum.reduce([], fn el, accum ->
+      case section_in_accum?(accum, el.section.id) do
+        nil ->
+          new_section = el.section |> Map.put("blocks", [el.block])
+          accum ++ [new_section]
+
+        idx ->
+          List.update_at(accum, idx, fn section ->
+            Map.update(section, "blocks", [], fn blocks ->
+              blocks ++ [el.block]
+            end)
+          end)
+      end
+    end)
+    |> IO.inspect()
+  end
+
+  defp section_in_accum?(accum, section_id) do
+    Enum.find_index(accum, fn el -> el.id == section_id end)
+  end
+
   def create(student_id, subject_id) do
     student = PGRepo.get(Student, student_id)
     subject = PGRepo.get(Subject, subject_id) |> PGRepo.preload(:sections)

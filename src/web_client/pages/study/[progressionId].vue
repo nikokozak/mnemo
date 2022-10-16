@@ -16,6 +16,16 @@
          @consume="consumeBlock" />
         <div v-else>You've reached the end of the course, congrats!!</div>
 
+        <hr class="mt-8">
+
+        <div class="mt-8">
+            <template v-for="section in subjectSections">
+                <h2 class="underline mb-2">{{ section.title }}</h2>
+                <p v-for="block in section.blocks"
+                   class="text-sm mb-2">{{block.order_in_section}} | {{ getComponentTypeName(block.type) }}</p>
+            </template>
+        </div>
+
     </div>
 </template>
 
@@ -33,6 +43,7 @@
     })
 
     const { data: progression, pending: progressionPending, refresh: refreshProgression } = useFetchAPI(`/api/progressions/${progressionId}`, {key: progressionId})
+    const { data: subjectSections, pending: subjectSectionsPending } = useFetchAPI(`/api/progressions/${progressionId}/sections_and_blocks`)
     const current_section = computed(() => progression?.current_section);
 
     function getComponentFromType(type) {
@@ -54,5 +65,12 @@
         }).then(response => {
             refreshProgression()
         })
+    }
+
+    function getComponentTypeName(type) {
+        switch(type) {
+            case "static": return "Text Content"
+            case "mcq": return "Multiple-Choice Question"
+        }
     }
 </script>

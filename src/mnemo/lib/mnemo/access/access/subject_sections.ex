@@ -18,6 +18,11 @@ defmodule Mnemo.Access.SubjectSections do
     |> PGRepo.all()
   end
 
+  def all_with_blocks(subject_id) do
+    all(subject_id)
+    |> PGRepo.preload(:content_blocks)
+  end
+
   def create(subject_id) do
     current_count =
       from(s in SubjectSection,
