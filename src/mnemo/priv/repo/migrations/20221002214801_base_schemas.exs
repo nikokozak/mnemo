@@ -74,6 +74,8 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
       add(:owner_id, references(:students, column: :email, type: :string, on_delete: :delete_all))
       add(:subject_id, references(:subjects, on_delete: :delete_all))
       add(:enrollment_pending, :boolean)
+      add(:cursor_at_end, :boolean)
+      add(:completed, :boolean)
       # add(:subject_section_cursor_id, references(:subject_sections, on_delete: :nilify))
       add(:content_block_cursor_id, references(:content_blocks, on_delete: :nilify_all))
 

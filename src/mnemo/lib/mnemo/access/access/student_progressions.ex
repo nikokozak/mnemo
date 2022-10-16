@@ -58,6 +58,7 @@ defmodule Mnemo.Access.StudentProgressions do
         where: s.order_in_subject == 0,
         join: cb in ContentBlock,
         on: cb.subject_section_id == s.id,
+        where: cb.order_in_section == 0,
         select: cb
       )
       |> PGRepo.one()
@@ -117,9 +118,110 @@ defmodule Mnemo.Access.StudentProgressions do
     |> PGRepo.update_all([])
   end
 
+  def move_cursor_to(progression_id, new_block_id) do
+    progression =
+      PGRepo.get(StudentProgression, progression_id)
+      |> PGRepo.preload(:content_block_cursor)
+
+    new_block = PGRepo.get(ContentBlock, new_block_id)
+
+    Ecto.Changeset.change(progression)
+    |> Ecto.Changeset.put_assoc(:content_block_cursor, new_block)
+    |> PGRepo.update()
+  end
+
+  def mark_block_completed(progression_id) do
+    progression = get_progression(progression_id)
+    completed_blocks = [progression.content_block_cursor | progression.completed_blocks]
+    next_block = get_next_block(progression)
+    cursor_at_end? = if is_nil(next_block), do: true, else: false
+    completed? = completed?(progression.subject_id, completed_blocks)
+
+    Ecto.Changeset.change(progression)
+    |> Ecto.Changeset.cast(%{cursor_at_end: cursor_at_end?, completed: completed?}, [
+      :cursor_at_end,
+      :completed
+    ])
+    |> Ecto.Changeset.put_assoc(:completed_blocks, completed_blocks)
+    |> Ecto.Changeset.put_assoc(:content_block_cursor, next_block)
+    |> PGRepo.update()
+  end
+
+  defp completed?(subject_id, completed_blocks) do
+    blocks_in_subject =
+      from(s in SubjectSection,
+        where: s.subject_id == ^subject_id,
+        join: b in ContentBlock,
+        where: b.subject_section_id == s.id,
+        select: b
+      )
+      |> PGRepo.all()
+
+    Enum.all?(blocks_in_subject, fn block -> block in completed_blocks end)
+  end
+
+  defp get_progression(progression_id) do
+    PGRepo.get(StudentProgression, progression_id)
+    |> PGRepo.preload([
+      :content_block_cursor,
+      :completed_sections,
+      :completed_blocks
+    ])
+  end
+
+  defp get_next_block(%StudentProgression{} = progression) do
+    current_block =
+      progression |> PGRepo.preload(:content_block_cursor) |> Map.get(:content_block_cursor)
+
+    case next_block_in_current_section(current_block) do
+      nil ->
+        next_block_in_next_section(current_block)
+
+      block ->
+        block
+    end
+  end
+
+  defp next_block_in_current_section(%ContentBlock{} = current_block) do
+    from(b in ContentBlock,
+      where: b.subject_section_id == ^current_block.subject_section_id,
+      where: b.order_in_section == ^current_block.order_in_section + 1
+    )
+    |> PGRepo.one()
+  end
+
+  defp next_block_in_next_section(%ContentBlock{} = current_block) do
+    case next_section(current_block.subject_section_id) do
+      nil ->
+        nil
+
+      section ->
+        from(b in ContentBlock,
+          where: b.subject_section_id == ^section.id,
+          where: b.order_in_section == 0
+        )
+        |> PGRepo.one()
+    end
+  end
+
+  defp next_section(current_section_id) do
+    current_section = PGRepo.get(SubjectSection, current_section_id)
+
+    from(s in SubjectSection,
+      where: s.subject_id == ^current_section.subject_id,
+      where: s.order_in_subject == ^current_section.order_in_subject + 1
+    )
+    |> PGRepo.one()
+  end
+
+  defp section_completed?(completed_blocks, section) do
+    Enum.all?(section.content_blocks, fn block_in_section ->
+      block_in_section in completed_blocks
+    end)
+  end
+
   def save(student_progression) do
     Ecto.Changeset.cast(%StudentProgression{id: student_progression["id"]}, student_progression, [
-      :subject_section_cursor,
       :content_block_cursor,
       :completed_sections,
       :completed_blocks

@@ -27,14 +27,15 @@ defmodule Mnemo.Managers.ContentTest do
     test "enrolls a student into a subject, with valid associations" do
       student = Fixtures.create!(:student)
       subject = Fixtures.create!(:subject, %{owner_id: student.email})
-      section = Fixtures.create!(:subject_section, %{subject_id: subject.id})
-      content_block = Fixtures.create!(:content_block, %{subject_section_id: section.id})
+      {:ok, s0} = Content.create_section(subject.id)
+      {:ok, s0_cb0} = Content.create_content_block(s0.id, "static")
+      {:ok, s0_cb1} = Content.create_content_block(s0.id, "static")
 
       {:ok, student_progression} = Content.enroll(student.email, subject.id)
 
       assert student_progression.owner_id == student.email
       assert student_progression.subject_id == subject.id
-      assert student_progression.content_block_cursor_id == content_block.id
+      assert student_progression.content_block_cursor_id == s0_cb0.id
       assert student_progression.completed_sections == []
       assert student_progression.completed_blocks == []
     end
@@ -306,6 +307,114 @@ defmodule Mnemo.Managers.ContentTest do
       updated_student_progression = Content.student_progression(student_progression.id)
 
       assert updated_student_progression.content_block_cursor == nil
+    end
+  end
+
+  describe "consume_content_block/2" do
+    test "adds a completed block to completed_blocks property" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+      {:ok, section_0} = Content.create_section(subject.id)
+      {:ok, section_0_cb_0} = Content.create_content_block(section_0.id, "static")
+      {:ok, student_progression} = Content.enroll(student.email, subject.id)
+
+      {:ok, progression} = Content.consume_content_block(student_progression.id)
+      progression = progression |> Repo.preload(:completed_blocks)
+
+      assert section_0_cb_0 in progression.completed_blocks
+      assert length(progression.completed_blocks) == 1
+    end
+
+    test "adds multiple blocks to completed_blocks property" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+      {:ok, section_0} = Content.create_section(subject.id)
+      {:ok, section_0_cb_0} = Content.create_content_block(section_0.id, "static")
+      {:ok, section_0_cb_1} = Content.create_content_block(section_0.id, "static")
+      {:ok, section_0_cb_2} = Content.create_content_block(section_0.id, "static")
+      {:ok, student_progression} = Content.enroll(student.email, subject.id)
+
+      {:ok, progression} = Content.consume_content_block(student_progression.id)
+      {:ok, progression} = Content.consume_content_block(student_progression.id)
+      {:ok, progression} = Content.consume_content_block(student_progression.id)
+
+      progression = progression |> Repo.preload(:completed_blocks)
+
+      assert section_0_cb_0 in progression.completed_blocks
+      assert section_0_cb_1 in progression.completed_blocks
+      assert section_0_cb_2 in progression.completed_blocks
+      assert length(progression.completed_blocks) == 3
+    end
+
+    test "correctly moves cursor forwards and assigns nil to cursor if no more blocks" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+      {:ok, section_0} = Content.create_section(subject.id)
+      {:ok, section_0_cb_0} = Content.create_content_block(section_0.id, "static")
+      {:ok, section_0_cb_1} = Content.create_content_block(section_0.id, "static")
+      {:ok, section_1} = Content.create_section(subject.id)
+      {:ok, section_1_cb_0} = Content.create_content_block(section_1.id, "static")
+      {:ok, section_1_cb_1} = Content.create_content_block(section_1.id, "static")
+      {:ok, student_progression} = Content.enroll(student.email, subject.id)
+
+      {:ok, progression} = Content.consume_content_block(student_progression.id)
+      assert progression.content_block_cursor_id == section_0_cb_1.id
+      {:ok, progression} = Content.consume_content_block(student_progression.id)
+      assert progression.content_block_cursor_id == section_1_cb_0.id
+      {:ok, progression} = Content.consume_content_block(student_progression.id)
+      assert progression.content_block_cursor_id == section_1_cb_1.id
+      {:ok, progression} = Content.consume_content_block(student_progression.id)
+      assert progression.content_block_cursor_id == nil
+    end
+
+    test "correctly marks progression as at end if at end" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+      {:ok, section_0} = Content.create_section(subject.id)
+      {:ok, section_0_cb_0} = Content.create_content_block(section_0.id, "static")
+      {:ok, section_1} = Content.create_section(subject.id)
+      {:ok, section_1_cb_0} = Content.create_content_block(section_1.id, "static")
+      {:ok, student_progression} = Content.enroll(student.email, subject.id)
+
+      assert student_progression.cursor_at_end == false
+      {:ok, progression} = Content.consume_content_block(student_progression.id)
+      assert progression.cursor_at_end == false
+      {:ok, progression} = Content.consume_content_block(student_progression.id)
+      assert progression.cursor_at_end == true
+    end
+
+    test "correctly marks progression completed if all blocks have been consumed" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+      {:ok, section_0} = Content.create_section(subject.id)
+      {:ok, section_0_cb_0} = Content.create_content_block(section_0.id, "static")
+      {:ok, section_1} = Content.create_section(subject.id)
+      {:ok, section_1_cb_0} = Content.create_content_block(section_1.id, "static")
+      {:ok, student_progression} = Content.enroll(student.email, subject.id)
+
+      assert student_progression.completed == false
+      {:ok, progression} = Content.consume_content_block(student_progression.id)
+      assert progression.completed == false
+      {:ok, progression} = Content.consume_content_block(student_progression.id)
+      assert progression.completed == true
+    end
+  end
+
+  describe "move_cursor_to/2" do
+    test "correctly swaps a cursor" do
+      student = Fixtures.create!(:student)
+      subject = Fixtures.create!(:subject, %{owner_id: student.email})
+      {:ok, section_0} = Content.create_section(subject.id)
+      {:ok, section_0_cb_0} = Content.create_content_block(section_0.id, "static")
+      {:ok, section_1} = Content.create_section(subject.id)
+      {:ok, section_1_cb_0} = Content.create_content_block(section_1.id, "static")
+      {:ok, section_1_cb_1} = Content.create_content_block(section_1.id, "static")
+      {:ok, section_1_cb_2} = Content.create_content_block(section_1.id, "static")
+      {:ok, student_progression} = Content.enroll(student.email, subject.id)
+
+      assert student_progression.content_block_cursor_id == section_0_cb_0.id
+      {:ok, progression} = Content.move_cursor_to(student_progression.id, section_1_cb_1.id)
+      assert progression.content_block_cursor_id == section_1_cb_1.id
     end
   end
 end

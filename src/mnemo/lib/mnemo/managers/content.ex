@@ -123,4 +123,12 @@ defmodule Mnemo.Managers.Content do
   def reorder_content_block(content_block_id, new_idx) do
     Access.ContentBlocks.reorder(content_block_id, new_idx)
   end
+
+  def consume_content_block(progression_id) do
+    Access.StudentProgressions.mark_block_completed(progression_id)
+  end
+
+  def move_cursor_to(progression_id, new_block_id) do
+    Access.StudentProgressions.move_cursor_to(progression_id, new_block_id)
+  end
 end

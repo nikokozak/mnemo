@@ -150,6 +150,18 @@ defmodule MnemoWeb.APIController do
     |> json(deleted_progression)
   end
 
+  def consume_block(conn, %{
+        "progression_id" => progression_id,
+        "content_block_id" => content_block_id
+      }) do
+    {:ok, new_progression} =
+      Mnemo.Managers.Content.consume_content_block(progression_id, content_block_id)
+
+    conn
+    |> put_status(:ok)
+    |> json(new_progression)
+  end
+
   def add_user(conn, %{"email" => email}) do
     users = Mnemo.Managers.Content.add_user(email)
 
