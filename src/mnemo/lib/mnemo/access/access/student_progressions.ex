@@ -18,7 +18,9 @@ defmodule Mnemo.Access.StudentProgressions do
         id: sp.id,
         subject: sub,
         current_section: sec,
-        content_block_cursor: cb
+        content_block_cursor: cb,
+        cursor_at_end: sp.cursor_at_end,
+        completed: sp.completed
       }
     )
     |> PGRepo.one()

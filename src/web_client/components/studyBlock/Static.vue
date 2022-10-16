@@ -18,7 +18,7 @@
 
     <!-- Block Controls -->
     <div class="flex text-xs border-t mt-4 py-2 justify-center"> 
-        <div class="flex">
+        <div @click="consumeBlock" class="flex">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 5.25l-7.5 7.5-7.5-7.5m15 6l-7.5 7.5-7.5-7.5" />
             </svg>
@@ -31,22 +31,30 @@
 
 <script setup>
 import { ref } from 'vue';
-const emit = defineEmits(['continue']);
+const emit = defineEmits(['consume']);
 
 const props = defineProps(['contentBlock']);
 const contentBlock = ref(props.contentBlock);
 
-function addImage() {
-    contentBlock.value.static_content.push({
-        type: "image",
-        content: "",
+function consumeBlock() {
+    console.log("consuming");
+    testAnswer().then(answerCorrect => {
+        if (answerCorrect) {
+            console.log("the answer was correct!")
+            emit('consume', {contentBlock: contentBlock.value, answers: []});
+        } else {
+            console.log("the answer was incorrect!")
+        }
     })
 }
 
-function addText() {
-    contentBlock.value.static_content.push({
-        type: "text",
-        content: "",
+async function testAnswer() {
+    return useSimpleFetch(`/api/content_block/test`, {
+        method: 'POST',
+        body: {
+            content_block_id: contentBlock.value.id,
+            answer: null,
+        }
     })
 }
 </script>

@@ -66,13 +66,37 @@ defmodule Mnemo.Access.ContentBlocks do
   @doc """
   Returns the "latest", i.e. the content_block with the highest order.
   """
+  # TODO: Are we actually using this?
   def latest(section_id) do
     from(cb in ContentBlock,
       where: cb.section_id == ^section_id,
       order_by: cb.order_in_section,
       limit: 1
     )
-    |> Repo.one()
+    |> PGRepo.one()
+  end
+
+  def test(content_block_id, answer) do
+    content_block = PGRepo.get(ContentBlock, content_block_id)
+
+    case content_block.type do
+      "static" ->
+        true
+
+      "mcq" ->
+        answer == content_block.mcq_answer_correct
+
+      "fibq" ->
+        # TODO: write validator, potensh add field to schema with answers already parsed from template
+        false
+
+      "saq" ->
+        answers = Enum.map(content_block.saq_answer_choices, fn el -> Map.get(el, "text") end)
+        answer in answers
+
+      "fc" ->
+        true
+    end
   end
 
   # Ignore transferring section in the off chance the section is the same.

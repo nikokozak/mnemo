@@ -41,6 +41,7 @@ defmodule MnemoWeb.Router do
   scope "/api/content_block", MnemoWeb do
     pipe_through :api
 
+    post "/test", APIController, :test_content_block
     put "/:content_block_id", APIController, :save_content_block
     delete "/:content_block_id", APIController, :delete_content_block
     post "/", APIController, :create_content_block

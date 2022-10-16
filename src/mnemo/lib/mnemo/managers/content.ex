@@ -110,6 +110,10 @@ defmodule Mnemo.Managers.Content do
     Access.ContentBlocks.save(content_block)
   end
 
+  def test_content_block(content_block_id, answer) do
+    Access.ContentBlocks.test(content_block_id, answer)
+  end
+
   # Needs to look for progressions where this content_block_id was in the cursor
   # And replace the content_block and the section if necessary.
   def delete_content_block(content_block_id) do

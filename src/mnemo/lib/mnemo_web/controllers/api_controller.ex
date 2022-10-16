@@ -118,6 +118,14 @@ defmodule MnemoWeb.APIController do
     |> json(content_block)
   end
 
+  def test_content_block(conn, %{"content_block_id" => content_block_id, "answer" => answer}) do
+    correct? = Mnemo.Managers.Content.test_content_block(content_block_id, answer)
+
+    conn
+    |> put_status(:ok)
+    |> json(correct?)
+  end
+
   def student_progressions(conn, %{"student_id" => student_id}) do
     progressions = Mnemo.Managers.Content.student_progressions(student_id)
 
@@ -152,10 +160,10 @@ defmodule MnemoWeb.APIController do
 
   def consume_block(conn, %{
         "progression_id" => progression_id,
-        "content_block_id" => content_block_id
+        "content_block_id" => _content_block_id,
+        "answers" => _answers
       }) do
-    {:ok, new_progression} =
-      Mnemo.Managers.Content.consume_content_block(progression_id, content_block_id)
+    {:ok, new_progression} = Mnemo.Managers.Content.consume_content_block(progression_id)
 
     conn
     |> put_status(:ok)
