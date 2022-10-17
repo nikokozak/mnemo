@@ -1,10 +1,7 @@
 {
   "devDependencies": {
     "esbuild": "^0.14.11",
-    "glob": "^7.2.0",
-    "lodash": "^4.17.21",
-    "svelte": "^3.46.1",
-    "svelte-loading-spinners": "^0.1.7"
+    "glob": "^7.2.0"
   },
   "dependencies": {
     "phoenix": "file:../deps/phoenix",
