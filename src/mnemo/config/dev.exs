@@ -25,14 +25,8 @@ config :mnemo, MnemoWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "SFFzb6t1arEsBRtA+L+9B6UeTtHTyalSRoDTYS6ShKqEbHcb/2YfTh6PP8YnvYcs",
   watchers: [
-    # Watcher for sveltex files
-    node: ["build.js", "--watch", cd: Path.expand("../assets", __DIR__)],
-
-    # Watcher for Tailwind files
-    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
-
     # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
-    # esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
   ]
 
 # ## SSL Support
