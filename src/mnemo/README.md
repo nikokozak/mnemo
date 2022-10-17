@@ -1,5 +1,16 @@
 # TODO
-- Edits in content creator adjust enrollments
+- Merge back to main
+- Remove Svelte
+- Access implements convenience DSL for manager
+- No pass-through Access anymore, Manager coordinates
+- Rendered views for JSON replies to API
+- Component decomp in Client
+- Centralized API impl in Client w/Typescript
+- Virtual Schema for POST/PATCH reqs and replies
+- Namespaced Id's
+- Separate contracts in Manager
+- Thorough testing
+- 
 
 # Mnemo
 
