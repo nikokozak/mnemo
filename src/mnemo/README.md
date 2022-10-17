@@ -1,6 +1,4 @@
 # TODO
-- Merge back to main
-- Remove Svelte
 - Access implements convenience DSL for manager
 - No pass-through Access anymore, Manager coordinates
 - Rendered views for JSON replies to API
