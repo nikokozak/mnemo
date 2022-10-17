@@ -61,12 +61,11 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
 
     alter table(:subject_sections) do
       add(:subject_id, references(:subjects, on_delete: :delete_all))
-      # add(:content_blocks, references(:content_blocks))
     end
 
     alter table(:content_blocks) do
       # This might not be necessary, we're accessing them through sections.
-      # add(:subject_id, references(:subjects))
+      add(:subject_id, references(:subjects, on_delete: :delete_all))
       add(:subject_section_id, references(:subject_sections, on_delete: :delete_all))
     end
 

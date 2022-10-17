@@ -1,6 +1,7 @@
 # TODO
 - Access implements convenience DSL for manager
 - No pass-through Access anymore, Manager coordinates
+- Split up APIController, match Manager contracts
 - Rendered views for JSON replies to API
 - Component decomp in Client
 - Centralized API impl in Client w/Typescript
@@ -8,7 +9,6 @@
 - Namespaced Id's
 - Separate contracts in Manager
 - Thorough testing
-- 
 
 # Mnemo
 

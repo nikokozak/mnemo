@@ -1,6 +1,6 @@
 defmodule Mnemo.Access.Schemas.ContentBlock do
   use Mnemo.Access.Schemas.Schema
-  alias Mnemo.Access.Schemas.{SubjectSection, StudentProgression}
+  alias Mnemo.Access.Schemas.{Subject, SubjectSection, StudentProgression}
 
   @derive {Jason.Encoder,
            only: [
@@ -26,6 +26,7 @@ defmodule Mnemo.Access.Schemas.ContentBlock do
 
   schema "content_blocks" do
     belongs_to :subject_section, SubjectSection, on_replace: :delete
+    belongs_to :subject, Subject, on_replace: :delete
 
     field :type, :string, default: "static"
     field :testable, :boolean, default: false
@@ -71,5 +72,73 @@ defmodule Mnemo.Access.Schemas.ContentBlock do
       on_replace: :delete
 
     timestamps()
+  end
+
+  ### ************ READ / QUERY FUNCTIONS *******************###
+
+  def where_id(query \\ __MODULE__, block_id), do: from(cb in query, where: cb.id == ^block_id)
+
+  def where_type(query \\ __MODULE__, type), do: from(cb in query, where: cb.type == ^type)
+
+  def where_testable(query \\ __MODULE__, testable?) when is_boolean(testable?),
+    do: from(cb in query, where: cb.testable == ^testable?)
+
+  def where_subject(query \\ __MODULE__, subject_id),
+    do: from(cb in query, where: cb.subject_id == ^subject_id)
+
+  def where_order(query \\ __MODULE__, order) when is_integer(order),
+    do: from(cb in query, where: cb.order_in_section == ^order)
+
+  def load_student_progressions(query = %Ecto.Query{}),
+    do: Ecto.Query.preload(query, :student_progressions)
+
+  def only_fields(query = %Ecto.Query{}, list_of_fields) when is_list(list_of_fields),
+    do: Ecto.Query.select(query, ^list_of_fields)
+
+  ### ************ CHANGESET / INSERT FUNCTIONS *******************###
+
+  def create_changeset(item, params \\ %{}) do
+    item
+    |> cast(params, ~w(
+      subject_id
+      subject_section_id
+      type 
+      testable 
+      order_in_section 
+      media 
+      static_content
+      saq_question_img saq_question_text saq_answer_choices
+      mcq_question_img mcq_question_text mcq_answer_choices mcq_answer_correct
+      fibq_question_img fibq_question_text_template
+      fc_front_content fc_back_content)a)
+  end
+
+  def with_subject(item, %Subject{} = subject) do
+    item
+    |> cast(%{subject_id: subject.id}, [:subject_id])
+  end
+
+  def with_section(item, %SubjectSection{} = section) do
+    item
+    |> cast(%{subject_section_id: section.id}, [:subject_section_id])
+  end
+
+  def update_changeset(item, params) do
+    item
+    |> cast(params, ~w(
+      type 
+      testable 
+      order_in_section 
+      media 
+      static_content
+      saq_question_img saq_question_text saq_answer_choices
+      mcq_question_img mcq_question_text mcq_answer_choices mcq_answer_correct
+      fibq_question_img fibq_question_text_template
+      fc_front_content fc_back_content)a)
+  end
+
+  def delete_changeset(item) do
+    item
+    |> change(item)
   end
 end
