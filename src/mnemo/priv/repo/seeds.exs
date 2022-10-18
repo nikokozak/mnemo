@@ -10,4 +10,7 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-Mnemo.Resources.Postgres.Repo.insert!(%Mnemo.Access.Schemas.Student{email: "nikokozak@gmail.com"})
+Mnemo.Resources.Postgres.Repo.insert!(%Mnemo.Access.Schemas.Student{
+  id: "dd48cfda-5f8d-4c9e-8968-04a75ec08df4",
+  email: "nikokozak@gmail.com"
+})

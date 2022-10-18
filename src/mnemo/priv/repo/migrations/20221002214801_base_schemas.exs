@@ -2,14 +2,24 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
   use Ecto.Migration
 
   def change do
-    create table(:students, primary_key: false) do
-      add(:email, :string, primary_key: true)
+    create table(:students) do
+      add(:email, :string, null: false)
 
       timestamps()
     end
 
+    create(index(:students, [:email]))
+
+    create(
+      unique_index(
+        :students,
+        :email,
+        name: :student_email_unique_index
+      )
+    )
+
     create table(:subjects) do
-      add(:owner_id, references(:students, column: :email, type: :string, on_delete: :delete_all))
+      add(:student_id, references(:students, on_delete: :delete_all, null: false))
       add(:title, :string)
       add(:description, :string)
       add(:published, :boolean)
@@ -20,15 +30,15 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
       timestamps()
     end
 
-    create table(:subject_sections) do
+    create table(:sections) do
       add(:title, :string)
       add(:order_in_subject, :integer)
 
       timestamps()
     end
 
-    create table(:content_blocks) do
-      # See ContentBlock Schema for info on defaults, types in maps.
+    create table(:blocks) do
+      # See Block Schema for info on defaults, types in maps.
       add(:type, :string)
       add(:testable, :boolean)
       add(:order_in_section, :integer)
@@ -59,108 +69,107 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
       timestamps()
     end
 
-    alter table(:subject_sections) do
+    alter table(:sections) do
       add(:subject_id, references(:subjects, on_delete: :delete_all))
     end
 
-    alter table(:content_blocks) do
+    alter table(:blocks) do
       # This might not be necessary, we're accessing them through sections.
       add(:subject_id, references(:subjects, on_delete: :delete_all))
-      add(:subject_section_id, references(:subject_sections, on_delete: :delete_all))
+      add(:section_id, references(:sections, on_delete: :delete_all))
     end
 
-    create table(:student_progressions) do
-      add(:owner_id, references(:students, column: :email, type: :string, on_delete: :delete_all))
+    create table(:enrollments) do
+      add(:student_id, references(:students, on_delete: :delete_all))
       add(:subject_id, references(:subjects, on_delete: :delete_all))
-      add(:enrollment_pending, :boolean)
-      add(:cursor_at_end, :boolean)
+      add(:pending, :boolean)
       add(:completed, :boolean)
       # add(:subject_section_cursor_id, references(:subject_sections, on_delete: :nilify))
-      add(:content_block_cursor_id, references(:content_blocks, on_delete: :nilify_all))
+      add(:block_cursor_id, references(:blocks, on_delete: :nilify_all))
 
       timestamps()
     end
 
-    create(index(:student_progressions, [:owner_id]))
-    create(index(:student_progressions, [:subject_id]))
+    create(index(:enrollments, [:student_id]))
+    create(index(:enrollments, [:subject_id]))
 
     create(
       unique_index(
-        :student_progressions,
-        [:owner_id, :subject_id],
-        name: :owner_id_subject_id_unique_index
+        :enrollments,
+        [:student_id, :subject_id],
+        name: :student_id_subject_id_unique_index
       )
     )
 
-    # Many-to-Many Student Progressions <-> Subject Sections
-    create table(:student_progression_subject_section, primary_key: false) do
+    # Many-to-Many Enrollment <-> Subject Sections
+    create table(:enrollment_section, primary_key: false) do
       add(
-        :student_progression_id,
-        references(:student_progressions, on_delete: :delete_all),
+        :enrollment_id,
+        references(:enrollments, on_delete: :delete_all),
         primary_key: true
       )
 
       add(
-        :subject_section_id,
-        references(:subject_sections, on_delete: :delete_all),
+        :section_id,
+        references(:sections, on_delete: :delete_all),
         primary_key: true
       )
     end
 
-    create(index(:student_progression_subject_section, [:student_progression_id]))
-    create(index(:student_progression_subject_section, [:subject_section_id]))
+    create(index(:enrollment_section, [:enrollment_id]))
+    create(index(:enrollment_section, [:section_id]))
 
     create(
       unique_index(
-        :student_progression_subject_section,
-        [:student_progression_id, :subject_section_id],
-        name: :student_progression_id_subject_section_id_unique_index
+        :enrollment_section,
+        [:enrollment_id, :section_id],
+        name: :enrollment_id_section_id_unique_index
       )
     )
 
-    # Many-to-Many Student Progressions <-> Content Blocks
-    create table(:student_progression_content_block, primary_key: false) do
+    # Many-to-Many Enrollment <-> Content Blocks
+    create table(:enrollment_block, primary_key: false) do
       add(
-        :student_progression_id,
-        references(:student_progressions, on_delete: :delete_all),
+        :enrollment_id,
+        references(:enrollments, on_delete: :delete_all),
         primary_key: true
       )
 
       add(
-        :content_block_id,
-        references(:content_blocks, on_delete: :delete_all),
+        :block_id,
+        references(:blocks, on_delete: :delete_all),
         primary_key: true
       )
     end
 
-    create(index(:student_progression_content_block, [:student_progression_id]))
-    create(index(:student_progression_content_block, [:content_block_id]))
+    create(index(:enrollment_block, [:enrollment_id]))
+    create(index(:enrollment_block, [:block_id]))
 
     create(
       unique_index(
-        :student_progression_content_block,
-        [:student_progression_id, :content_block_id],
-        name: :student_progression_id_content_block_id_unique_index
+        :enrollment_block,
+        [:enrollment_id, :block_id],
+        name: :enrollment_id_block_id_unique_index
       )
     )
 
-    create table(:scheduled_content_blocks) do
-      add(:owner_id, references(:students, column: :email, type: :string, on_delete: :delete_all))
+    create table(:scheduled_blocks) do
+      add(:student_id, references(:students, on_delete: :delete_all))
       add(:subject_id, references(:subjects))
-      add(:block_id, references(:content_blocks))
+      add(:block_id, references(:blocks))
       add(:review_at, :date)
     end
 
     create table(:student_review_queue) do
-      add(:owner_id, references(:students, column: :email, type: :string, on_delete: :delete_all))
+      add(:student_id, references(:students, on_delete: :delete_all))
       add(:subject_id, references(:subjects, on_delete: :delete_all))
-      add(:content_block_id, references(:content_blocks, on_delete: :delete_all))
+      add(:block_id, references(:blocks, on_delete: :delete_all))
     end
 
     create table(:student_completed_reviews) do
-      add(:owner_id, references(:students, column: :email, type: :string, on_delete: :delete_all))
+      add(:student_id, references(:students, on_delete: :delete_all))
       add(:subject_id, references(:subjects))
-      add(:content_block_id, references(:content_blocks))
+      add(:block_id, references(:blocks))
       add(:succeeded, :boolean)
       add(:answers, {:array, :string})
       add(:attempts, :integer)

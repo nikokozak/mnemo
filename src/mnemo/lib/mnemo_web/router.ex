@@ -14,6 +14,21 @@ defmodule MnemoWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # In general, /pages indicate initial-load GETS that cover 
+  # all the content a given page might initially need
+  scope "/api/pages", MnemoWeb do
+    pipe_through :api
+
+    get "/student/:student_id", QueryController, :get_student_page
+  end
+
+  scope "/api/subjects", MnemoWeb do
+    pipe_through :api
+
+    post "/", CommandController, :create_subject
+    get "/:subject_id", QueryController, :get_subject
+  end
+
   scope "/api/content_manager", MnemoWeb do
     pipe_through :api
 
@@ -65,9 +80,9 @@ defmodule MnemoWeb.Router do
     get "/:subject_id/sections", APIController, :sections
 
     delete "/:subject_id", APIController, :delete_subject
-    get "/:subject_id", APIController, :subject
+    # get "/:subject_id", APIController, :subject
     put "/", APIController, :save_subject
-    post "/", APIController, :create_subject
+    # post "/", APIController, :create_subject
   end
 
   scope "/api/student", MnemoWeb do

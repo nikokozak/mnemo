@@ -6,6 +6,7 @@ defmodule Mnemo.Access.Schemas.Schema do
       @primary_key {:id, :binary_id, autogenerate: true}
       @foreign_key_type :binary_id
 
+      alias Mnemo.Resources.Postgres.Repo, as: PGRepo
       import Ecto.Changeset
       import Ecto.Query, only: [from: 2]
     end

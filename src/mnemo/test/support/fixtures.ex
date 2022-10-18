@@ -1,10 +1,10 @@
 defmodule Test.Fixtures do
   alias Mnemo.Resources.Postgres.Repo, as: PGRepo
-  alias Mnemo.Access.Schemas.{Student, Subject, SubjectSection, ContentBlock}
+  alias Mnemo.Access.Schemas.{Student, Subject, Section, Block, Enrollment}
 
-  def create!(type, overrides \\ %{}) do
+  def create(type, overrides \\ %{}) do
     params = params(type, overrides)
-    PGRepo.insert!(params)
+    PGRepo.insert(params)
   end
 
   def params(_, overrides \\ %{})
@@ -16,10 +16,11 @@ defmodule Test.Fixtures do
       }
       |> Map.merge(overrides)
 
-    struct(Student, fields)
+    %Student{}
+    |> Student.create_changeset(fields)
   end
 
-  def params(:subject, overrides) do
+  def params(:subject, %{student_id: _student_id} = overrides) do
     fields =
       %{
         title: Faker.Lorem.sentence(),
@@ -27,24 +28,38 @@ defmodule Test.Fixtures do
       }
       |> Map.merge(overrides)
 
-    struct(Subject, fields)
+    %Subject{}
+    |> Subject.create_changeset(fields)
   end
 
-  def params(:subject_section, overrides) do
+  def params(:section, %{subject_id: _s} = overrides) do
     fields =
       %{
         title: Faker.Lorem.sentence()
       }
       |> Map.merge(overrides)
 
-    struct(SubjectSection, fields)
+    %Section{}
+    |> Section.create_changeset(fields)
   end
 
-  def params(:content_block, overrides) do
+  def params(:block, %{subject_id: _, section_id: _} = overrides) do
+    fields =
+      %{
+        type: "static"
+      }
+      |> Map.merge(overrides)
+
+    %Block{}
+    |> Block.create_changeset(fields)
+  end
+
+  def params(:enrollment, overrides) do
     fields =
       %{}
       |> Map.merge(overrides)
 
-    struct(ContentBlock, fields)
+    %Enrollment{}
+    |> Enrollment.create_changeset(fields)
   end
 end

@@ -1,4 +1,5 @@
 # TODO
+- Numeration, order adjustments are handled by Repo on deletion and insertion based on struct type
 - Access implements convenience DSL for manager
 - No pass-through Access anymore, Manager coordinates
 - Split up APIController, match Manager contracts

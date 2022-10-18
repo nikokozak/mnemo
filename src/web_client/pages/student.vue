@@ -10,11 +10,11 @@
           <h1 class="text-lg font-semibold mb-2">currently studying</h1>
           <hr>
           <!-- Progressions List -->
-          <ScaleLoader :height="'15px'" :width="'2px'" class="mt-6" v-if="subjects_pending" />
-          <template v-else v-for="progression in progressions">
+          <ScaleLoader :height="'15px'" :width="'2px'" class="mt-6" v-if="pageDataPending" />
+          <template v-else v-for="enrollment in pageData?.enrollments">
               <div class="border px-2 py-1 rounded-lg mt-4 flex justify-between">
-                  <p class="text-md">{{ progression.subject.title }}</p>
-                  <button @click="deleteEnrollment(progression.id)" class="text-xs text-slate-900 border rounded-lg px-2">
+                  <p class="text-md">{{ enrollment.subject.title }}</p>
+                  <button @click="deleteEnrollment(enrollment.id)" class="text-xs text-slate-900 border rounded-lg px-2">
                       Unenroll
                   </button>
                   <NuxtLink :to="'/study/' + progression.id" class="text-xs text-slate-900 border rounded-lg px-2 py-1">
@@ -29,8 +29,8 @@
           <h1 class="text-lg font-semibold mb-2">my subjects</h1>
           <hr>
           <!-- Subject List -->
-          <ScaleLoader :height="'15px'" :width="'2px'" class="mt-6" v-if="subjects_pending" />
-          <template v-else v-for="subject in subjects">
+          <ScaleLoader :height="'15px'" :width="'2px'" class="mt-6" v-if="pageDataPending" />
+          <template v-else v-for="subject in pageData?.subjects">
               <div class="border px-2 py-1 rounded-lg mt-4 flex justify-between">
                   <p class="text-md">{{ subject.title }}</p>
                   <template v-if="enrolled_subject_ids.includes(subject.id)">
@@ -61,17 +61,18 @@
 import ScaleLoader from 'vue-spinner/src/ScaleLoader.vue';
 import { ref, reactive } from 'vue';
 
-const student = "nikokozak@gmail.com";
-const { data: subjects, pending: subjects_pending } = await useFetchAPI(`/api/student/${student}/subjects`, {key: "subjects"});
-const { 
+const student = "dd48cfda-5f8d-4c9e-8968-04a75ec08df4";
+const { data: pageData, pending: pageDataPending } = await useFetchAPI(`/api/pages/student/${student}`, {key: "subjects"});
+/*const { 
     data: progressions,
     pending: progressions_pending,
     refresh: progressions_refresh 
 } = await useFetchAPI(`/api/student/${student}/progressions`, {key: "progressions"});
+*/
 
 const enrolled_subject_ids = computed(() => {
-    if (!progressions_pending.value) {
-        return progressions.value.map(p => p.subject.id)
+    if (!pageDataPending.value) {
+        return pageData.value.enrollments.map(p => p.subject.id)
     } else {
         return [];
     }
