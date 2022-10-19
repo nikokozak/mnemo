@@ -10,7 +10,7 @@ defmodule Mnemo.StudentTest do
   end
 
   test "rejects students with the same email" do
-    {:ok, student} =
+    {:ok, _student} =
       %Student{} |> Student.create_changeset(%{email: "test@email.com"}) |> Repo.insert()
 
     assert_raise(Ecto.ConstraintError, fn ->

@@ -1,6 +1,6 @@
 defmodule Mnemo.BlockTest do
   use Mnemo.DataCase
-  alias Mnemo.Access.Schemas.{Block, Section}
+  alias Mnemo.Access.Schemas.{Block}
   alias Test.Fixtures
   alias Mnemo.Resources.Postgres.Repo, as: PGRepo
 
@@ -48,7 +48,7 @@ defmodule Mnemo.BlockTest do
     {:ok, block_1} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section_0.id})
     {:ok, block_2} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section_0.id})
 
-    {:ok, deleted_block} = block_1 |> Block.delete_changeset() |> Repo.delete()
+    {:ok, _deleted_block} = block_1 |> Block.delete_changeset() |> Repo.delete()
     {:ok, block_3} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section_0.id})
 
     updated_block_0 = Block |> Block.where_id(block_0.id) |> PGRepo.one()

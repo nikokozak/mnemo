@@ -5,14 +5,14 @@ defmodule Mnemo.Access.SubjectTest do
 
   test "successfully creates a subject" do
     {:ok, student} = Fixtures.create(:student)
-    {:ok, subject} = Fixtures.create(:subject, %{student_id: student.id})
+    {:ok, _subject} = Fixtures.create(:subject, %{student_id: student.id})
   end
 
   test "successfully removes a subject" do
     {:ok, student} = Fixtures.create(:student)
     {:ok, subject} = Fixtures.create(:subject, %{student_id: student.id})
 
-    {:ok, subject} =
+    {:ok, _subject} =
       subject
       |> Repo.delete()
   end
@@ -33,7 +33,7 @@ defmodule Mnemo.Access.SubjectTest do
     {:ok, student} = Fixtures.create(:student)
     {:ok, subject} = Fixtures.create(:subject, %{student_id: student.id})
     {:ok, section} = Fixtures.create(:section, %{subject_id: subject.id})
-    {:ok, block} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
+    {:ok, _block} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
 
     subject =
       Subject

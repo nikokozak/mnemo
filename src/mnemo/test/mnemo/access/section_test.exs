@@ -21,7 +21,7 @@ defmodule Mnemo.SectionTest do
     {:ok, section_1} = Fixtures.create(:section, %{subject_id: subject.id})
     {:ok, section_2} = Fixtures.create(:section, %{subject_id: subject.id})
 
-    {:ok, deleted_section} = section_1 |> Section.delete_changeset() |> Repo.delete()
+    {:ok, _deleted_section} = section_1 |> Section.delete_changeset() |> Repo.delete()
     {:ok, section_3} = Fixtures.create(:section, %{subject_id: subject.id})
 
     updated_section_0 = Section |> Section.where_id(section_0.id) |> PGRepo.one()
