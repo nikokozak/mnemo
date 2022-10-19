@@ -29,6 +29,12 @@ defmodule MnemoWeb.Router do
     get "/:subject_id", QueryController, :get_subject
   end
 
+  scope "/api/sections", MnemoWeb do
+    pipe_through :api
+
+    post "/", CommandController, :create_section
+  end
+
   scope "/api/content_manager", MnemoWeb do
     pipe_through :api
 

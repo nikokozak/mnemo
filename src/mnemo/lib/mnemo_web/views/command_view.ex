@@ -4,4 +4,12 @@ defmodule MnemoWeb.CommandView do
   def render("subject.json", %{subject: subject}) do
     %{id: subject.id}
   end
+
+  def render("section.json", %{section: section}) do
+    %{
+      id: section.id,
+      title: section.title,
+      blocks: Enum.map(section.blocks, &MnemoWeb.ViewHelpers.filter_block_fields_by_type/1)
+    }
+  end
 end

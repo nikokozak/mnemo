@@ -9,7 +9,7 @@
             <div>
                 <SubjectSection 
                     :section="section"
-                    @delete="refresh" />
+                    @delete="removeSectionFromLocalState" />
             </div>
         </template>
         <button @click="createSection" class="border py-2 px-4 rounded-lg mt-4">Create a new Section</button>
@@ -33,5 +33,10 @@ function createSection() {
         sections.value.push(response);
         console.log(`created new section ${response.id}`);
     });
+}
+
+function removeSectionFromLocalState(sectionId) {
+    const sectionIdx = sections.value.findIndex(section => section.id == sectionId);
+    sections.value.splice(sectionIdx, 1);
 }
 </script>

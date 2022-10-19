@@ -27,6 +27,7 @@ defmodule Mnemo.Access.Schemas.Subject do
 
   def load_sections(query = %Ecto.Query{}), do: Ecto.Query.preload(query, :sections)
 
+  # TODO make this load them in ordered form
   def load_sections_with_blocks(query = %Ecto.Query{}),
     do: Ecto.Query.preload(query, sections: :blocks)
 
