@@ -39,8 +39,8 @@
 <script setup>
     import { ref } from 'vue';
 
-    const props = defineProps(['subjectId']);
-    const subjectId = props.subjectId;
+    const props = defineProps(['subject']);
+    const subjectId = props.subject.id;
     const student = "nikokozak@gmail.com";
     const showDeleteModal = ref(false);
 
