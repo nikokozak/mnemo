@@ -22,4 +22,16 @@ defmodule Mnemo.Engines.Block do
     # Should always receive the "key" of the given answer
     {:ok, block.mcq_answer_correct == answer_key}
   end
+
+  def test_block_type("saq", %Block{} = block, answer) when is_binary(answer) do
+    {:ok,
+     Enum.any?(block.saq_answer_choices, fn choice ->
+       choice["text"] == answer
+     end)}
+  end
+
+  def test_block_type("fc", %Block{} = _block, _answer) do
+    # Flash Card blocks are always "correct" when tested
+    {:ok, true}
+  end
 end

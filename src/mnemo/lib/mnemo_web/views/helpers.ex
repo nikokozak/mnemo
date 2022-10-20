@@ -9,7 +9,7 @@ defmodule MnemoWeb.ViewHelpers do
           Map.take(block, [:static_content])
 
         "saq" ->
-          Map.take(block, [:saq_question_img, :saq_question_text, :saq_question_choices])
+          Map.take(block, [:saq_question_img, :saq_question_text, :saq_answer_choices])
 
         "mcq" ->
           Map.take(block, [
@@ -20,7 +20,12 @@ defmodule MnemoWeb.ViewHelpers do
           ])
 
         "fibq" ->
-          Map.take(block, [:fibq_question_img, :fibq_question_text_template])
+          Map.take(block, [
+            :fibq_question_img,
+            :fibq_question_text,
+            :fibq_question_answers,
+            :fibq_question_text_template
+          ])
 
         "fc" ->
           Map.take(block, [:fc_front_content, :fc_back_content])

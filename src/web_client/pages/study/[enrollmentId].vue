@@ -34,8 +34,11 @@
 
 <script setup>
     import ScaleLoader from 'vue-spinner/src/ScaleLoader.vue';
-    import StudyBlockStatic from '@/components/studyBlock/Static.vue'
-    import StudyBlockMCQ from '@/components/studyBlock/MCQ.vue'
+    import StudyBlockStatic from '@/components/studyBlock/Static.vue';
+    import StudyBlockMCQ from '@/components/studyBlock/MCQ.vue';
+    import StudyBlockSAQ from '@/components/studyBlock/SAQ.vue';
+    import StudyBlockFC from '@/components/studyBlock/FC.vue';
+    import StudyBlockFIBQ from '@/components/studyBlock/FIBQ.vue';
 
     const route = useRoute();
 
@@ -51,6 +54,10 @@
         switch(type) {
             case "static": return StudyBlockStatic
             case "mcq": return StudyBlockMCQ
+            case "saq": return StudyBlockSAQ
+            case "fc": return StudyBlockFC
+            case "fibq": return StudyBlockFIBQ
+
         }
     }
 
@@ -70,6 +77,9 @@
         switch(type) {
             case "static": return "Text Content"
             case "mcq": return "Multiple-Choice Question"
+            case "saq": return "Single Answer Question"
+            case "fc": return "Flash Card"
+            case "fibq": return "Fill in the Blank Question"
         }
     }
 </script>

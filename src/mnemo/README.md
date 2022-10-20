@@ -1,14 +1,9 @@
 # TODO
-- Numeration, order adjustments are handled by Repo on deletion and insertion based on struct type
-- Access implements convenience DSL for manager
-- No pass-through Access anymore, Manager coordinates
-- Split up APIController, match Manager contracts
-- Rendered views for JSON replies to API
+- Implement rest of review blocks
 - Component decomp in Client
 - Centralized API impl in Client w/Typescript
-- Virtual Schema for POST/PATCH reqs and replies
-- Namespaced Id's
-- Separate contracts in Manager
+- Split up Controllers
+- Implement testable logic / review queue
 - Thorough testing
 
 # Mnemo

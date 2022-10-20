@@ -3,28 +3,6 @@ defmodule Mnemo.Access.Schemas.Block do
   alias Ecto.Multi
   alias Mnemo.Access.Schemas.{Subject, Section, Enrollment}
 
-  @derive {Jason.Encoder,
-           only: [
-             :id,
-             :section_id,
-             :type,
-             :testable,
-             :order_in_section,
-             :media,
-             :static_content,
-             :saq_question_img,
-             :saq_question_text,
-             :saq_answer_choices,
-             :mcq_question_img,
-             :mcq_question_text,
-             :mcq_answer_choices,
-             :mcq_answer_correct,
-             :fibq_question_img,
-             :fibq_question_text_template,
-             :fc_front_content,
-             :fc_back_content
-           ]}
-
   schema "blocks" do
     belongs_to :section, Section, on_replace: :delete
     belongs_to :subject, Subject, on_replace: :delete
@@ -67,6 +45,10 @@ defmodule Mnemo.Access.Schemas.Block do
     field :fibq_question_img, :string
     # This is "raw" text, i.e. "the color of the sky is {{ blue }}"
     field :fibq_question_text_template, :string
+    # Text with separators (i.e. {{}})
+    field :fibq_question_text, :string
+    # Ordered answers corresponding to separators
+    field :fibq_question_answers, {:array, :map}, default: [%{"text" => nil}]
 
     many_to_many :enrollments, Enrollment,
       join_through: "enrollment_block",
@@ -164,7 +146,7 @@ defmodule Mnemo.Access.Schemas.Block do
       static_content
       saq_question_img saq_question_text saq_answer_choices
       mcq_question_img mcq_question_text mcq_answer_choices mcq_answer_correct
-      fibq_question_img fibq_question_text_template
+      fibq_question_img fibq_question_text fibq_question_answers fibq_question_text_template
       fc_front_content fc_back_content)a)
     |> put_change(:order_in_section, current_order(section_id))
     |> foreign_key_constraint(:section_id)
@@ -184,8 +166,29 @@ defmodule Mnemo.Access.Schemas.Block do
       static_content
       saq_question_img saq_question_text saq_answer_choices
       mcq_question_img mcq_question_text mcq_answer_choices mcq_answer_correct
-      fibq_question_img fibq_question_text_template
+      fibq_question_img fibq_question_text fibq_question_answers fibq_question_text_template
       fc_front_content fc_back_content)a)
+    |> maybe_parse_fibq_template()
+  end
+
+  defp maybe_parse_fibq_template(changeset) do
+    case Ecto.Changeset.get_change(changeset, :fibq_question_text_template) do
+      nil ->
+        changeset
+
+      template_text ->
+        answers =
+          Regex.scan(~r/\{(.*?)\}/, template_text)
+          |> Enum.map(fn match ->
+            %{"text" => List.last(match)}
+          end)
+
+        text_with_separators = String.replace(template_text, ~r/\{.*?\}/, "{{}}")
+
+        changeset
+        |> put_change(:fibq_question_text, text_with_separators)
+        |> put_change(:fibq_question_answers, answers)
+    end
   end
 
   def update_order_changeset(block, new_order, new_section_id \\ nil)

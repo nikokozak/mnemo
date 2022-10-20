@@ -16,7 +16,7 @@
 
         <div class="mt-4 w-full h-20 border border-gray-500 border-dashed rounded-lg"></div>
 
-        <textarea v-model="block.mcq_question_text" class="w-full text-sm mt-4" placeholder="Your Question here."></textarea>
+        <textarea v-model="block.saq_question_text" class="w-full text-sm mt-4" placeholder="Your Question here."></textarea>
     </div>
     <!-- End Inner Question -->
 

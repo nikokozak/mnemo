@@ -104,7 +104,7 @@ function getComponentFromType(type) {
             return EditBlockSAQ;
         case "fc":
             return EditBlockFC;
-        case "fib":
+        case "fibq":
             return EditBlockFIBQ;
     }
 }
