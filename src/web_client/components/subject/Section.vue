@@ -131,29 +131,20 @@ function createFIBQBlock() {
 
 function createBlock(type) {
     showCreateBlockModal.value = false;
-    useSimpleFetch(`/api/blocks`, {
-        method: 'POST',
-        body: { section_id: section.value.id, subject_id: section.value.subject_id, type }
-    }).then(response => {
+    useCreateBlock(section, type).then(response => {
         blocks.value.push(response);
     })
 }
 
 function deleteSection() {
-    useSimpleFetch(`/api/sections/${section.value.id}`, {
-        method: 'DELETE'
-    }).then(response => {
+    useDeleteSection(section).then(response => {
         emit('delete', section.value.id);
     })
 }
 
 // Saves the section on title input
 const handleInput = debounce(() => {
-    console.log(section.value);
-    useSimpleFetch(`/api/sections/${section.value.id}`, {
-        method: 'PATCH',
-        body: section.value,
-    }).then(response => {
+    useSaveSection(section).then(response => {
         console.log(`successfully updated ${section.value.id}`);
     })
 }, 500)

@@ -34,18 +34,14 @@ import { ref, reactive } from 'vue';
 
 const props = defineProps(['subject']);
 const subject = ref(props.subject);
-const subjectId = props.subject.id;
 const student = "nikokozak@gmail.com";
 
 const updating = ref(false);
 
 const handleInput = debounce(function() {
     updating.value = true; 
-    useSimpleFetch(`/api/subjects/${subjectId}`, {
-        method: 'PATCH',
-        body: subject.value
-    }).then(response => {
-        console.log(`successfully updated ${subjectId}`);
+    useSaveSubject(subject).then(response => {
+        console.log(`successfully updated ${subject.value.id}`);
         updating.value = false;
     })
 }, 500);

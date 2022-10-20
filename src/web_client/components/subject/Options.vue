@@ -40,7 +40,7 @@
     import { ref } from 'vue';
 
     const props = defineProps(['subject']);
-    const subjectId = props.subject.id;
+    const subject = ref(props.subject);
     const student = "nikokozak@gmail.com";
     const showDeleteModal = ref(false);
 
@@ -49,9 +49,7 @@
     }
 
     function deleteSubject() {
-        useSimpleFetch(`/api/subjects/${subjectId}`, {
-            method: 'DELETE'
-        }).then(response => {
+        useDeleteSubject(subject).then(response => {
             window.location.href = '/student';
         });
     }

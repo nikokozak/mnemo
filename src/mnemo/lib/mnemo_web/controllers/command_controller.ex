@@ -1,6 +1,6 @@
 defmodule MnemoWeb.CommandController do
   use MnemoWeb, :controller
-  alias Mnemo.Access.Schemas.{Subject, Section, Block}
+  alias Mnemo.Access.Schemas.{Subject, Section, Block, Enrollment}
   alias Mnemo.Resources.Postgres.Repo, as: PGRepo
 
   def create_subject(conn, %{"student_id" => student_id}) do
@@ -104,6 +104,30 @@ defmodule MnemoWeb.CommandController do
       |> Block.where_id(block_id)
       |> PGRepo.one()
       |> Block.delete_changeset()
+      |> PGRepo.delete()
+
+    conn
+    |> send_resp(:ok, "")
+  end
+
+  def create_enrollment(conn, %{"student_id" => student_id, "subject_id" => subject_id}) do
+    enrollment =
+      %Enrollment{}
+      |> Enrollment.create_changeset(%{student_id: student_id, subject_id: subject_id})
+      |> PGRepo.insert!()
+      |> PGRepo.preload(:subject)
+
+    conn
+    |> put_status(:created)
+    |> render("enrollment.json", %{enrollment: enrollment})
+  end
+
+  def delete_enrollment(conn, %{"enrollment_id" => enrollment_id}) do
+    {:ok, _enrollment} =
+      Enrollment
+      |> Enrollment.where_id(enrollment_id)
+      |> PGRepo.one()
+      |> Enrollment.delete_changeset()
       |> PGRepo.delete()
 
     conn

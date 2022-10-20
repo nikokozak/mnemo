@@ -21,15 +21,12 @@
 import { ref, reactive } from 'vue';
 
 const props = defineProps(['subject']);
-const subjectId = props.subject.id;
+const subject = ref(props.subject);
 const sections = ref(props.subject.sections);
 const student = "nikokozak@gmail.com";
 
 function createSection() {
-    useSimpleFetch(`/api/sections`, {
-        method: 'POST',
-        body: { subject_id: subjectId },
-    }).then(response => {
+    useCreateSection(subject).then(response => {
         sections.value.push(response);
         console.log(`created new section ${response.id}`);
     });

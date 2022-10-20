@@ -30,7 +30,10 @@ defmodule MnemoWeb.QueryView do
 
     enrollments =
       Enum.map(enrollments, fn enrollment ->
-        %{id: enrollment.id, subject_id: enrollment.subject_id, title: enrollment.subject.title}
+        %{
+          id: enrollment.id,
+          subject: %{id: enrollment.subject_id, title: enrollment.subject.title}
+        }
       end)
 
     %{subjects: subjects, enrollments: enrollments}

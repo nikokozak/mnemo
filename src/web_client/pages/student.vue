@@ -17,7 +17,7 @@
                   <button @click="deleteEnrollment(enrollment.id)" class="text-xs text-slate-900 border rounded-lg px-2">
                       Unenroll
                   </button>
-                  <NuxtLink :to="'/study/' + progression.id" class="text-xs text-slate-900 border rounded-lg px-2 py-1">
+                  <NuxtLink :to="'/study/' + enrollment.id" class="text-xs text-slate-900 border rounded-lg px-2 py-1">
                       Study Now
                   </NuxtLink>
               </div>
@@ -61,48 +61,39 @@
 import ScaleLoader from 'vue-spinner/src/ScaleLoader.vue';
 import { ref, reactive } from 'vue';
 
-const student = "dd48cfda-5f8d-4c9e-8968-04a75ec08df4";
-const { data: pageData, pending: pageDataPending } = await useFetchAPI(`/api/pages/student/${student}`, {key: "subjects"});
-/*const { 
-    data: progressions,
-    pending: progressions_pending,
-    refresh: progressions_refresh 
-} = await useFetchAPI(`/api/student/${student}/progressions`, {key: "progressions"});
-*/
+const student = {id: "dd48cfda-5f8d-4c9e-8968-04a75ec08df4"};
+const { data: pageData, pending: pageDataPending } = await useFetchAPI(`/api/pages/student/${student.id}`, {key: "subjects"});
 
 const enrolled_subject_ids = computed(() => {
     if (!pageDataPending.value) {
-        return pageData.value.enrollments.map(p => p.subject.id)
+        return pageData.value.enrollments.map(e => e.subject.id)
     } else {
         return [];
     }
 })
 
 function enroll(subject_id) {
-    useSimpleFetch(`/api/progressions`, {
-        method: 'POST',
-        body: { student_id: student, subject_id: subject_id }
-    }).then(response => {
+    useCreateEnrollment(student, {id: subject_id}).then(response => {
         console.log(`created progression ${ response.id }`);
-        progressions_refresh();
+        pageData.value.enrollments.push(response);
     });
 }
 
-function deleteEnrollment(progression_id) {
-    useSimpleFetch(`/api/progressions/${progression_id}`, {
-        method: 'DELETE',
-    }).then(response => {
-        progressions_refresh();
+function deleteEnrollment(enrollmentId) {
+    useDeleteEnrollment({id: enrollmentId}).then(response => {
+        removeEnrollmentFromLocalState(enrollmentId);
     });
+}
+
+function removeEnrollmentFromLocalState(enrollmentId) {
+    const enrollmentIdx = pageData.value.enrollments.findIndex(e => e.id == enrollmentId);
+    pageData.value.enrollments.splice(enrollmentIdx, 1);
 }
 
 function createSubject() {
-    useSimpleFetch(`/api/subjects/`, {
-        method: 'POST',
-        body: { student_id: student }
-    }).then(response => {
-            console.log(`created subject ${ response.id }`);
-            window.location.href = `/subject/${ response.id }`;
-        });
+    useCreateSubject(student).then(response => {
+        console.log(`created subject ${ response.id }`);
+        window.location.href = `/subject/${ response.id }`;
+    });
 }
 </script>

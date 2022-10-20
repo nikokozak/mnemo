@@ -47,6 +47,13 @@ defmodule MnemoWeb.Router do
     post "/", CommandController, :create_block
   end
 
+  scope "/api/enrollments", MnemoWeb do
+    pipe_through :api
+
+    delete "/:enrollment_id", CommandController, :delete_enrollment
+    post "/", CommandController, :create_enrollment
+  end
+
   scope "/api/content_manager", MnemoWeb do
     pipe_through :api
 
@@ -70,15 +77,6 @@ defmodule MnemoWeb.Router do
     get "/:progression_id", APIController, :student_progression
     delete "/:progression_id", APIController, :delete_student_progression
     post "/", APIController, :create_student_progression
-  end
-
-  scope "/api/content_block", MnemoWeb do
-    pipe_through :api
-
-    post "/test", APIController, :test_content_block
-    put "/:content_block_id", APIController, :save_content_block
-    delete "/:content_block_id", APIController, :delete_content_block
-    post "/", APIController, :create_content_block
   end
 
   scope "/api/student", MnemoWeb do

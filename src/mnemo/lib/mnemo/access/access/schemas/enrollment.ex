@@ -2,18 +2,6 @@ defmodule Mnemo.Access.Schemas.Enrollment do
   use Mnemo.Access.Schemas.Schema
   alias Mnemo.Access.Schemas.{Student, Subject, Block, Section}
 
-  @derive {Jason.Encoder,
-   only: [
-     :id,
-     :student_id,
-     :subject_id,
-     :pending,
-     :block_cursor_id,
-     :completed
-     # :completed_blocks,
-     # :completed_sections
-   ]}
-
   schema "enrollments" do
     belongs_to :student, Student, on_replace: :delete
     belongs_to :subject, Subject, on_replace: :delete
