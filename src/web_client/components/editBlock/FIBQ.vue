@@ -59,17 +59,17 @@ const block = ref(props.block);
 const editing = ref(true);
 
 function deleteBlock() {
-    useSimpleFetch(`/api/content_block/${block.value.id}`, {
+    useSimpleFetch(`/api/blocks/${block.value.id}`, {
         method: 'DELETE'
     }).then(response => {
-        emit('delete');
+        emit('delete', block.value.id);
     })
 }
 
 function saveBlock() {
-    useSimpleFetch(`/api/content_block/${block.value.id}`, {
-        method: 'PUT',
-        body: { content_block: block.value }
+    useSimpleFetch(`/api/blocks/${block.value.id}`, {
+        method: 'PATCH',
+        body: block.value
     }).then(response => {
         console.log(`correctly saved content block ${block.value.id}`);
         emit('save');

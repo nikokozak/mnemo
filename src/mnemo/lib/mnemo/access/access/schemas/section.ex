@@ -41,8 +41,13 @@ defmodule Mnemo.Access.Schemas.Section do
 
   def count(query \\ __MODULE__), do: from(s in query, select: count(s.id))
 
-  def load_blocks(query = %Ecto.Query{}),
-    do: Ecto.Query.preload(query, sections: :blocks) |> Ecto.Query.order_by(:order_in_section)
+  def load_blocks(query = %Ecto.Query{}) do
+    from(q in query,
+      left_join: b in assoc(q, :blocks),
+      order_by: b.order_in_section,
+      preload: [blocks: b]
+    )
+  end
 
   def load_enrollments(query = %Ecto.Query{}),
     do: Ecto.Query.preload(query, :enrollments)

@@ -1,6 +1,7 @@
 defmodule MnemoWeb.ViewHelpers do
   def filter_block_fields_by_type(block) do
-    base_block = Map.take(block, [:id, :type, :testable, :order_in_section, :media])
+    base_block =
+      Map.take(block, [:id, :type, :testable, :order_in_section, :section_id, :subject_id, :media])
 
     filtered_block =
       case block.type do

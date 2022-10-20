@@ -25,14 +25,26 @@ defmodule MnemoWeb.Router do
   scope "/api/subjects", MnemoWeb do
     pipe_through :api
 
-    post "/", CommandController, :create_subject
+    delete "/:subject_id", CommandController, :delete_subject
+    patch "/:subject_id", CommandController, :save_subject
     get "/:subject_id", QueryController, :get_subject
+    post "/", CommandController, :create_subject
   end
 
   scope "/api/sections", MnemoWeb do
     pipe_through :api
 
+    delete "/:section_id", CommandController, :delete_section
+    patch "/:section_id", CommandController, :save_section
     post "/", CommandController, :create_section
+  end
+
+  scope "/api/blocks", MnemoWeb do
+    pipe_through :api
+
+    delete "/:block_id", CommandController, :delete_block
+    patch "/:block_id", CommandController, :save_block
+    post "/", CommandController, :create_block
   end
 
   scope "/api/content_manager", MnemoWeb do
@@ -67,28 +79,6 @@ defmodule MnemoWeb.Router do
     put "/:content_block_id", APIController, :save_content_block
     delete "/:content_block_id", APIController, :delete_content_block
     post "/", APIController, :create_content_block
-  end
-
-  scope "/api/section", MnemoWeb do
-    pipe_through :api
-
-    get "/:section_id/content_blocks", APIController, :content_blocks
-
-    get "/:section_id", APIController, :section
-    delete "/:section_id", APIController, :delete_section
-    put "/", APIController, :save_section
-    post "/", APIController, :create_section
-  end
-
-  scope "/api/subjects", MnemoWeb do
-    pipe_through :api
-
-    get "/:subject_id/sections", APIController, :sections
-
-    delete "/:subject_id", APIController, :delete_subject
-    # get "/:subject_id", APIController, :subject
-    put "/", APIController, :save_subject
-    # post "/", APIController, :create_subject
   end
 
   scope "/api/student", MnemoWeb do

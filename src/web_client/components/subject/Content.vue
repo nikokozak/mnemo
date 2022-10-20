@@ -5,7 +5,7 @@
         </div>
         <hr class="border-gray-400">
 
-        <template v-for="section in sections">
+        <template v-for="section in sections" :key="section.id" >
             <div>
                 <SubjectSection 
                     :section="section"
@@ -22,13 +22,13 @@ import { ref, reactive } from 'vue';
 
 const props = defineProps(['subject']);
 const subjectId = props.subject.id;
-const sections = ref(props.subject.sections)
+const sections = ref(props.subject.sections);
 const student = "nikokozak@gmail.com";
 
 function createSection() {
-    useSimpleFetch(`/api/section`, {
+    useSimpleFetch(`/api/sections`, {
         method: 'POST',
-        body: { subject_id: subjectId }
+        body: { subject_id: subjectId },
     }).then(response => {
         sections.value.push(response);
         console.log(`created new section ${response.id}`);
@@ -36,7 +36,9 @@ function createSection() {
 }
 
 function removeSectionFromLocalState(sectionId) {
+    console.log("removing id: " + sectionId)
     const sectionIdx = sections.value.findIndex(section => section.id == sectionId);
+    console.log("section idx removing: " + sectionIdx)
     sections.value.splice(sectionIdx, 1);
 }
 </script>

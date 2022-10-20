@@ -1,8 +1,8 @@
 <template>
     <div class="mb-8">
         <div class="flex justify-between">
-            <h1 class="text-sm text-gray-400">subject information</h1>
-            <ScaleLoader v-show="updating" height="20px" width="4px" class="mt-20" />
+            <h1 class="text-sm text-gray-400 mb-2">subject information</h1>
+            <ScaleLoader v-show="updating" height="8px" width="2px" class="" />
         </div>
         <hr class="border-gray-400">
 
@@ -33,6 +33,7 @@ import { debounce } from 'lodash';
 import { ref, reactive } from 'vue';
 
 const props = defineProps(['subject']);
+const subject = ref(props.subject);
 const subjectId = props.subject.id;
 const student = "nikokozak@gmail.com";
 
@@ -40,9 +41,9 @@ const updating = ref(false);
 
 const handleInput = debounce(function() {
     updating.value = true; 
-    useSimpleFetch(`/api/subjects`, {
-        method: 'PUT',
-        body: { subject: subject.value }
+    useSimpleFetch(`/api/subjects/${subjectId}`, {
+        method: 'PATCH',
+        body: subject.value
     }).then(response => {
         console.log(`successfully updated ${subjectId}`);
         updating.value = false;

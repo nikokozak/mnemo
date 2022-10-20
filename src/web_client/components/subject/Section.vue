@@ -8,11 +8,10 @@
             </svg>
         </div>
         <!-- End Section Title -->
-
-        <template v-for="block in blocks">
+        <template v-for="block in blocks" :key="block.id">
             <component :is="getComponentFromType(block.type)"
                 :block="block"
-                @delete="refresh" />
+                @delete="removeBlockFromLocalState" />
         </template>
 
         <button @click="showCreateBlockModal = true" class="px-4 py-2 border rounded-lg text-sm">Create Content Block</button>
@@ -88,7 +87,7 @@ import { ref } from 'vue';
 import { debounce } from 'lodash';
 
 const props = defineProps(['section']);
-const emit = defineEmits(['delete']);
+const emit = defineEmits(['delete', 'update']);
 
 const section = ref(props.section);
 const updating = ref(false);
@@ -132,30 +131,36 @@ function createFIBQBlock() {
 
 function createBlock(type) {
     showCreateBlockModal.value = false;
-    useSimpleFetch(`/api/content_block`, {
+    useSimpleFetch(`/api/blocks`, {
         method: 'POST',
-        body: { section_id: section.value.id, type }
+        body: { section_id: section.value.id, subject_id: section.value.subject_id, type }
     }).then(response => {
         blocks.value.push(response);
     })
 }
 
 function deleteSection() {
-    useSimpleFetch(`/api/section/${section.value.id}`, {
+    useSimpleFetch(`/api/sections/${section.value.id}`, {
         method: 'DELETE'
     }).then(response => {
-        emit('delete', section.id);
+        emit('delete', section.value.id);
     })
 }
 
 // Saves the section on title input
 const handleInput = debounce(() => {
     console.log(section.value);
-    useSimpleFetch(`/api/section/`, {
-        method: 'PUT',
-        body: { section: section.value }
+    useSimpleFetch(`/api/sections/${section.value.id}`, {
+        method: 'PATCH',
+        body: section.value,
     }).then(response => {
         console.log(`successfully updated ${section.value.id}`);
     })
 }, 500)
+
+function removeBlockFromLocalState(blockId) {
+    const blockIdx = blocks.value.findIndex(block => block.id == blockId);
+    console.log("block idx removing: " + blockIdx)
+    blocks.value.splice(blockIdx, 1);
+}
 </script>

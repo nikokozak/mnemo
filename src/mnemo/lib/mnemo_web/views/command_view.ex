@@ -12,4 +12,8 @@ defmodule MnemoWeb.CommandView do
       blocks: Enum.map(section.blocks, &MnemoWeb.ViewHelpers.filter_block_fields_by_type/1)
     }
   end
+
+  def render("block.json", %{block: block}) do
+    MnemoWeb.ViewHelpers.filter_block_fields_by_type(block)
+  end
 end

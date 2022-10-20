@@ -75,13 +75,10 @@
 import { ref } from 'vue';
 
 const emit = defineEmits(['delete', 'save']);
-const config = useRuntimeConfig();
-
 const props = defineProps(['block']);
+
 const block = ref(props.block);
-
 const editing = ref(true);
-
 
 function addImage() {
     block.value.static_content.push({
@@ -98,22 +95,16 @@ function addText() {
 }
 
 function deleteBlock() {
-    $fetch(`${config.public.baseURL}/api/content_block/${block.value.id}`, {
-        method: 'DELETE'
-    }).then(response => {
-        emit('delete');
+    useDeleteBlock(block).then(response => {
+        emit('delete', block.value.id);
     })
 }
 
 function saveBlock() {
-    $fetch(`${config.public.baseURL}/api/content_block/${block.value.id}`, {
-        method: 'PUT',
-        body: { content_block: block.value }
-    }).then(response => {
-        console.log(`correctly saved content block ${block.value.id}`);
+    useSaveBlock(block).then(response => {
+        console.log(`successfully saved static block`); 
         emit('save');
-    })
-    editing.value = false;
+    });
 }
 
 function editBlock() {

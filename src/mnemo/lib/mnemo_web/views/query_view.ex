@@ -7,6 +7,7 @@ defmodule MnemoWeb.QueryView do
         %{
           id: section.id,
           title: section.title,
+          subject_id: section.subject_id,
           order_in_subject: section.order_in_subject,
           blocks: Enum.map(section.blocks, &MnemoWeb.ViewHelpers.filter_block_fields_by_type/1)
         }

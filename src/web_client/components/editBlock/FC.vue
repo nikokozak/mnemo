@@ -153,17 +153,17 @@ function addBackText() {
 }
 
 function deleteBlock() {
-    $fetch(`${config.public.baseURL}/api/content_block/${block.value.id}`, {
+    useSimpleFetch(`/api/blocks/${block.value.id}`, {
         method: 'DELETE'
     }).then(response => {
-        emit('delete');
+        emit('delete', block.value.id);
     })
 }
 
 function saveBlock() {
-    $fetch(`${config.public.baseURL}/api/content_block/${block.value.id}`, {
-        method: 'PUT',
-        body: { content_block: block.value }
+    useSimpleFetch(`/api/blocks/${block.value.id}`, {
+        method: 'PATCH',
+        body: block.value
     }).then(response => {
         console.log(`correctly saved content block ${block.value.id}`);
         emit('save');
