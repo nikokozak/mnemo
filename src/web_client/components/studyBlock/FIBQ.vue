@@ -7,8 +7,9 @@
 
         <div class="mt-4 w-full h-20 border border-gray-500 border-dashed rounded-lg"></div>
 
-        <template v-for="fragment in question">
-            <p>{{fragment}}</p>
+        <template v-for="fragment in answerFields">
+            <input v-if="fragment.type == 'input'" v-model="fragment.text" class="inline underline border-b border-dashed border-gray-500 w-20" />
+            <p v-else class="inline">{{fragment.text}}</p>
         </template>
     </div>
     <!-- End Inner Question -->
@@ -21,10 +22,10 @@
             </svg>
             Check Answer & Continue
         </div>
+        {{ answers }}
     </div>
     <!-- End Block Controls -->
 </div>
-{{block}}
 </template>
 
 <script setup>
@@ -36,8 +37,17 @@ const config = useRuntimeConfig();
 const props = defineProps(['block']);
 const block = ref(props.block);
 
-const question = computed(() => {
-    return block.value?.fibq_question_text?.split(/\{\{.*?\}\}/);
+const fragments = block.value?.fibq_question_text?.split(/(\*\$\*)/);
+const answerFields = ref(fragments.map(e => {
+    if (e == "*$*") {
+        return {type: "input", text: null}
+    } else {
+        return {type: "text", text: e}
+    }
+}));
+
+const answers = computed(() => {
+    return answerFields.value.filter(e => e.type == "input").map(e => e.text);
 })
 
 function testBlock() {

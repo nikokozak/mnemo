@@ -183,7 +183,7 @@ defmodule Mnemo.Access.Schemas.Block do
             %{"text" => List.last(match)}
           end)
 
-        text_with_separators = String.replace(template_text, ~r/\{.*?\}/, "{{}}")
+        text_with_separators = String.replace(template_text, ~r/\{.*?\}/, "*$*")
 
         changeset
         |> put_change(:fibq_question_text, text_with_separators)
