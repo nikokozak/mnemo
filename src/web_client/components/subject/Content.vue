@@ -7,7 +7,7 @@
 
         <template v-for="section in sections" :key="section.id" >
             <div>
-                <SubjectSection 
+                <SubjectContentSection 
                     :section="section"
                     @delete="removeSectionFromLocalState" />
             </div>

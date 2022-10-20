@@ -28,4 +28,24 @@ defmodule MnemoWeb.CommandView do
       }
     }
   end
+
+  def render("updated_enrollment.json", %{enrollment: enrollment}) do
+    block_cursor =
+      if is_nil(enrollment.block_cursor) do
+        nil
+      else
+        block_cursor_section = %{
+          id: enrollment.block_cursor.section.id,
+          title: enrollment.block_cursor.section.title
+        }
+
+        MnemoWeb.ViewHelpers.filter_block_fields_by_type(enrollment.block_cursor)
+        |> Map.merge(%{section: block_cursor_section})
+      end
+
+    %{
+      id: enrollment.id,
+      block_cursor: block_cursor
+    }
+  end
 end

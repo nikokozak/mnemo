@@ -20,6 +20,7 @@ defmodule MnemoWeb.Router do
     pipe_through :api
 
     get "/student/:student_id", QueryController, :get_student_page
+    get "/study/:enrollment_id", QueryController, :get_study_page
   end
 
   scope "/api/subjects", MnemoWeb do
@@ -42,6 +43,7 @@ defmodule MnemoWeb.Router do
   scope "/api/blocks", MnemoWeb do
     pipe_through :api
 
+    post "/:block_id/test", CommandController, :test_block
     delete "/:block_id", CommandController, :delete_block
     patch "/:block_id", CommandController, :save_block
     post "/", CommandController, :create_block
@@ -50,6 +52,8 @@ defmodule MnemoWeb.Router do
   scope "/api/enrollments", MnemoWeb do
     pipe_through :api
 
+    post "/:enrollment_id/move", CommandController, :move_cursor_enrollment
+    post "/:enrollment_id/consume", CommandController, :consume_cursor_enrollment
     delete "/:enrollment_id", CommandController, :delete_enrollment
     post "/", CommandController, :create_enrollment
   end

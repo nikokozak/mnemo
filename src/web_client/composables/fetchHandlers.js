@@ -103,3 +103,41 @@ export async function useDeleteEnrollment(enrollment) {
         method: 'DELETE',
     })
 }
+
+/* STUDY */
+
+export async function useConsumeCursor(enrollment, answers) {
+    enrollment = unref(enrollment);
+    answers = unref(answers);
+
+    return useSimpleFetch(`/api/enrollments/${enrollment.id}/consume`, {
+        key: enrollment.id,
+        method: 'POST',
+        body: {
+            enrollment_id: enrollment.id,
+            answers: answers
+        }})
+}
+
+export async function useTestBlock(block, answer) {
+    block = unref(block);
+    answer = unref(answer);
+
+    return useSimpleFetch(`/api/blocks/${block.id}/test`, {
+        key: block.id,
+        method: 'POST',
+        body: { answer }
+    })
+}
+
+export async function useMoveCursor(enrollment, new_cursor_id) {
+    enrollment = unref(enrollment);
+
+    return useSimpleFetch(`/api/enrollments/${enrollment.id}/move`, {
+        key: new_cursor_id,
+        method: 'POST',
+        body: {
+            new_cursor_id: new_cursor_id
+        }
+    })
+}

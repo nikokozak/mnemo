@@ -3,7 +3,7 @@
 
     <!-- Inner Block Content -->
 
-    <template v-for="brick in contentBlock.static_content">
+    <template v-for="brick in block.static_content">
         <div v-if="brick.type == 'text'" class="ml-5 mr-4 mb-4">
             <p class="text-sm">{{ brick.content }}</p>
         </div>
@@ -18,7 +18,7 @@
 
     <!-- Block Controls -->
     <div class="flex text-xs border-t mt-4 py-2 justify-center"> 
-        <div @click="consumeBlock" class="flex">
+        <div @click="testBlock(null)" class="flex">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 5.25l-7.5 7.5-7.5-7.5m15 6l-7.5 7.5-7.5-7.5" />
             </svg>
@@ -33,27 +33,16 @@
 import { ref } from 'vue';
 const emit = defineEmits(['consume']);
 
-const props = defineProps(['contentBlock']);
-const contentBlock = ref(props.contentBlock);
+const props = defineProps(['block']);
+const block = ref(props.block);
 
-function consumeBlock() {
-    console.log("consuming");
-    testAnswer().then(answerCorrect => {
+function testBlock(answer) {
+    useTestBlock(block, answer).then(answerCorrect => {
         if (answerCorrect) {
             console.log("the answer was correct!")
-            emit('consume', {contentBlock: contentBlock.value, answers: []});
+            emit('consume', null);
         } else {
             console.log("the answer was incorrect!")
-        }
-    })
-}
-
-async function testAnswer() {
-    return useSimpleFetch(`/api/content_block/test`, {
-        method: 'POST',
-        body: {
-            content_block_id: contentBlock.value.id,
-            answer: null,
         }
     })
 }

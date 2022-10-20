@@ -38,6 +38,26 @@ defmodule Mnemo.Access.Schemas.Enrollment do
 
   def load_subject(query = %Ecto.Query{}), do: Ecto.Query.preload(query, :subject)
 
+  def load_subject_with_sections(query = %Ecto.Query{}) do
+    from(q in query,
+      left_join: sub in assoc(q, :subject),
+      left_join: sec in assoc(sub, :sections),
+      order_by: sec.order_in_subject,
+      preload: [subject: {sub, sections: sec}]
+    )
+  end
+
+  def load_subject_with_sections_and_blocks(query = %Ecto.Query{}) do
+    from(q in query,
+      left_join: sub in assoc(q, :subject),
+      left_join: sec in assoc(sub, :sections),
+      left_join: bl in assoc(sec, :blocks),
+      order_by: sec.order_in_subject,
+      order_by: bl.order_in_section,
+      preload: [subject: {sub, sections: {sec, blocks: bl}}]
+    )
+  end
+
   def load_cursor(query = %Ecto.Query{}), do: Ecto.Query.preload(query, :block_cursor)
 
   def load_cursor_with_section(query = %Ecto.Query{}),
@@ -143,21 +163,31 @@ defmodule Mnemo.Access.Schemas.Enrollment do
     end
   end
 
-  def new_cursor_changeset(enrollment_id, new_block_id) when is_binary(enrollment_id) do
-    enrollment =
-      __MODULE__
-      |> where_id(enrollment_id)
-      |> PGRepo.one()
-
-    enrollment
-    |> change
+  def new_cursor_changeset(enrollment_id, new_block_id)
+      when is_binary(enrollment_id) and is_binary(new_block_id) do
+    __MODULE__
+    |> where_id(enrollment_id)
+    |> PGRepo.one()
     |> new_cursor_changeset(new_block_id)
   end
 
-  def new_cursor_changeset(changeset = %Ecto.Changeset{}, new_block_id) do
-    new_block = Block |> where_id(new_block_id) |> PGRepo.one()
+  def new_cursor_changeset(enrollment, nil) do
+    enrollment
+    |> change()
+  end
 
-    changeset
+  def new_cursor_changeset(enrollment, new_block_id) when is_binary(new_block_id) do
+    new_block =
+      Block
+      |> where_id(new_block_id)
+      |> PGRepo.one()
+
+    new_cursor_changeset(enrollment, new_block)
+  end
+
+  def new_cursor_changeset(enrollment, new_block = %Block{}) do
+    enrollment
+    |> change()
     |> put_assoc(:block_cursor, new_block)
   end
 
