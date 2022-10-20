@@ -58,56 +58,6 @@ defmodule MnemoWeb.Router do
     post "/", CommandController, :create_enrollment
   end
 
-  scope "/api/content_manager", MnemoWeb do
-    pipe_through :api
-
-    post "/add_user", APIController, :add_user
-    get "/users", APIController, :users
-  end
-
-  scope "/content", MnemoWeb do
-    pipe_through :browser
-
-    get "/create", ContentController, :create
-    get "/edit/:subject_id", ContentController, :edit
-    get "/delete/:subject_id", ContentController, :delete
-  end
-
-  scope "/api/progressions", MnemoWeb do
-    pipe_through :api
-
-    get "/:progression_id/sections_and_blocks", APIController, :sections_and_blocks
-    post "/consume", APIController, :consume_block
-    get "/:progression_id", APIController, :student_progression
-    delete "/:progression_id", APIController, :delete_student_progression
-    post "/", APIController, :create_student_progression
-  end
-
-  scope "/api/student", MnemoWeb do
-    pipe_through :api
-
-    get "/:student_id/subjects", APIController, :subjects
-    get "/:student_id/progressions", APIController, :student_progressions
-  end
-
-  scope "/api/content", MnemoWeb do
-    pipe_through :api
-
-    post "/save", ContentController, :save
-  end
-
-  scope "/student", MnemoWeb do
-    pipe_through :browser
-
-    get "/", StudentController, :index
-  end
-
-  scope "/", MnemoWeb do
-    pipe_through :browser
-
-    get "/", PageController, :index
-  end
-
   # Other scopes may use custom stacks.
   # scope "/api", MnemoWeb do
   #   pipe_through :api
