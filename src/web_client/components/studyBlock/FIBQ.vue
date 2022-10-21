@@ -22,7 +22,6 @@
             </svg>
             Check Answer & Continue
         </div>
-        {{ answers }}
     </div>
     <!-- End Block Controls -->
 </div>
@@ -37,7 +36,11 @@ const config = useRuntimeConfig();
 const props = defineProps(['block']);
 const block = ref(props.block);
 
+// Split our text according to the special character we've defined
+// as a placeholder
 const fragments = block.value?.fibq_question_text?.split(/(\*\$\*)/);
+
+// Create a structure so we can bind to the inputs.
 const answerFields = ref(fragments.map(e => {
     if (e == "*$*") {
         return {type: "input", text: null}
@@ -46,21 +49,21 @@ const answerFields = ref(fragments.map(e => {
     }
 }));
 
-const answers = computed(() => {
+const currentAnswers = computed(() => {
     return answerFields.value.filter(e => e.type == "input").map(e => e.text);
-})
+});
+// Store previous answers here.
+const answers = [];
 
 function testBlock() {
-    if (currentAnswer.value != null) {
-        useTestBlock(block, currentAnswer.value).then(isCorrect => {
-            if (isCorrect) {
-                answers.push({answer: currentAnswer.value, correct: true})
-                emit('consume', answers)
-            } else {
-                answers.push({answer: currentAnswer.value, correct: false})
-            }
-        })
-    }
+    useTestBlock(block, currentAnswers).then(isCorrect => {
+        if (isCorrect) {
+            answers.push({answer: currentAnswers.value, correct: true})
+            emit('consume', answers)
+        } else {
+            answers.push({answer: currentAnswers.value, correct: false})
+        }
+    })
 }
 
 </script>

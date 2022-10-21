@@ -34,4 +34,13 @@ defmodule Mnemo.Engines.Block do
     # Flash Card blocks are always "correct" when tested
     {:ok, true}
   end
+
+  def test_block_type("fibq", %Block{} = block, answer_list) do
+    correct_answers = block.fibq_question_answers |> Enum.map(& &1["text"])
+
+    {:ok,
+     Enum.all?(correct_answers, fn ca ->
+       Enum.find_value(answer_list, false, fn al -> al == ca end)
+     end)}
+  end
 end
