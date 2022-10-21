@@ -7,9 +7,9 @@
 
         <div class="mt-4 w-full h-20 border border-gray-500 border-dashed rounded-lg"></div>
 
-        <template v-for="fragment in answerFields">
-            <input v-if="fragment.type == 'input'" v-model="fragment.text" class="inline underline border-b border-dashed border-gray-500 w-20" />
-            <p v-else class="inline">{{fragment.text}}</p>
+        <template v-for="field in answerFields">
+            <input v-if="field.type == 'input'" v-model="field.text" class="inline underline border-b border-dashed border-gray-500 w-20" />
+            <p v-else class="inline">{{field.text}}</p>
         </template>
     </div>
     <!-- End Inner Question -->
@@ -31,39 +31,32 @@
 import { ref } from 'vue';
 
 const emit = defineEmits(['delete', 'save']);
-const config = useRuntimeConfig();
 
+const SPLIT_TOKEN = "*$*";
 const props = defineProps(['block']);
 const block = ref(props.block);
 
 // Split our text according to the special character we've defined
-// as a placeholder
-const fragments = block.value?.fibq_question_text?.split(/(\*\$\*)/);
-
+const fragments = block.value.fibq_question_text.split(/(\*\$\*)/);
 // Create a structure so we can bind to the inputs.
-const answerFields = ref(fragments.map(e => {
-    if (e == "*$*") {
-        return {type: "input", text: null}
-    } else {
-        return {type: "text", text: e}
-    }
-}));
+const answerFields = ref(buildAnswerFields(fragments));
 
+// Get only the text values from our inputs.
 const currentAnswers = computed(() => {
-    return answerFields.value.filter(e => e.type == "input").map(e => e.text);
+    return answerFields.value
+        .filter(field => field.type == "input")
+        .map(field => field.text);
 });
-// Store previous answers here.
-const answers = [];
 
-function testBlock() {
-    useTestBlock(block, currentAnswers).then(isCorrect => {
-        if (isCorrect) {
-            answers.push({answer: currentAnswers.value, correct: true})
-            emit('consume', answers)
+const { testBlock } = useStudyBlockHelpers(block, emit);
+
+function buildAnswerFields(splitText) {
+    return splitText.map(fragment => {
+        if (fragment == SPLIT_TOKEN) {
+            return {type: "input", text: ""}
         } else {
-            answers.push({answer: currentAnswers.value, correct: false})
+            return {type: "text", text: fragment}
         }
     })
 }
-
 </script>

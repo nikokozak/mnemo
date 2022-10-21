@@ -36,14 +36,5 @@ const emit = defineEmits(['consume']);
 const props = defineProps(['block']);
 const block = ref(props.block);
 
-function testBlock(answer) {
-    useTestBlock(block, answer).then(answerCorrect => {
-        if (answerCorrect) {
-            console.log("the answer was correct!")
-            emit('consume', null);
-        } else {
-            console.log("the answer was incorrect!")
-        }
-    })
-}
+const { testBlock } = useStudyBlockHelpers(block, emit);
 </script>

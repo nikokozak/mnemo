@@ -68,10 +68,5 @@ const block = ref(props.block);
 
 const showBack = ref(false);
 
-function testBlock() {
-    useTestBlock(block, null).then(answerCorrect => {
-        emit('consume', null);
-    })
-}
-
+const { testBlock } = useStudyBlockHelpers(block, emit);
 </script>
