@@ -25,7 +25,7 @@
 import { ref, unref } from 'vue';
 
 const emit = defineEmits(['add', 'remove']);
-const props = defineProps(['choices']);
+const props = defineProps(['choices', 'editable']);
 const choices = ref(props.choices);
 
 function addAnswerChoice() {

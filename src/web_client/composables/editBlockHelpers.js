@@ -2,7 +2,7 @@ export function useEditBlockHelpers(emitter) {
     const deleteBlock = (block) => {
         useDeleteBlock(block).then(_response => {
             console.log(`deleted ${block.type} block ${block.id}`);
-            emitter('delete', block.value.id);
+            emitter('delete', block.id);
         })
     }
 

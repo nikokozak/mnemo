@@ -4,8 +4,9 @@
             <IconText class="mr-2 w-6 h-6" />
         </template>
 
-        <BlockBuilderTextAndImageEditable 
+        <BlockBuilderTextAndImage
             :bricks="block.static_content"
+            :editable="true"
         />
 
         <template #controls>

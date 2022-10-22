@@ -7,15 +7,17 @@
         <div class="p-4">
             <h2>Front</h2>
 
-            <BlockBuilderTextAndImageEditable 
-                :bricks="block.fc_front_content" />
+            <BlockBuilderTextAndImage
+                :bricks="block.fc_front_content"
+                :editable="true" />
         </div>
 
         <div class="p-4">
             <h2>Back</h2>
 
-            <BlockBuilderTextAndImageEditable 
-                :bricks="block.fc_back_content" />
+            <BlockBuilderTextAndImage
+                :bricks="block.fc_back_content"
+                :editable="true" />
         </div>
 
         <template #controls>
