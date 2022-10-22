@@ -19,7 +19,7 @@
         </div>
 
         <template #controls>
-            <EditBlockControls @leftClick="deleteBlock" @rightClick="saveBlock" />
+            <EditBlockControls @leftClick="deleteBlock(block)" @rightClick="saveBlock(block)" />
         </template>
     </BlockBuilderBlock>
 </template>
@@ -33,16 +33,5 @@ const emit = defineEmits(['delete', 'save']);
 const props = defineProps(['block']);
 const block = ref(props.block);
 
-function deleteBlock() {
-    useDeleteBlock(block).then(response => {
-        emit('delete', block.value.id);
-    })
-}
-
-function saveBlock() {
-    useSaveBlock(block).then(response => {
-        console.log(`successfully saved fc`);
-        emit('save');
-    })
-}
+const { deleteBlock, saveBlock } = useEditBlockHelpers(emit);
 </script>

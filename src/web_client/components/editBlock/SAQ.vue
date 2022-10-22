@@ -16,7 +16,7 @@
         <BlockBuilderPossibleAnswersEditable :choices="block.saq_answer_choices" />
 
         <template #controls>
-            <EditBlockControls @leftClick="deleteBlock" @rightClick="saveBlock" />
+            <EditBlockControls @leftClick="deleteBlock(block)" @rightClick="saveBlock(block)" />
         </template>
     </BlockBuilderBlock>
 </template>
@@ -26,20 +26,9 @@ import { ref } from 'vue';
 import BlockBuilderBlock from '@/components/blockBuilder/Block.vue';
 
 const emit = defineEmits(['delete', 'save']);
-const config = useRuntimeConfig();
 
 const props = defineProps(['block']);
 const block = ref(props.block);
 
-function deleteBlock() {
-    useDeleteBlock(block).then(response => {
-        emit('delete', block.value.id);
-    })
-}
-
-function saveBlock() {
-    useSaveBlock(block).then(response => {
-        emit('save');
-    })
-}
+const { deleteBlock, saveBlock } = useEditBlockHelpers(emit);
 </script>

@@ -26,7 +26,7 @@
         </div>
 
         <template #controls>
-            <EditBlockControls @leftClick="deleteBlock" @rightClick="saveBlock" />
+            <EditBlockControls @leftClick="deleteBlock(block)" @rightClick="saveBlock(block)" />
         </template>
 
     </BlockBuilderBlock>
@@ -46,15 +46,5 @@ function updateMCQState({ choices, correctAnswer}) {
     block.value.mcq_answer_correct = correctAnswer;
 }
 
-function deleteBlock() {
-    useDeleteBlock(block).then(response => {
-        emit('delete', block.value.id);
-    })
-}
-
-function saveBlock() {
-    useSaveBlock(block).then(response => {
-        emit('save');
-    })
-}
+const { deleteBlock, saveBlock } = useEditBlockHelpers(emit);
 </script>

@@ -9,7 +9,7 @@
         />
 
         <template #controls>
-            <EditBlockControls @leftClick="deleteBlock" @rightClick="saveBlock" />
+            <EditBlockControls @leftClick="deleteBlock(block)" @rightClick="saveBlock(block)" />
         </template>
     </BlockBuilderBlock>
 </template>
@@ -23,16 +23,5 @@ const props = defineProps(['block']);
 
 const block = ref(props.block);
 
-function deleteBlock() {
-    useDeleteBlock(block).then(response => {
-        emit('delete', block.value.id);
-    })
-}
-
-function saveBlock() {
-    useSaveBlock(block).then(response => {
-        console.log(`successfully saved static block`); 
-        emit('save');
-    });
-}
+const { deleteBlock, saveBlock } = useEditBlockHelpers(emit);
 </script>
