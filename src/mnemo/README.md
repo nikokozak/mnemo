@@ -1,10 +1,17 @@
 # TODO
-- Implement rest of review blocks
 - Component decomp in Client
+- Finish making useHelpers for save/delete edit block
+- Finish making staticTextAndImage editable component
+- Make review versions of components
 - Centralized API impl in Client w/Typescript
 - Split up Controllers
+- Test of Controllers, expected return values, null-values, etc.
+- Insomnia endpoints?
 - Implement testable logic / review queue
 - Thorough testing
+- UX/UI improvements (drag & drop, text field deletion, etc.)
+- User registration
+- Subject Options UI (publishing, subscribers, etc.)
 
 # Mnemo
 
