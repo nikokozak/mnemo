@@ -61,8 +61,7 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
       # Fill in the Blank Question
       add(:fibq_question_img, :string)
       add(:fibq_question_text_template, :string)
-      add(:fibq_question_text, :string)
-      add(:fibq_question_answers, {:array, :map})
+      add(:fibq_question_structure, {:array, :map})
 
       # FlashCard
       add(:fc_front_content, {:array, :map})

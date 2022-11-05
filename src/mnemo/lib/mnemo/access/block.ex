@@ -45,10 +45,10 @@ defmodule Mnemo.Access.Schemas.Block do
     field :fibq_question_img, :string
     # This is "raw" text, i.e. "the color of the sky is {{ blue }}"
     field :fibq_question_text_template, :string
-    # Text with separators (i.e. {{}})
-    field :fibq_question_text, :string
-    # Ordered answers corresponding to separators
-    field :fibq_question_answers, {:array, :map}, default: [%{"text" => nil}]
+    # This is the structure we parse from the template.
+    # It consists of an array of maps, with each containing the following fields:
+    # %{ type: "input" | "text", value: "", [if input: input_idx: 0, answer: "blue"] }
+    field :fibq_question_structure, {:array, :map}, default: []
 
     many_to_many :enrollments, Enrollment,
       join_through: "enrollment_block",
@@ -146,7 +146,7 @@ defmodule Mnemo.Access.Schemas.Block do
       static_content
       saq_question_img saq_question_text saq_answer_choices
       mcq_question_img mcq_question_text mcq_answer_choices mcq_answer_correct
-      fibq_question_img fibq_question_text fibq_question_answers fibq_question_text_template
+      fibq_question_img fibq_question_text_template fibq_question_structure
       fc_front_content fc_back_content)a)
     |> put_change(:order_in_section, current_order(section_id))
     |> foreign_key_constraint(:section_id)
@@ -166,28 +166,46 @@ defmodule Mnemo.Access.Schemas.Block do
       static_content
       saq_question_img saq_question_text saq_answer_choices
       mcq_question_img mcq_question_text mcq_answer_choices mcq_answer_correct
-      fibq_question_img fibq_question_text fibq_question_answers fibq_question_text_template
+      fibq_question_img fibq_question_text_template fibq_question_structure
       fc_front_content fc_back_content)a)
     |> maybe_parse_fibq_template()
   end
 
   defp maybe_parse_fibq_template(changeset) do
+    # If content block is FIBQ, then restructure the raw template we get,
+    # filling out the fibq_question_structure field.
     case Ecto.Changeset.get_change(changeset, :fibq_question_text_template) do
       nil ->
         changeset
 
       template_text ->
-        answers =
-          Regex.scan(~r/\{(.*?)\}/, template_text)
-          |> Enum.map(fn match ->
-            %{"text" => List.last(match)}
-          end)
+        # Split the text into its component parts, keeping the capture groups, and removing whitespaces.
+        split_text =
+          String.split(template_text, ~r/\{(.*?)\}/, include_captures: true, trim: true)
 
-        text_with_separators = String.replace(template_text, ~r/\{.*?\}/, "*$*")
+        # Iterate over the split text and map structs to each text component.
+        structured =
+          Enum.reduce(split_text, {0, []}, fn split, {input_idx, result} ->
+            case Regex.run(~r/\{(.*?)\}/, split) do
+              [_, match] ->
+                # In case this text fragment is a "variable".
+                {input_idx + 1, [ %{
+                  type: "input",
+                  value: "",
+                  input_idx: input_idx,
+                  answer: match
+                } | result ]}
+              nil ->
+                # Otherwise, regular text.
+                {input_idx, [ %{
+                  type: "text",
+                  value: split
+                } | result ]}
+            end
+          end) |> elem(1) |> Enum.reverse
 
         changeset
-        |> put_change(:fibq_question_text, text_with_separators)
-        |> put_change(:fibq_question_answers, answers)
+        |> put_change(:fibq_question_structure, structured)
     end
   end
 

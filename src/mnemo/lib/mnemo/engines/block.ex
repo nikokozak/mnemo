@@ -9,38 +9,45 @@ defmodule Mnemo.Engines.Block do
     |> test_block(answer)
   end
 
+  # Returns a tuple, where the first el is whether the entire block is correct, and second is details.
   def test_block(%Block{} = block, answer) do
     test_block_type(block.type, block, answer)
   end
 
   def test_block_type("static", %Block{} = _block, _answer) do
     # Static blocks are always "correct" when tested
-    {:ok, true}
+    {:ok, {true, true}}
   end
 
   def test_block_type("mcq", %Block{} = block, answer_key) when is_binary(answer_key) do
     # Should always receive the "key" of the given answer
-    {:ok, block.mcq_answer_correct == answer_key}
+
+    is_block_correct = block.mcq_answer_correct == answer_key
+
+    {:ok, {is_block_correct, is_block_correct}}
   end
 
   def test_block_type("saq", %Block{} = block, answer) when is_binary(answer) do
-    {:ok,
-     Enum.any?(block.saq_answer_choices, fn choice ->
+    isCorrect = Enum.any?(block.saq_answer_choices, fn choice ->
        choice["text"] == answer
-     end)}
+     end)
+    {:ok, {isCorrect, isCorrect}}
   end
 
   def test_block_type("fc", %Block{} = _block, _answer) do
     # Flash Card blocks are always "correct" when tested
-    {:ok, true}
+    {:ok, {true, true}}
   end
 
-  def test_block_type("fibq", %Block{} = block, answer_list) do
-    correct_answers = block.fibq_question_answers |> Enum.map(& &1["text"])
+  def test_block_type("fibq", %Block{} = _block, answer_list) do
+    # answer_list is expected to be [%{answer: "blue", input_idx: 0, value: "actual_answer"}]
 
-    {:ok,
-     Enum.all?(correct_answers, fn ca ->
-       Enum.find_value(answer_list, false, fn al -> al == ca end)
-     end)}
+    graded_answers = Enum.map(answer_list, fn li ->
+      Map.put(li, :correct, li["answer"] == li["value"])
+    end)
+
+    is_block_correct = Enum.all?(graded_answers, fn answer -> answer.correct end)
+
+    {:ok, {is_block_correct, graded_answers}}
   end
 end

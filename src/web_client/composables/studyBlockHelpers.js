@@ -1,30 +1,34 @@
-import { unref } from 'vue';
+import { ref, unref } from 'vue';
 
 const MAX_ATTEMPTS = 3;
 
 export function useStudyBlockHelpers(block, emitter) {
 
     const answerStore = [];
+    let testResult = ref(null);
 
-    const testBlock = (answers = null) => {
-        answers = unref(answers);        
+    const testBlock = (answer = null) => {
+        answer = unref(answer);        
         block = unref(block);
 
-        return useTestBlock(block, answers).then(isCorrect => {
-            logStatus(block, isCorrect);
-            addAnswerStateToStore(answers, isCorrect, answerStore); 
-            maybeConsumeBlock(isCorrect, answerStore, answers, emitter);
+        return useTestBlock(block, answer).then(testResp => {
+            const { blockCorrect, results } = testResp;
+            logStatus(block, blockCorrect);
+            testResult.value = results;
+            addTestResultToStore(answer, results, answerStore);
+            maybeConsumeBlock(blockCorrect, answerStore, answer, emitter);
 
-            return isCorrect;
+            return blockCorrect;
         })
     }
 
     return {
-        testBlock
+        testBlock,
+        testResult
     }
 }
 
-function addAnswerStateToStore(answer, isCorrect, answerStore) {
+function addTestResultToStore(answer, isCorrect, answerStore) {
     answerStore.push({answer, correct: isCorrect});
 }
 

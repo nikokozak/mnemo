@@ -8,23 +8,34 @@
         <hr>
 
         <BlockBuilderMultipleChoice 
-         :choices="block.mcq_answer_choices"
+            :choices="block.mcq_answer_choices"
+            :corrected="selectedResults"
             @select="(choiceKey) => selected = choiceKey"/>
 
-        <BlockBuilderControlsSingle @click="testBlock(selected)">
+        {{ selectedResults }}
+
+        <BlockBuilderControlsSingle @click="test()">
             Check Answer & Continue
         </BlockBuilderControlsSingle>
     </BlockBuilderBlock>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import BlockBuilderBlock from '@/components/blockBuilder/Block.vue';
-const emit = defineEmits(['consume']);
+ import { ref } from 'vue';
+ import BlockBuilderBlock from '@/components/blockBuilder/Block.vue';
+ const emit = defineEmits(['consume']);
 
-const props = defineProps(['block']);
-const block = ref(props.block);
-let selected = ref("");
+ const props = defineProps(['block']);
+ const block = ref(props.block);
 
-const { testBlock } = useStudyBlockHelpers(block, emit);
+ //gets assigned the key of whatever is selected at the moment.
+ let selected = ref("");
+ let selectedResults = ref({});
+
+ const { testBlock, testResult } = useStudyBlockHelpers(block, emit);
+
+ function test() {
+     testBlock(selected.value);
+     selectedResults.value[selected.value] = testResult;
+ }
 </script>

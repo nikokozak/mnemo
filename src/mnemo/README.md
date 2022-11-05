@@ -1,8 +1,8 @@
 # TODO
-- Component decomp in Client
-- Finish making useHelpers for save/delete edit block
-- Finish making staticTextAndImage editable component
-- Make review versions of components
+- Error feedback in study components
+- Autosave notifications in editBlocks
+- Editable toggle in editBlocks (replace save w/this).
+- Image support in editBlocks.
 - Centralized API impl in Client w/Typescript
 - Split up Controllers
 - Test of Controllers, expected return values, null-values, etc.

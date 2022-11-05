@@ -112,11 +112,11 @@ defmodule MnemoWeb.CommandController do
   end
 
   def test_block(conn, %{"block_id" => block_id, "answer" => answer}) do
-    {:ok, correct?} = BlockEngine.test_block(block_id, answer)
+    {:ok, {blockCorrect?, correctionDetails}} = BlockEngine.test_block(block_id, answer)
 
     conn
     |> put_status(:ok)
-    |> json(correct?)
+    |> json(%{blockCorrect: blockCorrect?, results: correctionDetails})
   end
 
   def create_enrollment(conn, %{"student_id" => student_id, "subject_id" => subject_id}) do

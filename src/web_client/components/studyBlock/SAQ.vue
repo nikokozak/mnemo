@@ -9,7 +9,10 @@
 
         <div class="p-4">
             <h2>Your Answer</h2>
-            <input v-model="currentAnswer" placeholder="Type in your answer here." class="pl-2 py-2 w-full rounded-lg" />
+            <input v-model="currentAnswer"
+                   placeholder="Type in your answer here."
+                   class="pl-2 py-2 w-full rounded-lg border-b"
+                   :class="{'border-red-500': testResult === false }" />
         </div>
 
         <BlockBuilderControlsSingle @click="testBlock(currentAnswer)">
@@ -28,5 +31,5 @@ const props = defineProps(['block']);
 const block = ref(props.block);
 const currentAnswer = ref("");
 
-const { testBlock } = useStudyBlockHelpers(block, emit);
+const { testBlock, testResult } = useStudyBlockHelpers(block, emit);
 </script>

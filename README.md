@@ -33,9 +33,3 @@ modified slightly to include relevant dependencies. It is not used in the
 The Postgres DB for dev & testing is a docker-compose project that runs a
 single PG container with a few envs set, and includes a shell script to 
 start and to stop the service locally. This can be found in `resources`.
-
-TODO: 
-- Split up logic for svelte components in neater fashion (store for every component)
-- Consider switch to Vue
-- Tests for manager, prioritize over unit tests.
-- Tests and specs for functions we created.
