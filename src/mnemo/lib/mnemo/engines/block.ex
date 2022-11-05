@@ -28,9 +28,11 @@ defmodule Mnemo.Engines.Block do
   end
 
   def test_block_type("saq", %Block{} = block, answer) when is_binary(answer) do
-    isCorrect = Enum.any?(block.saq_answer_choices, fn choice ->
-       choice["text"] == answer
-     end)
+    isCorrect =
+      Enum.any?(block.saq_answer_choices, fn choice ->
+        choice["text"] == answer
+      end)
+
     {:ok, {isCorrect, isCorrect}}
   end
 
@@ -42,9 +44,10 @@ defmodule Mnemo.Engines.Block do
   def test_block_type("fibq", %Block{} = _block, answer_list) do
     # answer_list is expected to be [%{answer: "blue", input_idx: 0, value: "actual_answer"}]
 
-    graded_answers = Enum.map(answer_list, fn li ->
-      Map.put(li, :correct, li["answer"] == li["value"])
-    end)
+    graded_answers =
+      Enum.map(answer_list, fn li ->
+        Map.put(li, :correct, li["answer"] == li["value"])
+      end)
 
     is_block_correct = Enum.all?(graded_answers, fn answer -> answer.correct end)
 

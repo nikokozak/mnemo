@@ -23,7 +23,7 @@ defmodule MnemoWeb.ViewHelpers do
           Map.take(block, [
             :fibq_question_img,
             :fibq_question_text_template,
-            :fibq_question_structure,
+            :fibq_question_structure
           ])
 
         "fc" ->
