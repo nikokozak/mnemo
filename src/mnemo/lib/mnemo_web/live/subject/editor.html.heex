@@ -6,22 +6,26 @@
     </div>
     <hr class="border-gray-400">
 
-    <.form for={:subject_information} :let={f} as={:information} phx-change="save_information">
-    <%= text_input f,
-    :title,
-    class: "text-xl border-none pl-0 text-black text-semibold underline underline-offset-8 mt-8 w-full",
-    value: @subject.title,
-    "phx-debounce": "300"
-    %>
+    <.form for={:subject_information}
+    :let={f}
+    phx-change="save_information" >
 
-    <%= textarea f,
-    :description,
-    style: "resize:none",
-    placeholder: "An optional description of what your subject is about.",
-    value: @subject.description,
-    class: "border-none pl-0 mt-4 text-black text-sm underline underline-offset-4 w-full",
-    "phx-debounce": "300"
-    %>
+        <%= text_input f,
+        :title,
+        class: "block text-xl border-none pl-0 text-black text-semibold underline underline-offset-8 mt-8 w-full",
+        value: @subject.title,
+        "phx-debounce": "300"
+        %>
+
+        <%= textarea f,
+        :description,
+        style: "resize:none",
+        placeholder: "An optional description of what your subject is about.",
+        value: @subject.description,
+        class: "block border-none pl-0 mt-4 text-black text-sm underline underline-offset-4 w-full",
+        "phx-debounce": "300"
+        %>
+
     </.form>
 
     <div class="block h-20 w-5/6 border mt-4 rounded-lg border-dashed border-gray-700 p-6">
@@ -31,7 +35,17 @@
     </div>
 </div>
 
+<div class="mt-12">
+    <h1 class="text-sm text-gray-400">subject options</h1>
+    <hr class="border-gray-400 mb-4">
+    <div class="flex">
+        <.form for={:subject_deletion} action={Routes.subject_path(@socket, :delete, subject_id: @subject.id)}>
+            <%= submit "Delete Subject",
+            class: "px-4 py-2 text-sm border border-red-600 rounded-lg" %>
+        </.form>
 
-<.form for={:subject_deletion} action={Routes.subject_path(@socket, :delete, subject_id: @subject.id)}>
-    <%= submit "Delete" %>
-</.form>
+        <%= link "Back", to: Routes.student_path(@socket, :index),
+            class: "px-4 py-2 w-10 text-sm ml-4 border border-grey-600 rounded-lg" %>
+    </div>
+
+</div>
