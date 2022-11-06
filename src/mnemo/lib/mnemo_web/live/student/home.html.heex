@@ -1,0 +1,19 @@
+<h1>Subjects to Review</h1>
+<hr>
+
+<%= for enrollment <- @student_enrollments do %>
+    <div>
+        <p><%= enrollment.subject.title %></p>
+        <button>Review now</button>
+    </div>
+<% end %>
+
+<h1>Your Subjects</h1>
+<hr>
+
+<%= for subject <- @student_subjects do %>
+   <div>
+       <p><%= subject.title %></p>
+       <button>Edit subject</button>
+   </div>
+<% end %>

@@ -10,6 +10,9 @@ import Config
 config :mnemo,
   ecto_repos: [Mnemo.Resources.Postgres.Repo]
 
+config :mnemo,
+  test_student_id: "dd48cfda-5f8d-4c9e-8968-04a75ec08df4"
+
 config :mnemo, Mnemo.Resources.Postgres.Repo, migration_primary_key: [name: :id, type: :binary_id]
 
 # Configures the endpoint

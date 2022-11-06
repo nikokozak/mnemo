@@ -14,6 +14,20 @@ defmodule MnemoWeb.Router do
     plug :accepts, ["json"]
   end
 
+  scope "/", MnemoWeb do
+    pipe_through :browser
+
+    get "/", StudentController, :index
+  end
+
+  scope "/subject", MnemoWeb do
+    pipe_through :browser
+
+    post "/delete", SubjectController, :delete
+    get "/new", SubjectController, :new
+    live "/:subject_id", Live.Subject.Editor
+  end
+
   # In general, /pages indicate initial-load GETS that cover 
   # all the content a given page might initially need
   scope "/api/pages", MnemoWeb do
