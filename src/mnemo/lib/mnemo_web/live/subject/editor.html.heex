@@ -35,17 +35,15 @@
     </div>
 </div>
 
-<div class="mt-12">
+<div class="mt-12" x-data="{ deleteModalOpen: false }">
     <h1 class="text-sm text-gray-400">subject options</h1>
     <hr class="border-gray-400 mb-4">
     <div class="flex">
-        <.form for={:subject_deletion} action={Routes.subject_path(@socket, :delete, subject_id: @subject.id)}>
-            <%= submit "Delete Subject",
-            class: "px-4 py-2 text-sm border border-red-600 rounded-lg" %>
-        </.form>
+        <MnemoWeb.Live.Subject.Components.Modals.deletion socket={@socket} subject={@subject} />
 
         <%= link "Back", to: Routes.student_path(@socket, :index),
-            class: "px-4 py-2 w-10 text-sm ml-4 border border-grey-600 rounded-lg" %>
+        class: "px-4 py-2 text-sm ml-4 border border-grey-600 rounded-lg" %>
     </div>
 
 </div>
+

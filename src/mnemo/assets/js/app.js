@@ -26,7 +26,7 @@ import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 // Alpine JS for no-js helpers
 import 'alpinejs'
-import AlpineInstance from "alpinejs"
+import Alpine from "alpinejs"
 
 // Set up alpinejs
 window.Alpine = Alpine
