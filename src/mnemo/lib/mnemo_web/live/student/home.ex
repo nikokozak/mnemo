@@ -20,7 +20,7 @@ defmodule MnemoWeb.Live.Student.Home do
     {:ok,
      assign(socket,
        student_subjects: student_subjects,
-       student_enrollments: student_enrollments)}
+       student_enrollments: student_enrollments
+     )}
   end
-
 end

@@ -18,7 +18,9 @@ defmodule MnemoWeb.StudentController do
       |> PGRepo.all()
 
     conn
-    |> render("index.html", %{student_subjects: student_subjects, student_enrollments: student_enrollments})
+    |> render("index.html", %{
+      student_subjects: student_subjects,
+      student_enrollments: student_enrollments
+    })
   end
-
 end

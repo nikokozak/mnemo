@@ -12,7 +12,9 @@ defmodule MnemoWeb.SubjectController do
       |> PGRepo.insert()
 
     conn
-    |> redirect(to: Routes.live_path(MnemoWeb.Endpoint, MnemoWeb.Live.Subject.Editor, new_subject.id))
+    |> redirect(
+      to: Routes.live_path(MnemoWeb.Endpoint, MnemoWeb.Live.Subject.Editor, new_subject.id)
+    )
   end
 
   def delete(conn, %{"subject_id" => subject_id}) do
@@ -26,5 +28,4 @@ defmodule MnemoWeb.SubjectController do
     conn
     |> redirect(to: Routes.student_path(conn, :index))
   end
-
 end
