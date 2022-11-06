@@ -13,9 +13,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
     {:ok, assign(socket, subject: subject)}
   end
 
-  def handle_event("save_information",
-    %{"subject_information" => subject_info}, socket) do
-
+  def handle_event("save_information", %{"subject_information" => subject_info}, socket) do
     {:ok, updated_subject} =
       %Subject{id: socket.assigns.subject.id}
       |> Subject.update_changeset(subject_info)
@@ -23,5 +21,4 @@ defmodule MnemoWeb.Live.Subject.Editor do
 
     {:noreply, assign(socket, subject: updated_subject)}
   end
-
 end
