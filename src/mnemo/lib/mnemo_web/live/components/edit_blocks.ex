@@ -1,5 +1,6 @@
 defmodule MnemoWeb.Live.Components.EditBlocks do
   use Phoenix.Component
+  import Phoenix.HTML.Form
 
   embed_templates("edit_blocks/*")
 
