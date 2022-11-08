@@ -1,0 +1,6 @@
+<h1><%= @block.id %></h1>
+<p><%= @block.type %></p>
+<p phx-click="delete_block"
+    phx-value-section_id={@section.id}
+    phx-value-block_id={@block.id}
+><em>delete</em></p>

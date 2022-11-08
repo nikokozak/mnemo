@@ -77,16 +77,11 @@
 
         <%= for block <- section.blocks do %>
             <div>
-                <p><%= block.id %></p>
-                <p><%= block.type %></p>
-                <p phx-click="delete_block"
-                   phx-value-section_id={section.id}
-                   phx-value-block_id={block.id}
-                ><em>delete</em></p>
+                <%= MnemoWeb.Live.Components.EditBlocks.block(block.type, section, block) %>
             </div>
         <% end %>
 
-        <MnemoWeb.Live.Subject.Components.new_block_modal section={section} />
+        <MnemoWeb.Live.Subject.Components.Modals.new_block_modal section={section} />
     </div>
 
     <% end %>
@@ -100,7 +95,7 @@
     <h1 class="text-sm text-gray-400">subject options</h1>
     <hr class="border-gray-400 mb-4">
     <div class="flex">
-        <MnemoWeb.Live.Subject.Components.deletion_modal socket={@socket} subject={@subject} />
+        <MnemoWeb.Live.Subject.Components.Modals.deletion_modal socket={@socket} subject={@subject} />
 
         <%= link "Back", to: Routes.student_path(@socket, :index),
         class: "px-4 py-2 text-sm ml-4 border border-grey-600 rounded-lg" %>

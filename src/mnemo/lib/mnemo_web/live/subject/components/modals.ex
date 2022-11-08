@@ -1,8 +1,8 @@
-defmodule MnemoWeb.Live.Subject.Components do
+defmodule MnemoWeb.Live.Subject.Components.Modals do
   use Phoenix.Component
   import Phoenix.HTML.Form, only: [submit: 2]
   alias MnemoWeb.Router.Helpers, as: Routes
-  alias MnemoWeb.Live.Components
+  alias MnemoWeb.Live.Components.Modals
 
   embed_templates("templates/*")
 
