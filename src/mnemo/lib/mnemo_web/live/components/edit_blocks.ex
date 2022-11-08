@@ -30,6 +30,7 @@ defmodule MnemoWeb.Live.Components.EditBlocks do
 
   def block(type, section, block) do
     assigns = %{section: section, block: block}
+
     case type do
       "static" -> static(assigns)
       "fibq" -> fibq(assigns)
@@ -38,5 +39,4 @@ defmodule MnemoWeb.Live.Components.EditBlocks do
       "saq" -> saq(assigns)
     end
   end
-
 end

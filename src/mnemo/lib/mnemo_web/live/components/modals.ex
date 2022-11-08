@@ -20,5 +20,4 @@ defmodule MnemoWeb.Live.Components.Modals do
   slot(:modal_title)
 
   def general_modal(assigns)
-
 end
