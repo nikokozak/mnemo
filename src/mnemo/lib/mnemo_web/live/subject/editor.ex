@@ -40,10 +40,11 @@ defmodule MnemoWeb.Live.Subject.Editor do
     {:noreply, assign(socket, sections: sections)}
   end
 
-  def handle_event("save_section",
-    %{"section_information" => %{ "section_id" => section_id, "title" => title } = params},
-    socket) do
-
+  def handle_event(
+        "save_section",
+        %{"section_information" => %{"section_id" => section_id, "title" => title} = params},
+        socket
+      ) do
     {:ok, updated_section} =
       %Section{id: section_id}
       |> Section.update_changeset(params)
@@ -76,23 +77,30 @@ defmodule MnemoWeb.Live.Subject.Editor do
 
   # Block Handlers
 
-  def handle_event("new_block", %{ "section_id" => section_id, "type" => type }, socket) do
+  def handle_event("new_block", %{"section_id" => section_id, "type" => type}, socket) do
     {:ok, block} =
       %Block{}
-      |> Block.create_changeset(%{section_id: section_id, subject_id: socket.assigns.subject.id, type: type})
+      |> Block.create_changeset(%{
+        section_id: section_id,
+        subject_id: socket.assigns.subject.id,
+        type: type
+      })
       |> PGRepo.insert()
 
     updated_sections =
       socket.assigns.sections
-      |> update_in([
-      Access.filter(&match?(%{id: ^section_id}, &1)),
-      Access.key(:blocks)],
-      &(&1 ++ [block]))
+      |> update_in(
+        [
+          Access.filter(&match?(%{id: ^section_id}, &1)),
+          Access.key(:blocks)
+        ],
+        &(&1 ++ [block])
+      )
 
     {:noreply, assign(socket, sections: updated_sections)}
   end
 
-  def handle_event("delete_block", %{ "section_id" => section_id, "block_id" => block_id}, socket) do
+  def handle_event("delete_block", %{"section_id" => section_id, "block_id" => block_id}, socket) do
     {:ok, _block} =
       Block
       |> Block.where_id(block_id)
@@ -100,11 +108,15 @@ defmodule MnemoWeb.Live.Subject.Editor do
       |> Block.delete_changeset()
       |> PGRepo.delete()
 
-    updated_sections = socket.assigns.sections
-    |> update_in([
-      Access.filter(&match?(%{id: ^section_id}, &1)),
-      Access.key(:blocks)],
-      &Enum.filter(&1, fn block -> block.id != block_id end))
+    updated_sections =
+      socket.assigns.sections
+      |> update_in(
+        [
+          Access.filter(&match?(%{id: ^section_id}, &1)),
+          Access.key(:blocks)
+        ],
+        &Enum.filter(&1, fn block -> block.id != block_id end)
+      )
 
     {:noreply, assign(socket, sections: updated_sections)}
   end

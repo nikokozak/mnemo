@@ -1,7 +1,7 @@
 defmodule MnemoWeb.Live.Components do
   use Phoenix.Component
 
-  embed_templates "templates/*"
+  embed_templates("templates/*")
 
   attr :button_text, :string, required: true
   attr :button_class, :string, default: nil
@@ -20,5 +20,4 @@ defmodule MnemoWeb.Live.Components do
   slot(:modal_title)
 
   def general_modal(assigns)
-
 end
