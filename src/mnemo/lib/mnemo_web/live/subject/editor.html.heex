@@ -35,11 +35,72 @@
     </div>
 </div>
 
-<div class="mt-12" x-data="{ deleteModalOpen: false }">
+
+<div>
+    <div class="flex justify-between">
+        <h1 class="text-sm text-gray-400">subject content</h1>
+    </div>
+    <hr class="border-gray-400">
+
+    <%= for section <- @sections do %>
+
+    <div class="mt-4" id={section.id}>
+        <!-- Section Title -->
+        <div class="flex justify-between">
+            <p class="text-xs"><%= section.id %></p>
+
+            <.form for={:section_information}
+            :let={f}
+            phx-change="save_section" >
+
+                <%= hidden_input f,
+                :section_id,
+                value: section.id %>
+
+                <%= text_input f,
+                :title,
+                class: "text-md text-semibold underline underline-offset-6 border-0 p-0 mb-4",
+                value: section.title,
+                placeholder: "Optional Section Title",
+                "phx-debounce": "300"
+                %>
+
+            </.form>
+
+            <svg phx-click="delete_section" phx-value-section_id={section.id} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width={1.5} stroke="currentColor" class="gray-400 w-4 h-4 mt-1">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+            </svg>
+        </div>
+        <!-- End Section Title -->
+
+        <!-- Section Blocks Here -->
+
+        <%= for block <- section.blocks do %>
+            <div>
+                <p><%= block.id %></p>
+                <p><%= block.type %></p>
+                <p phx-click="delete_block"
+                   phx-value-section_id={section.id}
+                   phx-value-block_id={block.id}
+                ><em>delete</em></p>
+            </div>
+        <% end %>
+
+        <MnemoWeb.Live.Subject.Components.new_block_modal section={section} />
+    </div>
+
+    <% end %>
+
+    <button phx-click="new_section" class="border py-2 px-4 rounded-lg mt-4">Create a new Section</button>
+
+</div>
+
+
+<div class="mt-12">
     <h1 class="text-sm text-gray-400">subject options</h1>
     <hr class="border-gray-400 mb-4">
     <div class="flex">
-        <MnemoWeb.Live.Subject.Components.Modals.deletion socket={@socket} subject={@subject} />
+        <MnemoWeb.Live.Subject.Components.deletion_modal socket={@socket} subject={@subject} />
 
         <%= link "Back", to: Routes.student_path(@socket, :index),
         class: "px-4 py-2 text-sm ml-4 border border-grey-600 rounded-lg" %>
