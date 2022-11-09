@@ -88,10 +88,11 @@ defmodule MnemoWeb.Live.Subject.Editor do
       |> PGRepo.insert()
 
     updated_sections =
-        update_blocks_in_section(
-          socket.assigns.sections,
-          section_id,
-          fn blocks -> blocks ++ [block] end)
+      update_blocks_in_section(
+        socket.assigns.sections,
+        section_id,
+        fn blocks -> blocks ++ [block] end
+      )
 
     {:noreply, assign(socket, sections: updated_sections)}
   end
@@ -108,23 +109,29 @@ defmodule MnemoWeb.Live.Subject.Editor do
       update_blocks_in_section(
         socket.assigns.sections,
         section_id,
-        fn blocks -> Enum.filter(blocks, &(&1.id != block_id)) end)
+        fn blocks -> Enum.filter(blocks, &(&1.id != block_id)) end
+      )
 
     {:noreply, assign(socket, sections: updated_sections)}
   end
 
-  def handle_event("add_content_brick",
-    %{"section_id" => section_id,
-      "block_id" => block_id,
-      "brick_type" => brick_type} = params, socket) do
+  def handle_event(
+        "add_content_brick",
+        %{"section_id" => section_id, "block_id" => block_id, "brick_type" => brick_type} =
+          params,
+        socket
+      ) do
+    [[block]] =
+      get_in(
+        socket.assigns.sections,
+        [
+          Access.filter(&match?(%{id: ^section_id}, &1)),
+          Access.key(:blocks),
+          Access.filter(&match?(%{id: ^block_id}, &1))
+        ]
+      )
 
-
-    [[block]] = get_in(socket.assigns.sections,
-      [Access.filter(&match?(%{id: ^section_id}, &1)),
-       Access.key(:blocks),
-       Access.filter(&match?(%{id: ^block_id}, &1))])
-
-    new_content_brick = %{ "type" => brick_type, "content" => "" }
+    new_content_brick = %{"type" => brick_type, "content" => ""}
 
     # We can only add text bricks to FC and STATIC
     {:ok, updated_block} =
@@ -135,6 +142,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
           block
           |> Block.update_changeset(%{static_content: updated_content})
           |> PGRepo.update()
+
         "fc" ->
           case params["side"] do
             "front" ->
@@ -143,6 +151,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
               block
               |> Block.update_changeset(%{fc_front_content: updated_content})
               |> PGRepo.update()
+
             "back" ->
               updated_content = block.fc_back_content ++ [new_content_brick]
 
@@ -157,21 +166,27 @@ defmodule MnemoWeb.Live.Subject.Editor do
         socket.assigns.sections,
         section_id,
         block_id,
-        fn old_block -> updated_block end)
+        fn old_block -> updated_block end
+      )
 
     {:noreply, assign(socket, sections: updated_sections)}
   end
 
-  def handle_event("update_content_brick",
-    %{"brick_form" => %{"section_id" => section_id,
-                        "block_id" => block_id,
-                        "brick_idx" => brick_idx,
-                        "content" => content} = params}, socket) do
+  def handle_event(
+        "update_content_brick",
+        %{
+          "brick_form" =>
+            %{
+              "section_id" => section_id,
+              "block_id" => block_id,
+              "brick_idx" => brick_idx,
+              "content" => content
+            } = params
+        },
+        socket
+      ) do
 
-    [[block]] = get_in(socket.assigns.sections,
-      [Access.filter(&match?(%{id: ^section_id}, &1)),
-       Access.key(:blocks),
-       Access.filter(&match?(%{id: ^block_id}, &1))])
+    block = get_block_from_assigns(socket, section_id, block_id)
 
     brick_idx = String.to_integer(brick_idx)
 
@@ -179,29 +194,37 @@ defmodule MnemoWeb.Live.Subject.Editor do
       case block.type do
         "static" ->
           updated_content =
-            update_in(block.static_content,
+            update_in(
+              block.static_content,
               [Access.at(brick_idx)],
-              fn brick -> Map.put(brick, "content", content) end)
+              fn brick -> Map.put(brick, "content", content) end
+            )
 
           block
           |> Block.update_changeset(%{static_content: updated_content})
           |> PGRepo.update()
+
         "fc" ->
           case params["side"] do
             "front" ->
               updated_content =
-                update_in(block.fc_front_content,
+                update_in(
+                  block.fc_front_content,
                   [Access.at(brick_idx)],
-                  fn brick -> Map.put(brick, "content", content) end)
+                  fn brick -> Map.put(brick, "content", content) end
+                )
 
               block
               |> Block.update_changeset(%{fc_front_content: updated_content})
               |> PGRepo.update()
+
             "back" ->
               updated_content =
-                update_in(block.fc_back_content,
+                update_in(
+                  block.fc_back_content,
                   [Access.at(brick_idx)],
-                  fn brick -> Map.put(brick, "content", content) end)
+                  fn brick -> Map.put(brick, "content", content) end
+                )
 
               block
               |> Block.update_changeset(%{fc_back_content: updated_content})
@@ -209,14 +232,12 @@ defmodule MnemoWeb.Live.Subject.Editor do
           end
       end
 
-          updated_sections =
-            update_block_in_section(
-              socket.assigns.sections,
-              section_id,
-              block_id,
-              fn old_block ->
-                IO.inspect(old_block)
-                updated_block end)
+    updated_sections =
+      update_block_in_section(
+        socket.assigns.sections,
+        section_id,
+        block_id,
+        fn _old_block -> updated_block end)
 
     {:noreply, assign(socket, sections: updated_sections)}
   end
@@ -228,7 +249,8 @@ defmodule MnemoWeb.Live.Subject.Editor do
         Access.filter(&match?(%{id: ^section_id}, &1)),
         Access.key(:blocks)
       ],
-    &update_fn.(&1))
+      &update_fn.(&1)
+    )
   end
 
   defp update_block_in_section(sections, section_id, block_id, update_fn) do
@@ -239,6 +261,237 @@ defmodule MnemoWeb.Live.Subject.Editor do
         Access.key(:blocks),
         Access.filter(&match?(%{id: ^block_id}, &1))
       ],
-    &update_fn.(&1))
+      &update_fn.(&1)
+    )
   end
+
+  def handle_event("update_block",
+    %{"block_question_form" => %{"section_id" => section_id,
+                                 "block_id" => block_id,
+                                 "question" => question}}, socket) do
+
+    block = get_block_from_assigns(socket, section_id, block_id)
+
+    {:ok, updated_block} =
+      case block.type do
+        "mcq" ->
+          block
+          |> Block.update_changeset(%{mcq_question_text: question})
+          |> PGRepo.update()
+        "fibq" ->
+          block
+          |> Block.update_changeset(%{fibq_question_text_template: question})
+          |> PGRepo.update()
+        "saq" ->
+          block
+          |> Block.update_changeset(%{saq_question_text: question})
+          |> PGRepo.update()
+      end
+
+    updated_sections =
+      update_block_in_section(
+        socket.assigns.sections,
+        section_id,
+        block_id,
+        fn _old_block -> updated_block end)
+
+    {:noreply, assign(socket, sections: updated_sections)}
+  end
+
+  def handle_event("update_mcq_answer",
+    %{"mcq_answer_form" => %{"section_id" => section_id,
+                            "block_id" => block_id,
+                            "choice_key" => choice_key,
+                            "choice_text" => choice_text}}, socket) do
+
+    block = get_block_from_assigns(socket, section_id, block_id)
+
+    updated_mcq_answer_choices =
+      block.mcq_answer_choices
+      |> update_in([Access.filter(&match?(%{"key" => ^choice_key}, &1)),
+                   Access.key("text")], fn _old_text -> choice_text end)
+
+      {:ok, updated_block} =
+        block
+        |> Block.update_changeset(%{mcq_answer_choices: updated_mcq_answer_choices})
+        |> PGRepo.update()
+
+    updated_sections =
+      update_block_in_section(
+        socket.assigns.sections,
+        section_id,
+        block_id,
+        fn _old_block -> updated_block end)
+
+    {:noreply, assign(socket, sections: updated_sections)}
+  end
+
+  def handle_event("pick_mcq_answer_correct",
+    %{"section_id" => section_id, "block_id" => block_id, "choice_key" => choice_key}, socket) do
+
+    block = get_block_from_assigns(socket, section_id, block_id)
+
+    {:ok, updated_block} =
+      block
+      |> Block.update_changeset(%{mcq_answer_correct: choice_key})
+      |> PGRepo.update()
+
+    updated_sections =
+      update_block_in_section(
+        socket.assigns.sections,
+        section_id,
+        block_id,
+        fn _old_block -> updated_block end)
+
+    {:noreply, assign(socket, sections: updated_sections)}
+  end
+
+  def handle_event("add_mcq_answer_choice",
+    %{"section_id" => section_id, "block_id" => block_id}, socket) do
+
+    block = get_block_from_assigns(socket, section_id, block_id)
+
+    new_choice = %{"key" => nil, "text" => "Another answer"}
+
+    updated_choices =
+    (block.mcq_answer_choices ++ [new_choice])
+    |> Enum.reduce({97, []}, fn choice, {letter_codepoint, result} ->
+      { letter_codepoint + 1, [ Map.put(choice, "key", << letter_codepoint >>) | result ] } end)
+      |> elem(1)
+      |> Enum.reverse()
+
+    {:ok, updated_block} =
+      block
+      |> Block.update_changeset(%{mcq_answer_choices: updated_choices})
+      |> PGRepo.update()
+
+    updated_sections =
+      update_block_in_section(
+        socket.assigns.sections,
+        section_id,
+        block_id,
+        fn _old_block -> updated_block end)
+
+    {:noreply, assign(socket, sections: updated_sections)}
+  end
+
+  def handle_event("delete_mcq_answer",
+    %{"section_id" => section_id, "block_id" => block_id, "choice_key" => choice_key}, socket) do
+
+    block = get_block_from_assigns(socket, section_id, block_id)
+
+    updated_mcq_answer_choices =
+      block.mcq_answer_choices
+      |> Enum.filter(&(&1["key"] != choice_key))
+    |> Enum.reduce({97, []}, fn choice, {letter_codepoint, result} ->
+      { letter_codepoint + 1, [ Map.put(choice, "key", << letter_codepoint >>) | result ] } end)
+      |> elem(1)
+      |> Enum.reverse()
+
+      {:ok, updated_block} =
+        block
+        |> Block.update_changeset(%{mcq_answer_choices: updated_mcq_answer_choices})
+        |> PGRepo.update()
+
+    updated_sections =
+      update_block_in_section(
+        socket.assigns.sections,
+        section_id,
+        block_id,
+        fn _old_block -> updated_block end)
+
+    {:noreply, assign(socket, sections: updated_sections)}
+  end
+
+  def handle_event("update_saq_answer_choice",
+    %{"saq_answer_form" => %{"section_id" => section_id,
+                             "block_id" => block_id,
+                             "choice_idx" => answer_idx,
+                             "choice_text" => choice_text}}, socket) do
+
+    block = get_block_from_assigns(socket, section_id, block_id)
+
+    updated_saq_answer_choices =
+      block.saq_answer_choices
+      |> update_in([Access.at(String.to_integer(answer_idx)),
+                   Access.key("text")], fn _old_text -> choice_text end)
+
+      {:ok, updated_block} =
+        block
+        |> Block.update_changeset(%{saq_answer_choices: updated_saq_answer_choices})
+        |> PGRepo.update()
+
+    updated_sections =
+      update_block_in_section(
+        socket.assigns.sections,
+        section_id,
+        block_id,
+        fn _old_block -> updated_block end)
+
+    {:noreply, assign(socket, sections: updated_sections)}
+  end
+
+  def handle_event("add_saq_answer_choice",
+    %{"section_id" => section_id, "block_id" => block_id}, socket) do
+
+    block = get_block_from_assigns(socket, section_id, block_id)
+
+    new_choice = %{"text" => nil}
+
+    updated_choices = block.saq_answer_choices ++ [new_choice]
+
+    {:ok, updated_block} =
+      block
+      |> Block.update_changeset(%{saq_answer_choices: updated_choices})
+      |> PGRepo.update()
+
+    updated_sections =
+      update_block_in_section(
+        socket.assigns.sections,
+        section_id,
+        block_id,
+        fn _old_block -> updated_block end)
+
+    {:noreply, assign(socket, sections: updated_sections)}
+  end
+
+  def handle_event("delete_saq_answer_choice",
+    %{"section_id" => section_id, "block_id" => block_id, "choice_idx" => choice_idx}, socket) do
+
+    block = get_block_from_assigns(socket, section_id, block_id)
+
+    updated_saq_answer_choices =
+      block.saq_answer_choices
+      |> List.delete_at(String.to_integer(choice_idx))
+
+    {:ok, updated_block} =
+      block
+      |> Block.update_changeset(%{saq_answer_choices: updated_saq_answer_choices})
+      |> PGRepo.update()
+
+    updated_sections =
+      update_block_in_section(
+        socket.assigns.sections,
+        section_id,
+        block_id,
+        fn _old_block -> updated_block end)
+
+    {:noreply, assign(socket, sections: updated_sections)}
+  end
+
+  defp get_block_from_assigns(socket, section_id, block_id) do
+    [[block]] =
+      get_in(
+        socket.assigns.sections,
+        [
+          Access.filter(&match?(%{id: ^section_id}, &1)),
+          Access.key(:blocks),
+          Access.filter(&match?(%{id: ^block_id}, &1))
+        ]
+      )
+
+    block
+  end
+
+
 end
