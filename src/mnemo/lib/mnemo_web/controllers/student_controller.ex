@@ -33,7 +33,9 @@ defmodule MnemoWeb.StudentController do
       |> PGRepo.insert()
 
     conn
-    |> redirect(to: Routes.live_path(MnemoWeb.Endpoint, MnemoWeb.Live.Subject.Study, enrollment.id))
+    |> redirect(
+      to: Routes.live_path(MnemoWeb.Endpoint, MnemoWeb.Live.Subject.Study, enrollment.id)
+    )
   end
 
   def unenroll(conn, %{"enrollment_id" => enrollment_id}) do

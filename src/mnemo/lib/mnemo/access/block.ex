@@ -373,24 +373,34 @@ defmodule Mnemo.Access.Schemas.Block do
             case Regex.run(~r/\{(.*?)\}/, split) do
               [_, match] ->
                 # In case this text fragment is a "variable".
-                {input_idx + 1, [ %{
-                  type: "input",
-                  value: "",
-                  input_idx: input_idx,
-                  answer: match
-                } | result ]}
+                {input_idx + 1,
+                 [
+                   %{
+                     type: "input",
+                     value: "",
+                     input_idx: input_idx,
+                     answer: match
+                   }
+                   | result
+                 ]}
+
               nil ->
                 # Otherwise, regular text.
-                {input_idx, [ %{
-                  type: "text",
-                  value: split
-                } | result ]}
+                {input_idx,
+                 [
+                   %{
+                     type: "text",
+                     value: split
+                   }
+                   | result
+                 ]}
             end
-          end) |> elem(1) |> Enum.reverse
+          end)
+          |> elem(1)
+          |> Enum.reverse()
 
         changeset
         |> put_change(:fibq_question_structure, structured)
     end
   end
-
 end

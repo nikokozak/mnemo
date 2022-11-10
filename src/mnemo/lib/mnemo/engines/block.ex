@@ -32,13 +32,16 @@ defmodule Mnemo.Engines.Block do
     actual_answers =
       Enum.filter(block.fibq_question_structure, fn brick -> brick["type"] == "input" end)
 
-    graded_answers = Enum.map(answers, fn {input_idx, answer} ->
-      ref = Enum.find(actual_answers, fn aa -> aa["input_idx"] == String.to_integer(input_idx) end)
+    graded_answers =
+      Enum.map(answers, fn {input_idx, answer} ->
+        ref =
+          Enum.find(actual_answers, fn aa -> aa["input_idx"] == String.to_integer(input_idx) end)
 
-      {input_idx, %{"value" => answer, "correct" => ref["answer"] == answer}}
-    end)
+        {input_idx, %{"value" => answer, "correct" => ref["answer"] == answer}}
+      end)
 
-    is_block_correct = Enum.all?(graded_answers, fn {idx, answer_struct} -> answer_struct["correct"] end)
+    is_block_correct =
+      Enum.all?(graded_answers, fn {idx, answer_struct} -> answer_struct["correct"] end)
 
     {:ok, {is_block_correct, graded_answers |> Enum.into(%{})}}
   end
@@ -46,9 +49,8 @@ defmodule Mnemo.Engines.Block do
   def test_block_type("mcq", %Block{} = block, answer_key) do
     is_block_correct = answer_key == block.mcq_answer_correct
 
-    detail = %{answer_key => false }
+    detail = %{answer_key => false}
 
     {:ok, {is_block_correct, detail}}
   end
-
 end

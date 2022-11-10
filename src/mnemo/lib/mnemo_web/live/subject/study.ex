@@ -14,12 +14,13 @@ defmodule MnemoWeb.Live.Subject.Study do
       |> Enrollment.load_cursor_with_section()
       |> PGRepo.one()
 
-    {:ok, assign(socket,
-        enrollment: enrollment,
-        answer_status: nil,
-        answer_attempts: [],
-        answer_value: nil
-      )}
+    {:ok,
+     assign(socket,
+       enrollment: enrollment,
+       answer_status: nil,
+       answer_attempts: [],
+       answer_value: nil
+     )}
   end
 
   def handle_event("move_cursor", %{"new_cursor_id" => new_cursor_id}, socket) do
@@ -34,16 +35,13 @@ defmodule MnemoWeb.Live.Subject.Study do
       |> PGRepo.one()
       |> PGRepo.preload(:section)
 
-    updated_enrollment =
-      Map.put(socket.assigns.enrollment, :block_cursor, new_cursor)
+    updated_enrollment = Map.put(socket.assigns.enrollment, :block_cursor, new_cursor)
 
-    #TODO: Again, kinda hacky to avoid preloading everything again.
+    # TODO: Again, kinda hacky to avoid preloading everything again.
     {:noreply, assign(socket, enrollment: updated_enrollment)}
   end
 
-  def handle_event("answer_attempt",
-    %{"answer_form" => answer_vals}, socket) do
-
+  def handle_event("answer_attempt", %{"answer_form" => answer_vals}, socket) do
     block_id = socket.assigns.enrollment.block_cursor.id
 
     {:ok, {is_correct?, details}} = BlockEngine.test_block(block_id, answer_vals)
@@ -63,13 +61,15 @@ defmodule MnemoWeb.Live.Subject.Study do
          enrollment: updated_enrollment,
          answer_status: nil,
          answer_attempts: [],
-       answer_value: nil)}
+         answer_value: nil
+       )}
     else
-        {:noreply,
-         assign(socket,
-           answer_status: (if is_nil(details), do: is_correct?, else: details),
-           answer_attempts: [answer_vals | socket.assigns.answer_attempts],
-         answer_value: answer_vals)}
+      {:noreply,
+       assign(socket,
+         answer_status: if(is_nil(details), do: is_correct?, else: details),
+         answer_attempts: [answer_vals | socket.assigns.answer_attempts],
+         answer_value: answer_vals
+       )}
     end
   end
 
@@ -93,18 +93,15 @@ defmodule MnemoWeb.Live.Subject.Study do
          enrollment: updated_enrollment,
          answer_status: nil,
          answer_attempts: [],
-       answer_value: nil)}
-      else
-        {:noreply,
-         assign(socket,
-           answer_status: (if is_nil(details), do: is_correct?, else: details),
-           answer_attempts: [answer_key | socket.assigns.answer_attempts],
-         answer_value: answer_key)}
+         answer_value: nil
+       )}
+    else
+      {:noreply,
+       assign(socket,
+         answer_status: if(is_nil(details), do: is_correct?, else: details),
+         answer_attempts: [answer_key | socket.assigns.answer_attempts],
+         answer_value: answer_key
+       )}
     end
-
   end
-
-
-
-
 end
