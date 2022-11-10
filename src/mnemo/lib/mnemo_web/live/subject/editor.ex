@@ -52,7 +52,8 @@ defmodule MnemoWeb.Live.Subject.Editor do
 
     updated_sections =
       Enum.map(socket.assigns.sections, fn
-        %{id: ^section_id} -> updated_section
+        # TODO: this is kind of hacky, but avoids having to preload blocks every time.
+        %{id: ^section_id} = old_section -> Map.put(updated_section, :blocks, old_section.blocks)
         section -> section
       end)
 
@@ -492,6 +493,5 @@ defmodule MnemoWeb.Live.Subject.Editor do
 
     block
   end
-
 
 end

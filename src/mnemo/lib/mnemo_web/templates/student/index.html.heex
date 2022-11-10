@@ -12,12 +12,14 @@
         <%= for enrollment <- @student_enrollments do%>
             <div class="border px-2 py-1 rounded-lg mt-4 flex justify-between">
                 <p class="text-md"><%= enrollment.subject.title %></p>
-                <button class="text-xs text-slate-900 border rounded-lg px-2">
+
+                <%= link to: Routes.student_path(@conn, :unenroll, enrollment_id: enrollment.id), class: "text-xs text-slate-900 border rounded-lg px-2" do %>
                     Unenroll
-                </button>
-                <button class="text-xs text-slate-900 border rounded-lg px-2 py-1">
+                <% end %>
+
+                <%= link to: Routes.live_path(MnemoWeb.Endpoint, MnemoWeb.Live.Subject.Study, enrollment.id), class: "text-xs text-slate-900 border rounded-lg px-2 py-1" do %>
                     Study Now
-                </button>
+                <% end %>
             </div>
         <% end %>
         <!-- end Subject List -->
@@ -33,9 +35,9 @@
                 <%= if Enum.find(@student_enrollments, fn enrollment -> enrollment.subject_id == subject.id end) do %>
                     <p>Enrolled</p>
                 <% else %>
-                    <button class="text-xs text-slate-900 border rounded-lg px-2">
+                    <%= link to: Routes.student_path(@conn, :enroll, subject_id: subject.id), class: "text-xs text-slate-900 border rounded-lg px-2" do %>
                         Start Studying
-                    </button>
+                    <% end %>
                 <% end %>
                 <%= link to: Routes.live_path(MnemoWeb.Endpoint, MnemoWeb.Live.Subject.Editor, subject.id) do %>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">

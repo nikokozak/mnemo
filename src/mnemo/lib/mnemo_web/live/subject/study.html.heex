@@ -1,0 +1,41 @@
+<h1>Hello! This is enrollment <%= @enrollment.id %></h1>
+
+<div>
+    <div>
+        <p class="text-sm text-gray-400">Studying</p>
+        <h1><%= @enrollment.subject.title %></h1>
+        <hr class="mb-8">
+
+        <p class="text-xs text-gray-400">Section</p>
+        <%= if not is_nil(@enrollment.block_cursor) do %>
+        <h1><%= @enrollment.block_cursor.section.title %></h1>
+        <% end %>
+        <hr>
+
+        <%= if is_nil(@enrollment.block_cursor) do %>
+            You've reached the end of the course, congrats!!
+        <% else %>
+            <%= MnemoWeb.Live.Components.StudyBlocks.block(
+                @enrollment.block_cursor.type,
+                @enrollment.block_cursor,
+                @answer_status,
+                @answer_value) %>
+            <h1><%= @enrollment.block_cursor.id %></h1>
+        <% end %>
+
+        <p class="text-xs text-gray-400 mt-8">Navigation</p>
+        <hr class="">
+
+        <div class="mt-8">
+            <%= for section <- @enrollment.subject.sections do %>
+                <h2 class="underline mb-2"><%= section.title %></h2>
+                <%= for block <- section.blocks do %>
+                    <!-- phx-click="move_cursor(block.id)" -->
+                    <p phx-click="move_cursor" phx-value-new_cursor_id={block.id}
+                       class="text-sm mb-2">
+                        <%= block.order_in_section %> | <%= block.type %></p>
+                <% end %>
+            <% end %>
+        </div>
+    </div>
+</div>
