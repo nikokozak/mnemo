@@ -1,8 +1,8 @@
-defmodule MnemoWeb.Live.Subject.Study do
+defmodule MnemoWeb.Live.Subject.Viewer do
   use MnemoWeb, :live_view
-  alias Mnemo.Access.Schemas.{Subject, Section, Block, Enrollment}
-  alias Mnemo.Engines.Block, as: BlockEngine
+  alias Mnemo.Access.Schemas.{Block, Enrollment}
   alias Mnemo.Resources.Postgres.Repo, as: PGRepo
+  alias Mnemo.Managers.Course
 
   @answer_attempts 3
 
@@ -24,10 +24,7 @@ defmodule MnemoWeb.Live.Subject.Study do
   end
 
   def handle_event("move_cursor", %{"new_cursor_id" => new_cursor_id}, socket) do
-    enrollment =
-      socket.assigns.enrollment
-      |> Enrollment.new_cursor_changeset(new_cursor_id)
-      |> PGRepo.update!()
+    {:ok, enrollment} = Course.move_cursor_enrollment(socket.assigns.enrollment, new_cursor_id)
 
     new_cursor =
       Block
@@ -35,26 +32,19 @@ defmodule MnemoWeb.Live.Subject.Study do
       |> PGRepo.one()
       |> PGRepo.preload(:section)
 
+    # TODO: Again, kinda hacky to avoid preloading everything again.
     updated_enrollment = Map.put(socket.assigns.enrollment, :block_cursor, new_cursor)
 
-    # TODO: Again, kinda hacky to avoid preloading everything again.
     {:noreply, assign(socket, enrollment: updated_enrollment)}
   end
 
   def handle_event("answer_attempt", %{"answer_form" => answer_vals}, socket) do
     block_id = socket.assigns.enrollment.block_cursor.id
 
-    {:ok, {is_correct?, details}} = BlockEngine.test_block(block_id, answer_vals)
+    {:ok, {is_correct?, details}} = Course.test_block(block_id, answer_vals)
 
     if is_correct? or length(socket.assigns.answer_attempts) == @answer_attempts - 1 do
-      next_block = Block.next_block(socket.assigns.enrollment.block_cursor)
-
-      updated_enrollment =
-        socket.assigns.enrollment
-        |> Enrollment.consume_cursor_changeset()
-        |> Enrollment.new_cursor_changeset(next_block)
-        |> PGRepo.update!()
-        |> PGRepo.preload(block_cursor: :section)
+      updated_enrollment = Course.consume_cursor_enrollment(socket.assigns.enrollment)
 
       {:noreply,
        assign(socket,
@@ -76,17 +66,10 @@ defmodule MnemoWeb.Live.Subject.Study do
   def handle_event("answer_mcq", %{"answer-key" => answer_key}, socket) do
     block_id = socket.assigns.enrollment.block_cursor.id
 
-    {:ok, {is_correct?, details}} = BlockEngine.test_block(block_id, answer_key)
+    {:ok, {is_correct?, details}} = Course.test_block(block_id, answer_key)
 
     if is_correct? or length(socket.assigns.answer_attempts) == @answer_attempts - 1 do
-      next_block = Block.next_block(socket.assigns.enrollment.block_cursor)
-
-      updated_enrollment =
-        socket.assigns.enrollment
-        |> Enrollment.consume_cursor_changeset()
-        |> Enrollment.new_cursor_changeset(next_block)
-        |> PGRepo.update!()
-        |> PGRepo.preload(block_cursor: :section)
+      updated_enrollment = Course.consume_cursor_enrollment(socket.assigns.enrollment)
 
       {:noreply,
        assign(socket,

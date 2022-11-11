@@ -1,15 +1,11 @@
 defmodule MnemoWeb.SubjectController do
   use MnemoWeb, :controller
-  alias Mnemo.Access.Schemas.Subject
-  alias Mnemo.Resources.Postgres.Repo, as: PGRepo
+  alias Mnemo.Managers.Course
 
   def new(conn, _params) do
-    student_id = Application.fetch_env!(:mnemo, :test_student_id)
+    student_id = nil
 
-    {:ok, new_subject} =
-      %Subject{}
-      |> Subject.create_changeset(%{student_id: student_id})
-      |> PGRepo.insert()
+    {:ok, new_subject} = Course.new_subject(student_id)
 
     conn
     |> redirect(
@@ -18,12 +14,7 @@ defmodule MnemoWeb.SubjectController do
   end
 
   def delete(conn, %{"subject_id" => subject_id}) do
-    student_id = Application.fetch_env!(:mnemo, :test_student_id)
-
-    {:ok, deleted_subject} =
-      %Subject{id: subject_id}
-      |> Subject.delete_changeset()
-      |> PGRepo.delete()
+    {:ok, _deleted_subject} = Course.delete_subject(subject_id)
 
     conn
     |> redirect(to: Routes.student_path(conn, :index))

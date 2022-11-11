@@ -25,7 +25,7 @@ defmodule MnemoWeb.Router do
   scope "/study", MnemoWeb do
     pipe_through :browser
 
-    live "/:enrollment_id", Live.Subject.Study
+    live "/:enrollment_id", Live.Subject.Viewer
   end
 
   scope "/subject", MnemoWeb do
