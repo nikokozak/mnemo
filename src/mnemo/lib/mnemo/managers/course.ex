@@ -1,6 +1,15 @@
 defmodule Mnemo.Managers.Course do
   alias Mnemo.Engines.Block, as: BlockEngine
-  alias Mnemo.Access.Schemas.{Subject, Section, Block, Enrollment}
+
+  alias Mnemo.Access.Schemas.{
+    Subject,
+    Section,
+    Block,
+    Enrollment,
+    CompletedReviewBlock,
+    ScheduledBlock
+  }
+
   alias Mnemo.Resources.Postgres.Repo, as: PGRepo
 
   def new_subject(_student_id) do
@@ -46,10 +55,11 @@ defmodule Mnemo.Managers.Course do
   def new_block(subject_id, section_id, block_type) do
     %Block{}
     |> Block.create_changeset(%{
-          section_id: section_id,
-          subject_id: subject_id,
-          type: block_type})
-          |> PGRepo.insert()
+      section_id: section_id,
+      subject_id: subject_id,
+      type: block_type
+    })
+    |> PGRepo.insert()
   end
 
   def save_block(block, new_params) do
@@ -84,7 +94,28 @@ defmodule Mnemo.Managers.Course do
     |> PGRepo.update()
   end
 
-  def consume_cursor_enrollment(enrollment) do
+  def consume_cursor_enrollment(enrollment, answer_success?, answers) do
+    {:ok, completed_block} =
+      %CompletedReviewBlock{}
+      |> CompletedReviewBlock.create_changeset(%{
+        student_id: enrollment.student_id,
+        subject_id: enrollment.subject_id,
+        block_id: enrollment.block_cursor,
+        succeeded: answer_success?,
+        attempts: length(answers),
+        time_taken: 0
+      })
+      |> PGRepo.insert()
+
+    {:ok, _scheduled_block} =
+      %ScheduledBlock{}
+      |> ScheduledBlock.create_changeset(%{
+        student_id: enrollment.student_id,
+        subject_id: enrollment.subject_id,
+        block_id: enrollment.block_cursor,
+        review_at: Date.utc_today() |> Date.add(completed_block.interval_to_next_review)
+      })
+
     next_block = Block.next_block(enrollment.block_cursor)
 
     enrollment
@@ -101,5 +132,4 @@ defmodule Mnemo.Managers.Course do
     |> Enrollment.delete_changeset()
     |> PGRepo.delete()
   end
-
 end

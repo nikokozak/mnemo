@@ -36,8 +36,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
   def handle_event("save_section", %{"section_information" => form_params}, socket) do
     section_id = form_params["section_id"]
 
-    {:ok, updated_section} =
-      Course.save_section(section_id, form_params)
+    {:ok, updated_section} = Course.save_section(section_id, form_params)
 
     updated_sections =
       replace_section_while_keeping_blocks(socket.assigns.sections, updated_section)
@@ -95,11 +94,13 @@ defmodule MnemoWeb.Live.Subject.Editor do
         "static" ->
           updated_content = block.static_content ++ [new_content_brick]
           Course.save_block(block, %{static_content: updated_content})
+
         "fc" ->
           case params["side"] do
             "front" ->
               updated_content = block.fc_front_content ++ [new_content_brick]
               Course.save_block(block, %{fc_front_content: updated_content})
+
             "back" ->
               updated_content = block.fc_back_content ++ [new_content_brick]
               Course.save_block(block, %{fc_back_content: updated_content})
@@ -166,8 +167,10 @@ defmodule MnemoWeb.Live.Subject.Editor do
       case block.type do
         "mcq" ->
           Course.save_block(block, %{mcq_question_text: question})
+
         "fibq" ->
           Course.save_block(block, %{fibq_question_text_template: question})
+
         "saq" ->
           Course.save_block(block, %{saq_question_text: question})
       end
@@ -198,7 +201,8 @@ defmodule MnemoWeb.Live.Subject.Editor do
         fn _old_text -> choice_text end
       )
 
-    {:ok, updated_block} = Course.save_block(block, %{mcq_answer_choices: updated_mcq_answer_choices})
+    {:ok, updated_block} =
+      Course.save_block(block, %{mcq_answer_choices: updated_mcq_answer_choices})
 
     updated_sections =
       update_block_in_section(
@@ -287,7 +291,6 @@ defmodule MnemoWeb.Live.Subject.Editor do
   end
 
   def handle_event("update_saq_answer_choice", %{"saq_answer_form" => saq_answer_form}, socket) do
-
     section_id = Map.fetch!(saq_answer_form, "section_id")
     block_id = Map.fetch!(saq_answer_form, "block_id")
     choice_idx = Map.fetch!(saq_answer_form, "choice_idx")
@@ -408,10 +411,13 @@ defmodule MnemoWeb.Live.Subject.Editor do
   defp replace_section_while_keeping_blocks(sections, updated_section) do
     # TODO: this is kind of hacky, but avoids having to preload blocks every time.
     section_id = updated_section.id
+
     Enum.map(sections, fn
       %{id: ^section_id} = old_section ->
         Map.put(updated_section, :blocks, old_section.blocks)
-      section -> section
+
+      section ->
+        section
     end)
   end
 
