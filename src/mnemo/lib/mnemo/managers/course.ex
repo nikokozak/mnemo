@@ -100,21 +100,14 @@ defmodule Mnemo.Managers.Course do
       |> CompletedReviewBlock.create_changeset(%{
         student_id: enrollment.student_id,
         subject_id: enrollment.subject_id,
-        block_id: enrollment.block_cursor,
+        block_id: enrollment.block_cursor.id,
         succeeded: answer_success?,
-        attempts: length(answers),
+        answers: answers,
         time_taken: 0
       })
       |> PGRepo.insert()
 
-    {:ok, _scheduled_block} =
-      %ScheduledBlock{}
-      |> ScheduledBlock.create_changeset(%{
-        student_id: enrollment.student_id,
-        subject_id: enrollment.subject_id,
-        block_id: enrollment.block_cursor,
-        review_at: Date.utc_today() |> Date.add(completed_block.interval_to_next_review)
-      })
+    schedule_block(enrollment, completed_block)
 
     next_block = Block.next_block(enrollment.block_cursor)
 
@@ -123,6 +116,36 @@ defmodule Mnemo.Managers.Course do
     |> Enrollment.new_cursor_changeset(next_block)
     |> PGRepo.update!()
     |> PGRepo.preload(block_cursor: :section)
+  end
+
+  defp schedule_block(enrollment, completed_review_block) do
+    existing_block =
+      ScheduledBlock
+      |> ScheduledBlock.where_student(enrollment.student_id)
+      |> ScheduledBlock.where_block(enrollment.block_cursor.id)
+      |> PGRepo.one()
+
+    if not is_nil(existing_block) do
+      {:ok, scheduled_block} =
+        %ScheduledBlock{id: existing_block.id}
+        |> ScheduledBlock.update_changeset(%{
+            review_at: Date.utc_today() |> Date.add(completed_review_block.interval_to_next_review)
+        })
+        |> PGRepo.update()
+
+        scheduled_block
+    else
+      {:ok, scheduled_block} =
+        %ScheduledBlock{}
+        |> ScheduledBlock.create_changeset(%{
+            student_id: enrollment.student_id,
+            subject_id: enrollment.subject_id,
+            block_id: enrollment.block_cursor.id,
+            review_at: Date.utc_today() |> Date.add(completed_review_block.interval_to_next_review)})
+        |> PGRepo.insert()
+
+        scheduled_block
+    end
   end
 
   def delete_enrollment(enrollment_id) do

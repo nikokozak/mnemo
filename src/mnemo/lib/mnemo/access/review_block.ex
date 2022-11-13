@@ -1,6 +1,6 @@
 defmodule Mnemo.Access.Schemas.ReviewBlock do
   use Mnemo.Access.Schemas.Schema
-  alias Mnemo.Access.Schemas.{Subject, Section, Enrollment, Student}
+  alias Mnemo.Access.Schemas.{Subject, Student, Block}
 
   @derive {Jason.Encoder,
            only: [
@@ -12,7 +12,7 @@ defmodule Mnemo.Access.Schemas.ReviewBlock do
 
   schema "student_review_queue" do
     belongs_to :student, Student, on_replace: :delete
-    belongs_to :subject, Stubject, on_replace: :delete
+    belongs_to :subject, Subject, on_replace: :delete
     belongs_to :block, Block, on_replace: :delete
   end
 

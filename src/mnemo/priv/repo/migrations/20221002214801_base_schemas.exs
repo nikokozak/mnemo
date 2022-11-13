@@ -161,6 +161,14 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
       add(:review_at, :date)
     end
 
+    create(
+      unique_index(
+        :scheduled_blocks,
+        [:student_id, :block_id],
+        name: :student_id_block_id_unique_index
+      )
+    )
+
     create table(:student_review_queue) do
       add(:student_id, references(:students, on_delete: :delete_all))
       add(:subject_id, references(:subjects, on_delete: :delete_all))
@@ -173,10 +181,9 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
       add(:block_id, references(:blocks))
       add(:succeeded, :boolean)
       add(:answers, {:array, :string})
-      add(:attempts, :integer)
       add(:correct_in_a_row, :integer)
       add(:interval_to_next_review, :integer)
-      add(:perceived_easyness, :float)
+      add(:easyness, :decimal)
       add(:time_taken, :integer)
       add(:date_suggested, :date)
       add(:date_reviewed, :date)

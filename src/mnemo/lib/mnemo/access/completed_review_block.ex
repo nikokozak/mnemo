@@ -1,6 +1,6 @@
 defmodule Mnemo.Access.Schemas.CompletedReviewBlock do
   use Mnemo.Access.Schemas.Schema
-  alias Mnemo.Access.Schemas.{Subject, Section, Enrollment, Student}
+  alias Mnemo.Access.Schemas.{Subject, Block, Student}
 
   @derive {Jason.Encoder,
            only: [
@@ -10,7 +10,6 @@ defmodule Mnemo.Access.Schemas.CompletedReviewBlock do
              :block_id,
              :succeeded,
              :answers,
-             :attempts,
              :correct_in_a_row,
              :interval_to_next_review,
              :easyness,
@@ -21,16 +20,15 @@ defmodule Mnemo.Access.Schemas.CompletedReviewBlock do
 
   schema "student_completed_reviews" do
     belongs_to :student, Student, on_replace: :delete
-    belongs_to :subject, Stubject, on_replace: :delete
+    belongs_to :subject, Subject, on_replace: :delete
     belongs_to :block, Block, on_replace: :delete
 
     field :succeeded, :boolean
     field :answers, {:array, :string}
-    field :attempts, :integer
 
     field :correct_in_a_row, :integer, default: 0
     field :interval_to_next_review, :integer
-    field :easyness, :float, default: 2.5
+    field :easyness, :decimal, default: 2.5
 
     field :time_taken, :integer
     field :date_suggested, :date
@@ -58,25 +56,23 @@ defmodule Mnemo.Access.Schemas.CompletedReviewBlock do
     do: from(cb in query, where: cb.date_completed == ^date_completed)
 
   def create_changeset(
-        scheduled_block,
+        completed_block,
         %{
           student_id: _student_id,
           subject_id: _subject_id,
           block_id: _block_id,
           succeeded: _succeeded,
           answers: _answers,
-          date_suggested: _date_suggested,
-          date_completed: _date_completed
+          time_taken: _time_taken
         } = params
       ) do
-    scheduled_block
+    completed_block
     |> cast(params, ~w(
         student_id
         subject_id
         block_id
         succeeded
         answers
-        attempts
         time_taken
         date_suggested
         date_completed)a)
@@ -95,7 +91,7 @@ defmodule Mnemo.Access.Schemas.CompletedReviewBlock do
 
   def maybe_increase_correct_in_a_row_count(changeset) do
     if get_change(changeset, :succeeded) do
-      correct_in_a_row = get_field(changeset, :correct_in_a_row) || 0
+      correct_in_a_row = get_field(changeset, :correct_in_a_row) || -1
 
       changeset
       |> put_change(:correct_in_a_row, correct_in_a_row + 1)
@@ -123,7 +119,7 @@ defmodule Mnemo.Access.Schemas.CompletedReviewBlock do
   end
 
   defp assign_easyness_value(changeset) do
-    answer_attempts = get_change(changeset, :attempts)
+    answer_attempts = length(get_change(changeset, :answers))
     new_easyness = Mnemo.Engines.Scheduling.easyness(answer_attempts)
     put_change(changeset, :easyness, new_easyness)
   end

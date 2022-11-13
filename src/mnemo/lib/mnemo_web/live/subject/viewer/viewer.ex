@@ -40,11 +40,12 @@ defmodule MnemoWeb.Live.Subject.Viewer do
 
   def handle_event("answer_attempt", %{"answer_form" => answer_vals}, socket) do
     block_id = socket.assigns.enrollment.block_cursor.id
+    answer_attempts = [answer_vals | socket.assigns.answer_attempts]
 
     {:ok, {is_correct?, details}} = Course.test_block(block_id, answer_vals)
 
     if is_correct? or length(socket.assigns.answer_attempts) == @answer_attempts - 1 do
-      updated_enrollment = Course.consume_cursor_enrollment(socket.assigns.enrollment)
+      updated_enrollment = Course.consume_cursor_enrollment(socket.assigns.enrollment, is_correct?, answer_attempts)
 
       {:noreply,
        assign(socket,
@@ -57,7 +58,7 @@ defmodule MnemoWeb.Live.Subject.Viewer do
       {:noreply,
        assign(socket,
          answer_status: if(is_nil(details), do: is_correct?, else: details),
-         answer_attempts: [answer_vals | socket.assigns.answer_attempts],
+         answer_attempts: answer_attempts,
          answer_value: answer_vals
        )}
     end
@@ -65,11 +66,12 @@ defmodule MnemoWeb.Live.Subject.Viewer do
 
   def handle_event("answer_mcq", %{"answer-key" => answer_key}, socket) do
     block_id = socket.assigns.enrollment.block_cursor.id
+    answer_attempts = [answer_key | socket.assigns.answer_attempts]
 
     {:ok, {is_correct?, details}} = Course.test_block(block_id, answer_key)
 
     if is_correct? or length(socket.assigns.answer_attempts) == @answer_attempts - 1 do
-      updated_enrollment = Course.consume_cursor_enrollment(socket.assigns.enrollment)
+      updated_enrollment = Course.consume_cursor_enrollment(socket.assigns.enrollment, is_correct?, answer_attempts)
 
       {:noreply,
        assign(socket,
@@ -82,7 +84,7 @@ defmodule MnemoWeb.Live.Subject.Viewer do
       {:noreply,
        assign(socket,
          answer_status: if(is_nil(details), do: is_correct?, else: details),
-         answer_attempts: [answer_key | socket.assigns.answer_attempts],
+         answer_attempts: answer_attempts,
          answer_value: answer_key
        )}
     end

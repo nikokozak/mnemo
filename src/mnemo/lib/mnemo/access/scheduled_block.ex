@@ -1,6 +1,6 @@
 defmodule Mnemo.Access.Schemas.ScheduledBlock do
   use Mnemo.Access.Schemas.Schema
-  alias Mnemo.Access.Schemas.{Subject, Section, Enrollment, Student}
+  alias Mnemo.Access.Schemas.{Subject, Block, Student}
 
   @derive {Jason.Encoder,
            only: [
@@ -13,13 +13,16 @@ defmodule Mnemo.Access.Schemas.ScheduledBlock do
 
   schema "scheduled_blocks" do
     belongs_to :student, Student, on_replace: :delete
-    belongs_to :subject, Stubject, on_replace: :delete
+    belongs_to :subject, Subject, on_replace: :delete
     belongs_to :block, Block, on_replace: :delete
 
     field :review_at, :date
   end
 
   def where_id(query \\ __MODULE__, block_id), do: from(cb in query, where: cb.id == ^block_id)
+
+  def where_student(query \\ __MODULE__, student_id),
+    do: from(cb in query, where: cb.student_id == ^student_id)
 
   def where_subject(query \\ __MODULE__, subject_id),
     do: from(cb in query, where: cb.subject_id == ^subject_id)
@@ -48,6 +51,11 @@ defmodule Mnemo.Access.Schemas.ScheduledBlock do
     |> foreign_key_constraint(:student_id)
     |> foreign_key_constraint(:subject_id)
     |> foreign_key_constraint(:block_id)
+  end
+
+  def update_changeset(scheduled_block, %{review_at: _review_at} = params) do
+    scheduled_block
+    |> cast(params, ~w(review_at)a)
   end
 
   def delete_changeset(scheduled_block) do
