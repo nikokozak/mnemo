@@ -26,7 +26,7 @@ defmodule Mnemo.Access.Schemas.CompletedReviewBlock do
     field :succeeded, :boolean
     field :answers, {:array, :string}
 
-    field :correct_in_a_row, :integer, default: 0
+    field :correct_in_a_row, :integer
     field :interval_to_next_review, :integer
     field :easyness, :decimal, default: 2.5
 
@@ -112,8 +112,12 @@ defmodule Mnemo.Access.Schemas.CompletedReviewBlock do
     correct_in_a_row = get_change(changeset, :correct_in_a_row)
     easyness = get_field(changeset, :easyness) || 2.5
 
+    IO.inspect(correct_in_a_row, label: "Correct in a row")
+
     interval_til_next_review =
       Mnemo.Engines.Scheduling.review_interval(success?, correct_in_a_row, easyness)
+
+    IO.inspect(interval_til_next_review, label: "Interval")
 
     put_change(changeset, :interval_to_next_review, interval_til_next_review)
   end

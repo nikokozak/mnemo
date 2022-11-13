@@ -1,6 +1,6 @@
 # Mnemo TODO
 
-- Make scheduled blocks idempotent (use insert_or_update)
+- Retrieve last previous "completed_review_block" to assess next interval (currently we're starting from scratch every time, and thus getting the same interval)
 - Quantum scheduler.
 - Make schedule of features, looking into December.
 - Ideate marketing materials/strategy (signups, landing page, etc.).

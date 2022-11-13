@@ -45,7 +45,8 @@ defmodule MnemoWeb.Live.Subject.Viewer do
     {:ok, {is_correct?, details}} = Course.test_block(block_id, answer_vals)
 
     if is_correct? or length(socket.assigns.answer_attempts) == @answer_attempts - 1 do
-      updated_enrollment = Course.consume_cursor_enrollment(socket.assigns.enrollment, is_correct?, answer_attempts)
+      updated_enrollment =
+        Course.consume_cursor_enrollment(socket.assigns.enrollment, is_correct?, answer_attempts)
 
       {:noreply,
        assign(socket,
@@ -71,7 +72,8 @@ defmodule MnemoWeb.Live.Subject.Viewer do
     {:ok, {is_correct?, details}} = Course.test_block(block_id, answer_key)
 
     if is_correct? or length(socket.assigns.answer_attempts) == @answer_attempts - 1 do
-      updated_enrollment = Course.consume_cursor_enrollment(socket.assigns.enrollment, is_correct?, answer_attempts)
+      updated_enrollment =
+        Course.consume_cursor_enrollment(socket.assigns.enrollment, is_correct?, answer_attempts)
 
       {:noreply,
        assign(socket,

@@ -129,22 +129,23 @@ defmodule Mnemo.Managers.Course do
       {:ok, scheduled_block} =
         %ScheduledBlock{id: existing_block.id}
         |> ScheduledBlock.update_changeset(%{
-            review_at: Date.utc_today() |> Date.add(completed_review_block.interval_to_next_review)
+          review_at: Date.utc_today() |> Date.add(completed_review_block.interval_to_next_review)
         })
         |> PGRepo.update()
 
-        scheduled_block
+      scheduled_block
     else
       {:ok, scheduled_block} =
         %ScheduledBlock{}
         |> ScheduledBlock.create_changeset(%{
-            student_id: enrollment.student_id,
-            subject_id: enrollment.subject_id,
-            block_id: enrollment.block_cursor.id,
-            review_at: Date.utc_today() |> Date.add(completed_review_block.interval_to_next_review)})
+          student_id: enrollment.student_id,
+          subject_id: enrollment.subject_id,
+          block_id: enrollment.block_cursor.id,
+          review_at: Date.utc_today() |> Date.add(completed_review_block.interval_to_next_review)
+        })
         |> PGRepo.insert()
 
-        scheduled_block
+      scheduled_block
     end
   end
 
