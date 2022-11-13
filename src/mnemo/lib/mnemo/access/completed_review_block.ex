@@ -15,7 +15,7 @@ defmodule Mnemo.Access.Schemas.CompletedReviewBlock do
              :easyness,
              :time_taken,
              :date_suggested,
-             :date_completed
+             :datetime_completed
            ]}
 
   schema "student_completed_reviews" do
@@ -32,10 +32,13 @@ defmodule Mnemo.Access.Schemas.CompletedReviewBlock do
 
     field :time_taken, :integer
     field :date_suggested, :date
-    field :date_completed, :date
+    field :datetime_completed, :utc_datetime
   end
 
   def where_id(query \\ __MODULE__, block_id), do: from(cb in query, where: cb.id == ^block_id)
+
+  def where_student(query \\ __MODULE__, student_id),
+    do: from(cb in query, where: cb.student_id == ^student_id)
 
   def where_subject(query \\ __MODULE__, subject_id),
     do: from(cb in query, where: cb.subject_id == ^subject_id)
@@ -54,6 +57,9 @@ defmodule Mnemo.Access.Schemas.CompletedReviewBlock do
 
   def where_date_completed(query \\ __MODULE__, date_completed),
     do: from(cb in query, where: cb.date_completed == ^date_completed)
+
+  def sort_by_date(query \\ __MODULE__),
+    do: from(cb in query, order_by: fragment("? DESC", cb.datetime_completed))
 
   def create_changeset(
         completed_block,
@@ -74,11 +80,12 @@ defmodule Mnemo.Access.Schemas.CompletedReviewBlock do
         succeeded
         answers
         time_taken
-        date_suggested
-        date_completed)a)
+        correct_in_a_row
+        date_suggested)a)
     |> foreign_key_constraint(:student_id)
     |> foreign_key_constraint(:subject_id)
     |> foreign_key_constraint(:block_id)
+    |> put_date_completed()
     |> maybe_increase_correct_in_a_row_count()
     |> assign_interval_and_easyness()
   end
@@ -87,6 +94,10 @@ defmodule Mnemo.Access.Schemas.CompletedReviewBlock do
     # TODO: redundant?
     scheduled_block
     |> cast(%{}, [])
+  end
+
+  defp put_date_completed(changeset) do
+    put_change(changeset, :datetime_completed, DateTime.utc_now() |> DateTime.truncate(:second))
   end
 
   def maybe_increase_correct_in_a_row_count(changeset) do

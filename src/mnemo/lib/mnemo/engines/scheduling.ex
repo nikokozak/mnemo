@@ -6,7 +6,7 @@ defmodule Mnemo.Engines.Scheduling do
         # Days until next review
         0 -> 1
         1 -> 3
-        n -> n * easyness
+        n -> round(n * easyness)
       end
     else
       # Review immediately

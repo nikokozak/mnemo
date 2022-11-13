@@ -186,7 +186,7 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
       add(:easyness, :decimal)
       add(:time_taken, :integer)
       add(:date_suggested, :date)
-      add(:date_reviewed, :date)
+      add(:datetime_completed, :utc_datetime)
     end
   end
 end

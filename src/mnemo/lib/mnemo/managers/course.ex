@@ -1,5 +1,6 @@
 defmodule Mnemo.Managers.Course do
   alias Mnemo.Engines.Block, as: BlockEngine
+  require Ecto.Query
 
   alias Mnemo.Access.Schemas.{
     Subject,
@@ -95,17 +96,7 @@ defmodule Mnemo.Managers.Course do
   end
 
   def consume_cursor_enrollment(enrollment, answer_success?, answers) do
-    {:ok, completed_block} =
-      %CompletedReviewBlock{}
-      |> CompletedReviewBlock.create_changeset(%{
-        student_id: enrollment.student_id,
-        subject_id: enrollment.subject_id,
-        block_id: enrollment.block_cursor.id,
-        succeeded: answer_success?,
-        answers: answers,
-        time_taken: 0
-      })
-      |> PGRepo.insert()
+    {:ok, completed_block} = complete_block(enrollment, answer_success?, answers)
 
     schedule_block(enrollment, completed_block)
 
@@ -116,6 +107,39 @@ defmodule Mnemo.Managers.Course do
     |> Enrollment.new_cursor_changeset(next_block)
     |> PGRepo.update!()
     |> PGRepo.preload(block_cursor: :section)
+  end
+
+  defp complete_block(enrollment, answer_success?, answers) do
+    last_completed_block =
+      CompletedReviewBlock
+      |> CompletedReviewBlock.where_student(enrollment.student_id)
+      |> CompletedReviewBlock.where_block(enrollment.block_cursor.id)
+      |> CompletedReviewBlock.sort_by_date()
+      |> Ecto.Query.limit(1)
+      |> PGRepo.one()
+
+    IO.inspect(last_completed_block, label: "Last completed block")
+
+    params = %{
+      student_id: enrollment.student_id,
+      subject_id: enrollment.subject_id,
+      block_id: enrollment.block_cursor.id,
+      succeeded: answer_success?,
+      answers: answers,
+      time_taken: 0
+    }
+
+    if not is_nil(last_completed_block) do
+      {:ok, completed_block} =
+        %CompletedReviewBlock{}
+        |> CompletedReviewBlock.create_changeset(Map.merge(params, %{
+        correct_in_a_row: last_completed_block.correct_in_a_row}))
+        |> PGRepo.insert()
+      else
+        %CompletedReviewBlock{}
+        |> CompletedReviewBlock.create_changeset(params)
+        |> PGRepo.insert()
+    end
   end
 
   defp schedule_block(enrollment, completed_review_block) do
