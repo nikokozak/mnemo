@@ -19,7 +19,8 @@ defmodule MnemoWeb.Live.Subject.Viewer do
        enrollment: enrollment,
        answer_status: nil,
        answer_attempts: [],
-       answer_value: nil
+       answer_value: nil,
+       fc_revealed: false
      )}
   end
 
@@ -91,4 +92,28 @@ defmodule MnemoWeb.Live.Subject.Viewer do
        )}
     end
   end
+
+  def handle_event("answer_static", %{"answer" => answer}, socket) do
+    block_id = socket.assigns.enrollment.block_cursor.id
+    answer_attempts = [answer]
+
+    {:ok, {is_correct?, _details}} = Course.test_block(block_id, answer)
+
+    updated_enrollment =
+      Course.consume_cursor_enrollment(socket.assigns.enrollment, is_correct?, answer_attempts)
+
+    {:noreply,
+    assign(socket,
+        enrollment: updated_enrollment,
+        answer_status: nil,
+        answer_attempts: [],
+        answer_value: nil,
+        fc_revealed: false
+    )}
+  end
+
+  def handle_event("reveal_fc", _params, socket) do
+    {:noreply, assign(socket, fc_revealed: true)}
+  end
+
 end

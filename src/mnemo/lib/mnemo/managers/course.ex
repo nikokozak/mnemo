@@ -132,13 +132,16 @@ defmodule Mnemo.Managers.Course do
     if not is_nil(last_completed_block) do
       {:ok, completed_block} =
         %CompletedReviewBlock{}
-        |> CompletedReviewBlock.create_changeset(Map.merge(params, %{
-        correct_in_a_row: last_completed_block.correct_in_a_row}))
+        |> CompletedReviewBlock.create_changeset(
+          Map.merge(params, %{
+            correct_in_a_row: last_completed_block.correct_in_a_row
+          })
+        )
         |> PGRepo.insert()
-      else
-        %CompletedReviewBlock{}
-        |> CompletedReviewBlock.create_changeset(params)
-        |> PGRepo.insert()
+    else
+      %CompletedReviewBlock{}
+      |> CompletedReviewBlock.create_changeset(params)
+      |> PGRepo.insert()
     end
   end
 

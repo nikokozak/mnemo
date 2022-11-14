@@ -1,10 +1,3 @@
-<h1><%= @block.id %></h1>
-<p><%= @block.type %></p>
-<p phx-click="delete_block"
-    phx-value-section_id={@section.id}
-    phx-value-block_id={@block.id}
-><em>delete</em></p>
-
 <div class="border rounded-lg mt-2 mb-4">
     <!-- Block Type Title -->
     <div class="flex m-4 text-md">
@@ -18,11 +11,11 @@
 
     <!-- Front Content -->
     <div class="p-4">
-        <h2>Front</h2>
+        <h2 class="mb-2">Front</h2>
 
         <%= for {brick, idx} <- Enum.with_index(@block.fc_front_content) do %>
             <%= if brick["type"] == "text" do %>
-                <div class="ml-5 mr-4 mb-4">
+                <div class="mr-4 mb-4 mt-2">
                 <.form for={:brick_form} :let={f} phx-change="update_content_brick">
                     <%= hidden_input f,
                     :section_id,
@@ -42,7 +35,7 @@
 
                     <%= text_input f,
                     :content,
-                    class: "text-xs w-full",
+                    class: "text-xs w-full border-none p-0",
                     value: brick["content"],
                     placeholder: "Some text you feel is important.",
                     "phx-debounce": "300"
@@ -51,8 +44,10 @@
                 </div>
 
             <% else %>
-                <div
-                    class="block w-4/5 h-20 border border-dashed rounded-lg ml-5 mr-4 mb-4">
+                <div class="block h-20 w-full border rounded-lg border-dashed border-gray-700 mt-2 p-6">
+                    <p class="text-xs text-slate-500">
+                        An optional thumbnail (click here to add or change)
+                    </p>
                 </div>
             <% end %>
         <% end %>
@@ -64,7 +59,7 @@
                     phx-value-block_id={@block.id}
                     phx-value-brick_type="text"
                     phx-value-side="front"
-                    class="flex text-xs border rounded-lg py-2 px-4">
+                    class="flex text-xs border rounded-lg py-2 px-4 mr-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
                 </svg>
@@ -93,7 +88,7 @@
 
         <%= for {brick, idx} <- Enum.with_index(@block.fc_back_content) do %>
             <%= if brick["type"] == "text" do %>
-                <div class="ml-5 mr-4 mb-4">
+                <div class="mr-4 mb-4 mt-2">
                 <.form for={:brick_form} :let={f} phx-change="update_content_brick">
                     <%= hidden_input f,
                     :section_id,
@@ -113,7 +108,7 @@
 
                     <%= text_input f,
                     :content,
-                    class: "text-xs w-full",
+                    class: "text-xs w-full border-none p-0",
                     value: brick["content"],
                     placeholder: "Some text you feel is important.",
                     "phx-debounce": "300"
@@ -121,8 +116,10 @@
                 </.form>
                 </div>
             <% else %>
-                <div
-                    class="block w-4/5 h-20 border border-dashed rounded-lg ml-5 mr-4 mb-4">
+                <div class="block h-20 w-full border rounded-lg border-dashed border-gray-700 mt-2 p-6">
+                    <p class="text-xs text-slate-500">
+                        An optional thumbnail (click here to add or change)
+                    </p>
                 </div>
             <% end %>
         <% end %>
@@ -134,7 +131,7 @@
                     phx-value-block_id={@block.id}
                     phx-value-brick_type="text"
                     phx-value-side="back"
-                    class="flex text-xs border rounded-lg py-2 px-4">
+                    class="flex text-xs border rounded-lg py-2 px-4 mr-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
                 </svg>

@@ -13,9 +13,14 @@ defmodule Mnemo.Engines.Block do
     test_block_type(block.type, block, answer)
   end
 
-  def test_block_type("static", %Block{} = _block, _answer) do
-    # Static blocks are always "correct" when tested
-    {:ok, true}
+  def test_block_type("static", %Block{} = _block, answer) do
+    is_correct? = answer == "true"
+    {:ok, {is_correct?, answer}}
+  end
+
+  def test_block_type("fc", %Block{} = _block, answer) do
+    is_correct? = answer == "true"
+    {:ok, {is_correct?, answer}}
   end
 
   def test_block_type("saq", %Block{} = block, %{"answer" => answer}) when is_binary(answer) do

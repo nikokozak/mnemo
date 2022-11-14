@@ -13,8 +13,14 @@
     <div class="p-4">
         <h2>Question</h2>
 
-        <div class="mt-4 w-full h-20 border border-gray-500 border-dashed rounded-lg"></div>
+        <p class="text-xs text-gray-400 mt-4">An optional image:</p>
+        <div class="block h-20 w-full border rounded-lg border-dashed border-gray-700 mt-2 p-6">
+            <p class="text-xs text-slate-500">
+                An optional thumbnail (click here to add or change)
+            </p>
+        </div>
 
+        <p class="text-xs text-gray-400 mt-4">The question text (click to edit):</p>
         <.form for={:block_question_form} :let={f} phx-change="update_block">
             <%= hidden_input f, :section_id, value: @section.id %>
             <%= hidden_input f, :block_id, value: @block.id %>
@@ -22,7 +28,7 @@
             :question,
             value: @block.mcq_question_text,
             placeholder: "Your question here.",
-            class: "w-full text-sm mt-4",
+            class: "w-full text-sm border-none p-0 mt-2",
             "phx-debounce": "300" %>
         </.form>
     </div>
@@ -33,6 +39,8 @@
     <!-- Inner Answers -->
     <div class="p-4">
         <h2>Answers</h2>
+        <p class="text-xs text-gray-400 mt-4">Add as many answers as you like.
+            The black checkmark indicates what answer is correct!</p>
 
         <%= for {choice, idx} <- Enum.with_index(@block.mcq_answer_choices) do %>
             <div class="flex justify-between border rounded-lg text-xs mt-4 mr-4">
@@ -49,7 +57,8 @@
                     :choice_text,
                     value: choice["text"],
                     placeholder: "Your question here.",
-                    class: "pl-2 py-2",
+                    class: "pl-2 border-none text-sm",
+                    rows: "1",
                     "phx-debounce": "300"
                     %>
                 </.form>

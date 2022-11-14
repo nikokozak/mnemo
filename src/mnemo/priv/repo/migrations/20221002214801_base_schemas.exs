@@ -156,8 +156,8 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
 
     create table(:scheduled_blocks) do
       add(:student_id, references(:students, on_delete: :delete_all))
-      add(:subject_id, references(:subjects))
-      add(:block_id, references(:blocks))
+      add(:subject_id, references(:subjects, on_delete: :delete_all))
+      add(:block_id, references(:blocks, on_delete: :delete_all))
       add(:review_at, :date)
     end
 
@@ -177,8 +177,8 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
 
     create table(:student_completed_reviews) do
       add(:student_id, references(:students, on_delete: :delete_all))
-      add(:subject_id, references(:subjects))
-      add(:block_id, references(:blocks))
+      add(:subject_id, references(:subjects, on_delete: :delete_all))
+      add(:block_id, references(:blocks, on_delete: :delete_all))
       add(:succeeded, :boolean)
       add(:answers, {:array, :string})
       add(:correct_in_a_row, :integer)

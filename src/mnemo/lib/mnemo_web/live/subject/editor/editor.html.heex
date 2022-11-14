@@ -1,5 +1,3 @@
-<%= @subject.id %>
-
 <div class="mb-8">
     <div class="flex justify-between">
         <h1 class="text-sm text-gray-400 mb-2">subject information</h1>
@@ -8,21 +6,23 @@
 
     <.form for={:subject_information}
     :let={f}
-    phx-change="save_information" >
+    phx-change="save_information" class="mt-6" >
 
+        <%= label f, :title, "Title", class: "text-xs text-gray-400" %>
         <%= text_input f,
         :title,
-        class: "block text-xl border-none pl-0 text-black text-semibold underline underline-offset-8 mt-8 w-full",
+        class: "block text-xl border-none mb-4 pl-0 text-semibold underline underline-offset-4 w-full",
         value: @subject.title,
         "phx-debounce": "300"
         %>
 
+        <%= label f, :description, "Description", class: "text-xs text-gray-400" %>
         <%= textarea f,
         :description,
         style: "resize:none",
         placeholder: "An optional description of what your subject is about.",
         value: @subject.description,
-        class: "block border-none pl-0 mt-4 text-black text-sm underline underline-offset-4 w-full",
+        class: "block border-none pl-0 text-black text-sm underline underline-offset-4 w-full",
         "phx-debounce": "300"
         %>
 
@@ -38,17 +38,15 @@
 
 <div>
     <div class="flex justify-between">
-        <h1 class="text-sm text-gray-400">subject content</h1>
+        <h1 class="text-sm text-gray-400 mb-2">subject content</h1>
     </div>
     <hr class="border-gray-400">
 
     <%= for section <- @sections do %>
 
-    <div class="mt-4" id={section.id}>
+    <div class="mt-4 p-2 border border-dashed rounded-lg" id={section.id}>
         <!-- Section Title -->
         <div class="flex justify-between">
-            <p class="text-xs"><%= section.id %></p>
-
             <.form for={:section_information}
             :let={f}
             phx-change="save_section" >
@@ -59,7 +57,7 @@
 
                 <%= text_input f,
                 :title,
-                class: "text-md text-semibold underline underline-offset-6 border-0 p-0 mb-4",
+                class: "text-md text-semibold underline underline-offset-4 border-0 p-0 mb-4",
                 value: section.title,
                 placeholder: "Optional Section Title",
                 "phx-debounce": "300"

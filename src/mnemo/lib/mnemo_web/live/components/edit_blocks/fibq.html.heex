@@ -13,16 +13,22 @@
     <div class="p-4">
         <h2>Question</h2>
 
-        <div class="mt-4 w-full h-20 border border-gray-500 border-dashed rounded-lg"></div>
+        <p class="text-xs text-gray-400 mt-4">An optional image:</p>
+        <div class="block h-20 w-full border rounded-lg border-dashed border-gray-700 mt-2 p-6">
+            <p class="text-xs text-slate-500">
+                An optional thumbnail (click here to add or change)
+            </p>
+        </div>
 
+        <p class="text-xs text-gray-400 mt-4">The question text (click to edit).</p>
         <.form for={:block_question_form} :let={f} phx-change="update_block">
             <%= hidden_input f, :section_id, value: @section.id %>
             <%= hidden_input f, :block_id, value: @block.id %>
             <%= textarea f,
             :question,
             value: @block.fibq_question_text_template,
-            placeholder: "Your question here.",
-            class: "w-full text-sm mt-4",
+            placeholder: "Words in {brackets} will be turned into a fill-in-the-blank field.",
+            class: "w-full text-sm border-none p-0 mt-4",
             "phx-debounce": "300" %>
         </.form>
     </div>
