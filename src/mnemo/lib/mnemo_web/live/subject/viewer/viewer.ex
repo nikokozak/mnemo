@@ -39,11 +39,20 @@ defmodule MnemoWeb.Live.Subject.Viewer do
     {:noreply, assign(socket, enrollment: updated_enrollment)}
   end
 
-  def handle_event("answer_attempt", %{"answer_form" => answer_vals}, socket) do
+  def handle_event("answer_fibq", %{"answer_form" => answer_vals}, socket) do
     block_id = socket.assigns.enrollment.block_cursor.id
-    answer_attempts = [answer_vals | socket.assigns.answer_attempts]
+
+    # Go from %{0 => "blue", 1 => "sky"} to ["blue, sky", ...]
+    # TODO: standardize how we store answer attempts so that it can cover
+    # all card answers. Maybe JSON? And attempts is just an integer?
+    answers =
+      Enum.map(answer_vals, fn {_k, answer} -> answer end)
+      |> Enum.join(",")
+    answer_attempts = [answers | socket.assigns.answer_attempts]
 
     {:ok, {is_correct?, details}} = Course.test_block(block_id, answer_vals)
+
+    IO.inspect(answer_attempts, label: "Answer attempts")
 
     if is_correct? or length(socket.assigns.answer_attempts) == @answer_attempts - 1 do
       updated_enrollment =
@@ -62,6 +71,33 @@ defmodule MnemoWeb.Live.Subject.Viewer do
          answer_status: if(is_nil(details), do: is_correct?, else: details),
          answer_attempts: answer_attempts,
          answer_value: answer_vals
+       )}
+    end
+  end
+
+  def handle_event("answer_saq", %{"answer_form" => %{"answer" => answer}}, socket) do
+    block_id = socket.assigns.enrollment.block_cursor.id
+    answer_attempts = [answer | socket.assigns.answer_attempts]
+
+    {:ok, {is_correct?, details}} = Course.test_block(block_id, answer)
+
+    if is_correct? or length(socket.assigns.answer_attempts) == @answer_attempts - 1 do
+      updated_enrollment =
+        Course.consume_cursor_enrollment(socket.assigns.enrollment, is_correct?, answer_attempts)
+
+      {:noreply,
+       assign(socket,
+         enrollment: updated_enrollment,
+         answer_status: nil,
+         answer_attempts: [],
+         answer_value: nil
+       )}
+    else
+      {:noreply,
+       assign(socket,
+         answer_status: if(is_nil(details), do: is_correct?, else: details),
+         answer_attempts: answer_attempts,
+         answer_value: answer
        )}
     end
   end
@@ -103,17 +139,16 @@ defmodule MnemoWeb.Live.Subject.Viewer do
       Course.consume_cursor_enrollment(socket.assigns.enrollment, is_correct?, answer_attempts)
 
     {:noreply,
-    assign(socket,
-        enrollment: updated_enrollment,
-        answer_status: nil,
-        answer_attempts: [],
-        answer_value: nil,
-        fc_revealed: false
-    )}
+     assign(socket,
+       enrollment: updated_enrollment,
+       answer_status: nil,
+       answer_attempts: [],
+       answer_value: nil,
+       fc_revealed: false
+     )}
   end
 
   def handle_event("reveal_fc", _params, socket) do
     {:noreply, assign(socket, fc_revealed: true)}
   end
-
 end

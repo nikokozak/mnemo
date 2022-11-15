@@ -4,11 +4,11 @@
         <h1><%= @enrollment.subject.title %></h1>
         <hr class="mb-8">
 
-        <%= if not is_nil(@enrollment.block_cursor.section.title) do %>
+        <%= if not is_nil(@enrollment.block_cursor) do %>
+            <%= if not is_nil(@enrollment.block_cursor.section.title) do %>
             <p class="text-xs text-gray-400">Section</p>
-            <%= if not is_nil(@enrollment.block_cursor) do %>
-                <h1><%= @enrollment.block_cursor.section.title %></h1>
-                <hr>
+            <h1><%= @enrollment.block_cursor.section.title %></h1>
+            <hr>
             <% end %>
         <% end %>
 

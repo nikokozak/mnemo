@@ -96,6 +96,7 @@ defmodule Mnemo.Managers.Course do
   end
 
   def consume_cursor_enrollment(enrollment, answer_success?, answers) do
+    IO.inspect(answers, label: "Answers in consume cursor enrollment")
     {:ok, completed_block} = complete_block(enrollment, answer_success?, answers)
 
     schedule_block(enrollment, completed_block)

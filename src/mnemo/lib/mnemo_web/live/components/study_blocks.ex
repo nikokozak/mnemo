@@ -31,7 +31,12 @@ defmodule MnemoWeb.Live.Components.StudyBlocks do
   def saq(assigns)
 
   def block(type, block, answer_status, answer_value, fc_revealed) do
-    assigns = %{block: block, answer_status: answer_status, answer_value: answer_value, fc_revealed: fc_revealed}
+    assigns = %{
+      block: block,
+      answer_status: answer_status,
+      answer_value: answer_value,
+      fc_revealed: fc_revealed
+    }
 
     case type do
       "static" -> static(assigns)

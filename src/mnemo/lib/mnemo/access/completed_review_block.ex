@@ -82,6 +82,7 @@ defmodule Mnemo.Access.Schemas.CompletedReviewBlock do
         time_taken
         correct_in_a_row
         date_suggested)a)
+    |> IO.inspect(label: "Changeset with answers")
     |> foreign_key_constraint(:student_id)
     |> foreign_key_constraint(:subject_id)
     |> foreign_key_constraint(:block_id)
@@ -123,17 +124,14 @@ defmodule Mnemo.Access.Schemas.CompletedReviewBlock do
     correct_in_a_row = get_change(changeset, :correct_in_a_row)
     easyness = get_field(changeset, :easyness) || 2.5
 
-    IO.inspect(correct_in_a_row, label: "Correct in a row")
-
     interval_til_next_review =
       Mnemo.Engines.Scheduling.review_interval(success?, correct_in_a_row, easyness)
-
-    IO.inspect(interval_til_next_review, label: "Interval")
 
     put_change(changeset, :interval_to_next_review, interval_til_next_review)
   end
 
   defp assign_easyness_value(changeset) do
+    IO.inspect(get_change(changeset, :answers), label: "answer attempts in chgst")
     answer_attempts = length(get_change(changeset, :answers))
     new_easyness = Mnemo.Engines.Scheduling.easyness(answer_attempts)
     put_change(changeset, :easyness, new_easyness)

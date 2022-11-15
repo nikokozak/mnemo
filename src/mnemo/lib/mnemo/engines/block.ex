@@ -23,7 +23,7 @@ defmodule Mnemo.Engines.Block do
     {:ok, {is_correct?, answer}}
   end
 
-  def test_block_type("saq", %Block{} = block, %{"answer" => answer}) when is_binary(answer) do
+  def test_block_type("saq", %Block{} = block, answer) when is_binary(answer) do
     is_correct? = Enum.any?(block.saq_answer_choices, fn choice -> choice["text"] == answer end)
     details = nil
 

@@ -17,7 +17,7 @@
 
     </div>
 
-    <.form for={:answer_form} :let={f} phx-submit="answer_attempt" class="w-full">
+    <.form for={:answer_form} :let={f} phx-submit="answer_fibq" class="w-full">
         <%= for brick <- @block.fibq_question_structure do %>
             <%= if brick["type"] == "text" do %>
                 <p class="ml-4"><%= brick["value"] %></p>
