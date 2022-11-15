@@ -21,6 +21,9 @@ defmodule Mnemo.Access.Schemas.ScheduledBlock do
 
   def where_id(query \\ __MODULE__, block_id), do: from(cb in query, where: cb.id == ^block_id)
 
+  def limit(query \\ __MODULE__, num \\ 1),
+    do: from(cb in query, limit: ^num)
+
   def where_student(query \\ __MODULE__, student_id),
     do: from(cb in query, where: cb.student_id == ^student_id)
 

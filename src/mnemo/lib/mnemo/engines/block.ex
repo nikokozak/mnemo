@@ -1,6 +1,61 @@
 defmodule Mnemo.Engines.Block do
-  alias Mnemo.Access.Schemas.Block
+  alias Mnemo.Access.Schemas.{Block, ScheduledBlock, Section, Enrollment}
   alias Mnemo.Resources.Postgres.Repo, as: PGRepo
+
+  # Checks whether there are any scheduled blocks for today, returns those.
+  # Otherwise returns the next block in the subject.
+  def next_block(enrollment = %Enrollment{}, current_block = %Block{}) do
+
+    scheduled_block =
+      ScheduledBlock
+      |> ScheduledBlock.where_student(enrollment.student_id)
+      |> ScheduledBlock.where_subject(enrollment.subject_id)
+      |> ScheduledBlock.where_date(Date.utc_today())
+      |> ScheduledBlock.limit()
+      |> PGRepo.one()
+
+    if not is_nil(scheduled_block) do
+      {:scheduled, scheduled_block}
+    else
+      next_block_in_current_section =
+        Block
+        |> Block.where_section(current_block.section_id)
+        |> Block.where_order(current_block.order_in_section + 1)
+        |> PGRepo.one()
+
+      case next_block_in_current_section do
+        nil ->
+          current_section =
+            Section
+            |> Section.where_id(current_block.section_id)
+            |> PGRepo.one()
+
+          next_section =
+            Section
+            |> Section.where_subject(current_section.subject_id)
+            |> Section.where_order(current_section.order_in_subject + 1)
+            |> PGRepo.one()
+
+          case next_section do
+            nil ->
+              {:subject, nil}
+
+            section ->
+              next_subject_block =
+                Block
+                |> Block.where_section(section.id)
+                |> Block.ordered()
+                |> Block.limit()
+                |> PGRepo.one()
+
+              {:subject, next_subject_block}
+          end
+
+        block ->
+          {:subject, block}
+      end
+    end
+  end
 
   def test_block(block_id, answer) when is_binary(block_id) do
     Block

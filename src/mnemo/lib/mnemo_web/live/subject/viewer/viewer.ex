@@ -48,11 +48,10 @@ defmodule MnemoWeb.Live.Subject.Viewer do
     answers =
       Enum.map(answer_vals, fn {_k, answer} -> answer end)
       |> Enum.join(",")
+
     answer_attempts = [answers | socket.assigns.answer_attempts]
 
     {:ok, {is_correct?, details}} = Course.test_block(block_id, answer_vals)
-
-    IO.inspect(answer_attempts, label: "Answer attempts")
 
     if is_correct? or length(socket.assigns.answer_attempts) == @answer_attempts - 1 do
       updated_enrollment =

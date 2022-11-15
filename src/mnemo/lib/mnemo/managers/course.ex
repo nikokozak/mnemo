@@ -96,7 +96,6 @@ defmodule Mnemo.Managers.Course do
   end
 
   def consume_cursor_enrollment(enrollment, answer_success?, answers) do
-    IO.inspect(answers, label: "Answers in consume cursor enrollment")
     {:ok, completed_block} = complete_block(enrollment, answer_success?, answers)
 
     schedule_block(enrollment, completed_block)
@@ -119,8 +118,6 @@ defmodule Mnemo.Managers.Course do
       |> Ecto.Query.limit(1)
       |> PGRepo.one()
 
-    IO.inspect(last_completed_block, label: "Last completed block")
-
     params = %{
       student_id: enrollment.student_id,
       subject_id: enrollment.subject_id,
@@ -131,14 +128,17 @@ defmodule Mnemo.Managers.Course do
     }
 
     if not is_nil(last_completed_block) do
-      {:ok, completed_block} =
-        %CompletedReviewBlock{}
-        |> CompletedReviewBlock.create_changeset(
-          Map.merge(params, %{
-            correct_in_a_row: last_completed_block.correct_in_a_row
-          })
-        )
-        |> PGRepo.insert()
+      # If we've completed a block on the same day as a previous block, don't actually
+      # re-insert, otherwise we could keep increasing the study interval forever.
+      if Date.compare(Date.utc_today(), last_completed_block.datetime_completed) == :eq do
+        {:ok, last_completed_block}
+      else
+          %CompletedReviewBlock{}
+          |> CompletedReviewBlock.create_changeset(Map.merge(
+                params,
+              %{correct_in_a_row: last_completed_block.correct_in_a_row}))
+              |> PGRepo.insert()
+      end
     else
       %CompletedReviewBlock{}
       |> CompletedReviewBlock.create_changeset(params)
@@ -147,6 +147,8 @@ defmodule Mnemo.Managers.Course do
   end
 
   defp schedule_block(enrollment, completed_review_block) do
+    #TODO: add logic to avoid updating when we're just passing through a block
+    # that's been completed multiple times on the same day.
     existing_block =
       ScheduledBlock
       |> ScheduledBlock.where_student(enrollment.student_id)

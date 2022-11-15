@@ -17,9 +17,10 @@ defmodule MnemoWeb.Router do
   scope "/", MnemoWeb do
     pipe_through :browser
 
-    get "/", StudentController, :index
-    get "/enroll", StudentController, :enroll
-    get "/unenroll", StudentController, :unenroll
+    live "/", Live.Student.Home
+#   get "/", StudentController, :index
+#   get "/enroll", StudentController, :enroll
+#   get "/unenroll", StudentController, :unenroll
   end
 
   scope "/study", MnemoWeb do

@@ -95,8 +95,11 @@
     <div class="flex">
         <MnemoWeb.Live.Subject.Components.Modals.deletion_modal socket={@socket} subject={@subject} />
 
-        <%= link "Back", to: Routes.student_path(@socket, :index),
-        class: "px-4 py-2 text-sm ml-4 border border-grey-600 rounded-lg" %>
+        <.link
+            navigate={Routes.live_path(MnemoWeb.Endpoint, MnemoWeb.Live.Student.Home)}
+            class="px-4 py-2 text-sm ml-4 border border-grey-600 rounded-lg">
+            Back
+        </.link>
     </div>
 
 </div>
