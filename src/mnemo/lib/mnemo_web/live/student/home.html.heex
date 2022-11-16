@@ -15,7 +15,17 @@
         <hr>
         <!-- Progressions List -->
         <%= for enrollment <- @enrollments do%>
-            <div class="border w-1/2 py-1 rounded-lg mt-4">
+            <div class="border w-1/2 py-1 rounded-lg mt-4 relative">
+                <div
+                    class="absolute w-4 h-4 bg-red-400 rounded-lg right-1 text-xs text-white"
+                    style="top: -5px; right: -5px;">
+                    <p class="ml-1">4</p>
+                </div>
+                <div
+                    class="absolute w-8 h-4 bg-sky-400 rounded-lg top-6 right-1 text-xs text-white"
+                    style="top: 15px; right: -5px;">
+                    <p class="ml-1">15%</p>
+                </div>
                 <div class="px-2">
                     <p class="text-md"><%= enrollment.subject.title %></p>
                     <div class="block h-20 w-full border rounded-lg border-dashed border-gray-700 mt-2 mb-2 p-2">

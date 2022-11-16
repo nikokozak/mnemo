@@ -18,12 +18,33 @@ defmodule Mnemo.Access.Schemas.ReviewBlock do
 
   def where_id(query \\ __MODULE__, block_id), do: from(cb in query, where: cb.id == ^block_id)
 
+  def where_student(query \\ __MODULE__, student_id),
+    do: from(cb in query, where: cb.student_id == ^student_id)
+
   def where_subject(query \\ __MODULE__, subject_id),
     do: from(cb in query, where: cb.subject_id == ^subject_id)
 
   def where_block(query \\ __MODULE__, block_id),
     do: from(cb in query, where: cb.block_id == ^block_id)
 
+  def limit(query \\ __MODULE__, num \\ 1),
+    do: from(cb in query, limit: ^num)
+
+  @spec create_changeset(
+          {map, map}
+          | %{
+              :__struct__ => atom | %{:__changeset__ => map, optional(any) => any},
+              optional(atom) => any
+            },
+          %{
+            :block_id => any,
+            :review_at => any,
+            :student_id => any,
+            :subject_id => any,
+            optional(:__struct__) => none,
+            optional(atom | binary) => any
+          }
+        ) :: Ecto.Changeset.t()
   def create_changeset(
         scheduled_block,
         %{

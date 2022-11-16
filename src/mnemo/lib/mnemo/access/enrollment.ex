@@ -10,6 +10,8 @@ defmodule Mnemo.Access.Schemas.Enrollment do
     field :completed, :boolean, default: false
 
     belongs_to :block_cursor, Block, on_replace: :nilify
+    # subject | review
+    field :block_cursor_type, :string, default: "subject"
 
     many_to_many :completed_sections, Section,
       join_through: "enrollment_section",
@@ -163,32 +165,33 @@ defmodule Mnemo.Access.Schemas.Enrollment do
     end
   end
 
-  def new_cursor_changeset(enrollment_id, new_block_id)
+  def new_cursor_changeset(enrollment_id, new_block_id, block_type)
       when is_binary(enrollment_id) and is_binary(new_block_id) do
     __MODULE__
     |> where_id(enrollment_id)
     |> PGRepo.one()
-    |> new_cursor_changeset(new_block_id)
+    |> new_cursor_changeset(new_block_id, block_type)
   end
 
-  def new_cursor_changeset(enrollment, nil) do
+  def new_cursor_changeset(enrollment, nil, _block_type) do
     enrollment
     |> change()
   end
 
-  def new_cursor_changeset(enrollment, new_block_id) when is_binary(new_block_id) do
+  def new_cursor_changeset(enrollment, new_block_id, block_type) when is_binary(new_block_id) do
     new_block =
       Block
       |> where_id(new_block_id)
       |> PGRepo.one()
 
-    new_cursor_changeset(enrollment, new_block)
+    new_cursor_changeset(enrollment, new_block, block_type)
   end
 
-  def new_cursor_changeset(enrollment, new_block = %Block{}) do
+  def new_cursor_changeset(enrollment, new_block = %Block{}, block_type) do
     enrollment
     |> change()
     |> put_assoc(:block_cursor, new_block)
+    |> put_change(:block_cursor_type, block_type)
   end
 
   def replace_all_cursors_query(_, nil) do
@@ -211,7 +214,8 @@ defmodule Mnemo.Access.Schemas.Enrollment do
       where: e.block_cursor_id == ^old_cursor_block.id,
       update: [
         set: [
-          block_cursor_id: ^new_cursor_block.id
+          block_cursor_id: ^new_cursor_block.id,
+          block_cursor_type: "subject"
         ]
       ]
     )

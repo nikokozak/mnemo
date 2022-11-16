@@ -87,6 +87,7 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
       add(:completed, :boolean)
       # add(:subject_section_cursor_id, references(:subject_sections, on_delete: :nilify))
       add(:block_cursor_id, references(:blocks, on_delete: :nilify_all))
+      add(:block_cursor_type, :string)
 
       timestamps()
     end

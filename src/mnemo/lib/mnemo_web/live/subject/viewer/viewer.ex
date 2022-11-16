@@ -17,6 +17,8 @@ defmodule MnemoWeb.Live.Subject.Viewer do
     {:ok,
      assign(socket,
        enrollment: enrollment,
+       # subject | review
+       block_type: :subject,
        answer_status: nil,
        answer_attempts: [],
        answer_value: nil,
@@ -36,7 +38,7 @@ defmodule MnemoWeb.Live.Subject.Viewer do
     # TODO: Again, kinda hacky to avoid preloading everything again.
     updated_enrollment = Map.put(socket.assigns.enrollment, :block_cursor, new_cursor)
 
-    {:noreply, assign(socket, enrollment: updated_enrollment)}
+    {:noreply, assign(socket, enrollment: updated_enrollment, block_type: :subject)}
   end
 
   def handle_event("answer_fibq", %{"answer_form" => answer_vals}, socket) do

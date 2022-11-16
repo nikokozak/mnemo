@@ -89,7 +89,7 @@ defmodule Mnemo.EnrollmentTest do
       {:ok, enrollment} =
         enrollment
         |> Enrollment.consume_cursor_changeset()
-        |> Enrollment.new_cursor_changeset(block_1.id)
+        |> Enrollment.new_cursor_changeset(block_1.id, "subject")
         |> Repo.update()
 
       refute enrollment.completed
@@ -103,7 +103,7 @@ defmodule Mnemo.EnrollmentTest do
       {:ok, enrollment} =
         enrollment
         |> Enrollment.consume_cursor_changeset()
-        |> Enrollment.new_cursor_changeset(block_2.id)
+        |> Enrollment.new_cursor_changeset(block_2.id, "subject")
         |> Repo.update()
 
       refute enrollment.completed

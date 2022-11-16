@@ -31,8 +31,10 @@ defmodule MnemoWeb.Live.Student.Home do
 
     {:ok, new_subject} = Course.new_subject(student_id)
 
-    {:noreply, push_navigate(socket,
-        to: Routes.live_path(MnemoWeb.Endpoint, MnemoWeb.Live.Subject.Editor, new_subject.id))}
+    {:noreply,
+     push_navigate(socket,
+       to: Routes.live_path(MnemoWeb.Endpoint, MnemoWeb.Live.Subject.Editor, new_subject.id)
+     )}
   end
 
   def handle_event("enroll", %{"subject_id" => subject_id}, socket) do
@@ -40,21 +42,26 @@ defmodule MnemoWeb.Live.Student.Home do
 
     {:ok, enrollment} = Course.new_enrollment(student_id, subject_id)
 
-    {:noreply, push_navigate(socket,
-        to: Routes.live_path(MnemoWeb.Endpoint, MnemoWeb.Live.Subject.Viewer, enrollment.id))}
+    {:noreply,
+     push_navigate(socket,
+       to: Routes.live_path(MnemoWeb.Endpoint, MnemoWeb.Live.Subject.Viewer, enrollment.id)
+     )}
   end
 
   def handle_event("unenroll", %{"enrollment_id" => enrollment_id}, socket) do
     {:ok, deleted_enrollment} = Course.delete_enrollment(enrollment_id)
 
     updated_enrollments =
-      Enum.filter(socket.assigns.enrollments,
+      Enum.filter(
+        socket.assigns.enrollments,
         fn enrollment ->
           enrollment.id != deleted_enrollment.id
-        end)
+        end
+      )
 
-    {:noreply, assign(socket,
-      enrollments: updated_enrollments)}
+    {:noreply,
+     assign(socket,
+       enrollments: updated_enrollments
+     )}
   end
-
 end

@@ -91,7 +91,7 @@ defmodule Mnemo.Managers.Course do
 
   def move_cursor_enrollment(enrollment, new_cursor_block_id) do
     enrollment
-    |> Enrollment.new_cursor_changeset(new_cursor_block_id)
+    |> Enrollment.new_cursor_changeset(new_cursor_block_id, :subject)
     |> PGRepo.update()
   end
 
@@ -100,11 +100,11 @@ defmodule Mnemo.Managers.Course do
 
     schedule_block(enrollment, completed_block)
 
-    next_block = Block.next_block(enrollment.block_cursor)
+    {block_type, next_block} = BlockEngine.next_block(enrollment)
 
     enrollment
     |> Enrollment.consume_cursor_changeset()
-    |> Enrollment.new_cursor_changeset(next_block)
+    |> Enrollment.new_cursor_changeset(next_block, block_type)
     |> PGRepo.update!()
     |> PGRepo.preload(block_cursor: :section)
   end
@@ -133,11 +133,14 @@ defmodule Mnemo.Managers.Course do
       if Date.compare(Date.utc_today(), last_completed_block.datetime_completed) == :eq do
         {:ok, last_completed_block}
       else
-          %CompletedReviewBlock{}
-          |> CompletedReviewBlock.create_changeset(Map.merge(
-                params,
-              %{correct_in_a_row: last_completed_block.correct_in_a_row}))
-              |> PGRepo.insert()
+        %CompletedReviewBlock{}
+        |> CompletedReviewBlock.create_changeset(
+          Map.merge(
+            params,
+            %{correct_in_a_row: last_completed_block.correct_in_a_row}
+          )
+        )
+        |> PGRepo.insert()
       end
     else
       %CompletedReviewBlock{}
@@ -147,7 +150,7 @@ defmodule Mnemo.Managers.Course do
   end
 
   defp schedule_block(enrollment, completed_review_block) do
-    #TODO: add logic to avoid updating when we're just passing through a block
+    # TODO: add logic to avoid updating when we're just passing through a block
     # that's been completed multiple times on the same day.
     existing_block =
       ScheduledBlock
