@@ -76,7 +76,10 @@ defmodule Mnemo.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       "ecto.test.reset": ["ecto.drop", "ecto.create", "ecto.migrate"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.deploy": ["phx.digest"]
+      "assets.deploy": [
+        "tailwind default --minify",
+        "esbuild default --minify",
+        "phx.digest"]
     ]
   end
 end

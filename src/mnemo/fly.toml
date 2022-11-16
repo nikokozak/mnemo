@@ -1,4 +1,4 @@
-# fly.toml file generated for mnemo on 2022-10-02T21:45:47-03:00
+# fly.toml file generated for mnemo on 2022-11-16T10:53:08-03:00
 
 app = "mnemo"
 kill_signal = "SIGTERM"

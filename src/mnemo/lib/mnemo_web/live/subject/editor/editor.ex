@@ -52,6 +52,12 @@ defmodule MnemoWeb.Live.Subject.Editor do
     {:noreply, assign(socket, sections: sections)}
   end
 
+  def handle_event("delete_subject", _params, socket) do
+    {:ok, _deleted} = Course.delete_subject(socket.assigns.subject.id)
+
+    {:noreply, push_navigate(socket, to: Routes.live_path(MnemoWeb.Endpoint, MnemoWeb.Live.Student.Home))}
+  end
+
   # Block Handlers
 
   def handle_event("new_block", %{"section_id" => section_id, "type" => type}, socket) do
