@@ -11,8 +11,15 @@ defmodule Mnemo.Engines.Block do
   end
 
   def next_block(enrollment, "study") do
-    enrollment.block_cursor
-    |> next_study_block()
+    if block_cursor_in_completed_blocks?(enrollment) do
+      next_study_block(enrollment, enrollment.block_cursor)
+    else
+      enrollment.block_cursor
+    end
+  end
+
+  def next_block(enrollment = %Enrollment{}, block = %Block{}, "study") do
+    next_study_block(enrollment, block)
   end
 
   # Checks whether there are any scheduled blocks for today, returns those.
@@ -30,18 +37,26 @@ defmodule Mnemo.Engines.Block do
 
   defp next_study_block(nil), do: nil
 
-  defp next_study_block(block_cursor) do
+  defp next_study_block(enrollment, block_cursor) do
     case next_block_in_current_section(block_cursor) do
       nil ->
         current_section = block_cursor_section(block_cursor)
 
         case next_section(current_section) do
           nil -> nil
-          section -> first_block_in_section(section)
+          section -> if_completed_get_next(enrollment, first_block_in_section(section))
         end
 
       block ->
-        block
+        if_completed_get_next(enrollment, block)
+    end
+  end
+
+  defp if_completed_get_next(enrollment, block) do
+    if block_in_completed_blocks?(enrollment, block) do
+      next_study_block(block)
+    else
+      block
     end
   end
 
@@ -71,6 +86,16 @@ defmodule Mnemo.Engines.Block do
     |> Block.ordered()
     |> Block.limit()
     |> PGRepo.one()
+  end
+
+  defp block_cursor_in_completed_blocks?(%{block_cursor: nil}), do: false
+  defp block_cursor_in_completed_blocks?(enrollment) do
+    Enum.any?(enrollment.completed_blocks, &(&1.id == enrollment.block_cursor.id))
+  end
+
+  defp block_in_completed_blocks?(_enrollment, nil), do: false
+  defp block_in_completed_blocks?(enrollment, block) do
+    Enum.any?(enrollment.completed_blocks, &(&1.id == block.id))
   end
 
   def test_block(block_id, answer) when is_binary(block_id) do

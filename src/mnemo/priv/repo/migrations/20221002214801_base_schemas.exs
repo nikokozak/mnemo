@@ -176,6 +176,14 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
       add(:block_id, references(:blocks, on_delete: :delete_all))
     end
 
+    create(
+      unique_index(
+        :student_review_queue,
+        [:student_id, :subject_id, :block_id],
+        name: :student_id_subject_id_block_id_unique_index
+      )
+    )
+
     create table(:student_completed_reviews) do
       add(:student_id, references(:students, on_delete: :delete_all))
       add(:subject_id, references(:subjects, on_delete: :delete_all))

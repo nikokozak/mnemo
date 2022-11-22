@@ -82,7 +82,6 @@ defmodule Mnemo.Access.Schemas.CompletedReviewBlock do
         time_taken
         correct_in_a_row
         date_suggested)a)
-    |> IO.inspect(label: "Changeset with answers")
     |> foreign_key_constraint(:student_id)
     |> foreign_key_constraint(:subject_id)
     |> foreign_key_constraint(:block_id)
@@ -131,7 +130,6 @@ defmodule Mnemo.Access.Schemas.CompletedReviewBlock do
   end
 
   defp assign_easyness_value(changeset) do
-    IO.inspect(get_change(changeset, :answers), label: "answer attempts in chgst")
     answer_attempts = length(get_change(changeset, :answers))
     new_easyness = Mnemo.Engines.Scheduling.easyness(answer_attempts)
     put_change(changeset, :easyness, new_easyness)

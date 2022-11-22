@@ -30,39 +30,23 @@ defmodule Mnemo.Access.Schemas.ReviewBlock do
   def limit(query \\ __MODULE__, num \\ 1),
     do: from(cb in query, limit: ^num)
 
-  @spec create_changeset(
-          {map, map}
-          | %{
-              :__struct__ => atom | %{:__changeset__ => map, optional(any) => any},
-              optional(atom) => any
-            },
-          %{
-            :block_id => any,
-            :review_at => any,
-            :student_id => any,
-            :subject_id => any,
-            optional(:__struct__) => none,
-            optional(atom | binary) => any
-          }
-        ) :: Ecto.Changeset.t()
   def create_changeset(
         scheduled_block,
         %{
           student_id: _student_id,
           subject_id: _subject_id,
-          block_id: _block_id,
-          review_at: _review_at
+          block_id: _block_id
         } = params
       ) do
     scheduled_block
     |> cast(params, ~w(
         student_id
         subject_id
-        review_at
         block_id)a)
     |> foreign_key_constraint(:student_id)
     |> foreign_key_constraint(:subject_id)
     |> foreign_key_constraint(:block_id)
+    |> unique_constraint([:student_id, :subject_id], name: :student_id_subject_id_block_id_unique_index)
   end
 
   def delete_changeset(scheduled_block) do

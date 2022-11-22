@@ -133,15 +133,15 @@ defmodule Mnemo.Managers.Course do
     {:ok, completed_block} = complete_block(enrollment, block, correct?, answer_attempts)
     {:ok, _scheduled_block} = schedule_block(enrollment, block, completed_block)
 
-    case block_type do
-      "review" ->
-        {:ok, _deleted_block} = remove_block_from_review_queue(enrollment, block)
-
-      "study" ->
-        if block.id == enrollment.block_cursor_id do
-          ^enrollment = consume_and_assign_next_block_cursor(enrollment)
-        end
-    end
+    # TODO: This is soooo hacky
+    enrollment =
+      case block_type do
+        "review" ->
+          {:ok, _deleted_block} = remove_block_from_review_queue(enrollment, block)
+          enrollment
+        "study" ->
+          consume_and_assign_next_block_cursor(enrollment, block)
+      end
 
     {block_type, next_review_block} = BlockEngine.next_block(enrollment)
 
@@ -153,11 +153,12 @@ defmodule Mnemo.Managers.Course do
     |> ReviewBlock.where_student(enrollment.student_id)
     |> ReviewBlock.where_subject(enrollment.subject_id)
     |> ReviewBlock.where_block(block.id)
+    |> PGRepo.one()
     |> PGRepo.delete()
   end
 
-  def consume_and_assign_next_block_cursor(enrollment) do
-    next_block = BlockEngine.next_block(enrollment, "subject")
+  def consume_and_assign_next_block_cursor(enrollment, block) do
+    next_block = BlockEngine.next_block(enrollment, block, "study")
 
     enrollment
     |> Enrollment.consume_cursor_changeset()
