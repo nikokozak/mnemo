@@ -10,8 +10,9 @@ defmodule Mnemo.Access.Schemas.Enrollment do
     field :completed, :boolean, default: false
 
     belongs_to :block_cursor, Block, on_replace: :nilify
-    # subject | review
-    field :block_cursor_type, :string, default: "subject"
+
+    field :num_reviewed_today, :integer, default: 0
+    field :last_reviewed_at, :date, default: Date.utc_today()
 
     many_to_many :completed_sections, Section,
       join_through: "enrollment_section",
@@ -114,7 +115,11 @@ defmodule Mnemo.Access.Schemas.Enrollment do
 
   defp do_consume_cursor_changeset(enrollment) do
     if completed_block = enrollment.block_cursor do
-      completed_blocks = [completed_block | enrollment.completed_blocks]
+      completed_blocks =
+        maybe_add_block_to_completed_blocks_list(
+          enrollment.completed_blocks,
+          completed_block
+        )
 
       completed_sections =
         maybe_add_section_to_completed_sections_list(
@@ -129,7 +134,6 @@ defmodule Mnemo.Access.Schemas.Enrollment do
       |> change()
       |> put_assoc(:completed_sections, completed_sections)
       |> put_assoc(:completed_blocks, completed_blocks)
-      |> put_assoc(:block_cursor, nil)
       |> put_change(:completed, is_completed?)
     else
       enrollment
@@ -146,6 +150,18 @@ defmodule Mnemo.Access.Schemas.Enrollment do
     Enum.all?(subject_blocks, fn subject_block ->
       Enum.find_value(completed_blocks, &(&1.id == subject_block.id))
     end)
+  end
+
+  defp maybe_add_block_to_completed_blocks_list(completed_blocks, consumed_block) do
+    block_already_completed? =
+      Enum.any?(completed_blocks, fn completed_block ->
+        completed_block.id == consumed_block.id
+      end)
+
+    case block_already_completed? do
+      true -> completed_blocks
+      false -> [consumed_block | completed_blocks]
+    end
   end
 
   defp maybe_add_section_to_completed_sections_list(completed_blocks, consumed_block, enrollment) do
@@ -173,25 +189,25 @@ defmodule Mnemo.Access.Schemas.Enrollment do
     |> new_cursor_changeset(new_block_id, block_type)
   end
 
-  def new_cursor_changeset(enrollment, nil, _block_type) do
+  def new_cursor_changeset(enrollment, nil) do
     enrollment
     |> change()
+    |> put_assoc(:block_cursor, nil)
   end
 
-  def new_cursor_changeset(enrollment, new_block_id, block_type) when is_binary(new_block_id) do
+  def new_cursor_changeset(enrollment, new_block_id) when is_binary(new_block_id) do
     new_block =
       Block
       |> where_id(new_block_id)
       |> PGRepo.one()
 
-    new_cursor_changeset(enrollment, new_block, block_type)
+    new_cursor_changeset(enrollment, new_block)
   end
 
-  def new_cursor_changeset(enrollment, new_block = %Block{}, block_type) do
+  def new_cursor_changeset(enrollment, new_block = %Block{}) do
     enrollment
     |> change()
     |> put_assoc(:block_cursor, new_block)
-    |> put_change(:block_cursor_type, block_type)
   end
 
   def replace_all_cursors_query(_, nil) do
@@ -214,8 +230,7 @@ defmodule Mnemo.Access.Schemas.Enrollment do
       where: e.block_cursor_id == ^old_cursor_block.id,
       update: [
         set: [
-          block_cursor_id: ^new_cursor_block.id,
-          block_cursor_type: "subject"
+          block_cursor_id: ^new_cursor_block.id
         ]
       ]
     )

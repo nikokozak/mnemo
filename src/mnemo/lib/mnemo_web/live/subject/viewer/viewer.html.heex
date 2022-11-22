@@ -1,23 +1,27 @@
 <div>
     <div>
-        <p class="text-sm text-gray-400">Studying</p>
-        <h1><%= @enrollment.subject.title %></h1>
+        <%= if @block_type == "study" do %>
+            <p class="text-sm text-gray-400">Studying</p>
+            <h1><%= @enrollment.subject.title %></h1>
+        <% else %>
+            <p class="text-sm text-gray-400">Reviewing</p>
+        <% end %>
         <hr class="mb-8">
 
-        <%= if not is_nil(@enrollment.block_cursor) do %>
-            <%= if not is_nil(@enrollment.block_cursor.section.title) do %>
+        <%= if not is_nil(@block) do %>
+            <%= if not is_nil(@block.section.title) do %>
             <p class="text-xs text-gray-400">Section</p>
-            <h1><%= @enrollment.block_cursor.section.title %></h1>
+            <h1><%= @block.section.title %></h1>
             <hr>
             <% end %>
         <% end %>
 
-        <%= if is_nil(@enrollment.block_cursor) do %>
-            You've reached the end of the course, congrats!!
+        <%= if is_nil(@block) do %>
+            No more content to study or review for today!!!
         <% else %>
             <%= MnemoWeb.Live.Components.StudyBlocks.block(
-                @enrollment.block_cursor.type,
-                @enrollment.block_cursor,
+                @block.type,
+                @block,
                 @answer_status,
                 @answer_value,
                 @fc_revealed) %>
@@ -31,7 +35,7 @@
                 <h2 class="underline mb-2"><%= section.title %></h2>
                 <%= for block <- section.blocks do %>
                     <!-- phx-click="move_cursor(block.id)" -->
-                    <p phx-click="move_cursor" phx-value-new_cursor_id={block.id}
+                    <p phx-click="navigate_to_block" phx-value-block_id={block.id}
                        class="text-sm mb-2">
                         <%= block.order_in_section %> | <%= block.type %></p>
                 <% end %>

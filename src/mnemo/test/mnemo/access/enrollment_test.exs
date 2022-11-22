@@ -40,7 +40,7 @@ defmodule Mnemo.EnrollmentTest do
   end
 
   describe "consume_cursor_changeset/1" do
-    test "correctly consumes cursor, adds cursor to completed cursors, and assigns nil at end" do
+    test "correctly consumes cursor, adds cursor to completed cursors" do
       {:ok, student} = Fixtures.create(:student)
       {:ok, subject} = Fixtures.create(:subject, %{student_id: student.id})
       {:ok, section_0} = Fixtures.create(:section, %{subject_id: subject.id})
@@ -62,9 +62,9 @@ defmodule Mnemo.EnrollmentTest do
       assert enrollment.block_cursor_id == block_0.id
       {:ok, enrollment} = enrollment |> Enrollment.consume_cursor_changeset() |> Repo.update()
       assert Enum.find_value(enrollment.completed_blocks, fn block -> block.id == block_0.id end)
-      assert enrollment.block_cursor_id == nil
+      assert enrollment.block_cursor_id == block_0.id
       {:ok, enrollment} = enrollment |> Enrollment.consume_cursor_changeset() |> Repo.update()
-      assert enrollment.block_cursor_id == nil
+      assert enrollment.block_cursor_id == block_0.id
     end
 
     test "correctly marks section as completed when all blocks have been consumed, and enrollment as completed" do
@@ -89,7 +89,7 @@ defmodule Mnemo.EnrollmentTest do
       {:ok, enrollment} =
         enrollment
         |> Enrollment.consume_cursor_changeset()
-        |> Enrollment.new_cursor_changeset(block_1.id, "subject")
+        |> Enrollment.new_cursor_changeset(block_1.id)
         |> Repo.update()
 
       refute enrollment.completed
@@ -103,7 +103,7 @@ defmodule Mnemo.EnrollmentTest do
       {:ok, enrollment} =
         enrollment
         |> Enrollment.consume_cursor_changeset()
-        |> Enrollment.new_cursor_changeset(block_2.id, "subject")
+        |> Enrollment.new_cursor_changeset(block_2.id)
         |> Repo.update()
 
       refute enrollment.completed

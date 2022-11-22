@@ -79,7 +79,8 @@ defmodule Mnemo.MixProject do
       "assets.deploy": [
         "tailwind default --minify",
         "esbuild default --minify",
-        "phx.digest"]
+        "phx.digest"
+      ]
     ]
   end
 end

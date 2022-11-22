@@ -5,6 +5,13 @@ Yesterday:
     {"subject", block} if the next block comes from the subject sequence of blocks, or
     {"review", block} if the next block comes from the scheduled blocks of the user.
 
+- Make text inputs intuitive visually
+- Think about how to tie in temporally - ease of use.
+
+- don't need block cursor type anymore (in Enrollment), next_block is separate
+- COMPLETELY UNLINK socket block and enrollment block logic.
+- ATM static block "has not mastered" requires three tries to continue.
+
 - Base Schema
  - Add "reviewed-today", "percentage-completed" to enrollment. Ensure "block_cursor_type" is 
    persisted.

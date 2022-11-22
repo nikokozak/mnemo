@@ -4,9 +4,9 @@
     </div>
     <hr class="border-gray-400">
 
-    <.form for={:subject_information}
+    <.form for={:subject_title_and_description}
     :let={f}
-    phx-change="save_information" class="mt-6" >
+    phx-change="update_subject" class="mt-6" >
 
         <%= label f, :title, "Title", class: "text-xs text-gray-400" %>
         <%= text_input f,
@@ -47,9 +47,9 @@
     <div class="mt-4 p-2 border border-dashed rounded-lg" id={section.id}>
         <!-- Section Title -->
         <div class="flex justify-between">
-            <.form for={:section_information}
+            <.form for={:section_title_form}
             :let={f}
-            phx-change="save_section" >
+            phx-change="update_section" >
 
                 <%= hidden_input f,
                 :section_id,

@@ -16,8 +16,14 @@ defmodule MnemoWeb.Live.Subject.Editor do
 
   # Subject Information Handlers
 
-  def handle_event("save_information", %{"subject_information" => subject_info}, socket) do
-    {:ok, updated_subject} = Course.save_subject(socket.assigns.subject.id, subject_info)
+  def handle_event(
+        "update_subject",
+        %{"subject_title_and_description" => title_and_description},
+        socket
+      ) do
+    subject_id = socket.assigns.subject.id
+
+    {:ok, updated_subject} = Course.update_subject(subject_id, title_and_description)
 
     {:noreply, assign(socket, subject: updated_subject)}
   end
@@ -25,63 +31,70 @@ defmodule MnemoWeb.Live.Subject.Editor do
   # Section Handlers
 
   def handle_event("new_section", _params, socket) do
-    {:ok, new_section} = Course.new_section(socket.assigns.subject.id)
+    subject_id = socket.assigns.subject.id
+    existing_sections = socket.assigns.sections
 
-    new_section = new_section |> PGRepo.preload(:blocks)
-    sections = socket.assigns.sections ++ [new_section]
+    {:ok, new_section} = Course.new_section(subject_id)
 
-    {:noreply, assign(socket, sections: sections)}
+    new_section_with_blocks = new_section |> PGRepo.preload(:blocks)
+    updated_sections = existing_sections ++ [new_section_with_blocks]
+
+    {:noreply, assign(socket, sections: updated_sections)}
   end
 
-  def handle_event("save_section", %{"section_information" => form_params}, socket) do
-    section_id = form_params["section_id"]
+  def handle_event("update_section", %{"section_title_form" => title_form}, socket) do
+    section_id = title_form["section_id"]
+    existing_sections = socket.assigns.sections
 
-    {:ok, updated_section} = Course.save_section(section_id, form_params)
+    {:ok, updated_section} = Course.update_section(section_id, title_form)
 
-    updated_sections =
-      replace_section_while_keeping_blocks(socket.assigns.sections, updated_section)
+    updated_sections = update_section_while_keeping_blocks(existing_sections, updated_section)
 
     {:noreply, assign(socket, sections: updated_sections)}
   end
 
   def handle_event("delete_section", %{"section_id" => section_id}, socket) do
-    {:ok, deleted} = Course.delete_section(section_id)
+    existing_sections = socket.assigns.sections
 
-    sections = remove_section(socket.assigns.sections, deleted)
+    {:ok, deleted_section} = Course.delete_section(section_id)
 
-    {:noreply, assign(socket, sections: sections)}
+    updated_sections = remove_section(existing_sections, deleted_section)
+
+    {:noreply, assign(socket, sections: updated_sections)}
   end
 
   def handle_event("delete_subject", _params, socket) do
-    {:ok, _deleted} = Course.delete_subject(socket.assigns.subject.id)
+    subject_id = socket.assigns.subject.id
 
-    {:noreply, push_navigate(socket, to: Routes.live_path(MnemoWeb.Endpoint, MnemoWeb.Live.Student.Home))}
+    {:ok, _deleted} = Course.delete_subject(subject_id)
+
+    {:noreply,
+     push_navigate(socket, to: Routes.live_path(MnemoWeb.Endpoint, MnemoWeb.Live.Student.Home))}
   end
 
   # Block Handlers
 
-  def handle_event("new_block", %{"section_id" => section_id, "type" => type}, socket) do
-    {:ok, block} = Course.new_block(socket.assigns.subject.id, section_id, type)
+  def handle_event("new_block", %{"section_id" => section_id, "type" => block_type}, socket) do
+    subject_id = socket.assigns.subject.id
+    current_sections = socket.assigns.sections
+
+    {:ok, new_block} = Course.new_block(subject_id, section_id, block_type)
 
     updated_sections =
-      update_blocks_in_section(
-        socket.assigns.sections,
-        section_id,
-        fn blocks -> blocks ++ [block] end
-      )
+      update_blocks_in_section(current_sections, section_id, &(&1 ++ [new_block]))
 
     {:noreply, assign(socket, sections: updated_sections)}
   end
 
   def handle_event("delete_block", %{"section_id" => section_id, "block_id" => block_id}, socket) do
+    current_sections = socket.assigns.sections
+
     {:ok, _block} = Course.delete_block(block_id)
 
+    remove_block_from_section_fn = fn blocks -> Enum.filter(blocks, &(&1.id != block_id)) end
+
     updated_sections =
-      update_blocks_in_section(
-        socket.assigns.sections,
-        section_id,
-        fn blocks -> Enum.filter(blocks, &(&1.id != block_id)) end
-      )
+      update_blocks_in_section(current_sections, section_id, remove_block_from_section_fn)
 
     {:noreply, assign(socket, sections: updated_sections)}
   end
@@ -91,7 +104,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
     block_id = Map.fetch!(params, "block_id")
     brick_type = Map.fetch!(params, "brick_type")
 
-    block = get_block_from_assigns(socket, section_id, block_id)
+    block = get_block_from_socket(socket, section_id, block_id)
     new_content_brick = %{"type" => brick_type, "content" => ""}
 
     # We can only add text bricks to FC and STATIC
@@ -130,7 +143,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
     brick_idx = Map.fetch!(brick_form, "brick_idx")
     content = Map.fetch!(brick_form, "content")
 
-    block = get_block_from_assigns(socket, section_id, block_id)
+    block = get_block_from_socket(socket, section_id, block_id)
     brick_idx = String.to_integer(brick_idx)
 
     {:ok, updated_block} =
@@ -167,7 +180,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
     block_id = Map.fetch!(block_question_form, "block_id")
     question = Map.fetch!(block_question_form, "question")
 
-    block = get_block_from_assigns(socket, section_id, block_id)
+    block = get_block_from_socket(socket, section_id, block_id)
 
     {:ok, updated_block} =
       case block.type do
@@ -198,7 +211,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
     choice_key = Map.fetch!(mcq_answer_form, "choice_key")
     choice_text = Map.fetch!(mcq_answer_form, "choice_text")
 
-    block = get_block_from_assigns(socket, section_id, block_id)
+    block = get_block_from_socket(socket, section_id, block_id)
 
     updated_mcq_answer_choices =
       block.mcq_answer_choices
@@ -225,7 +238,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
     section_id = Map.fetch!(params, "section_id")
     block_id = Map.fetch!(params, "block_id")
     choice_key = Map.fetch!(params, "choice_key")
-    block = get_block_from_assigns(socket, section_id, block_id)
+    block = get_block_from_socket(socket, section_id, block_id)
 
     {:ok, updated_block} = Course.save_block(block, %{mcq_answer_correct: choice_key})
 
@@ -243,7 +256,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
   def handle_event("add_mcq_answer_choice", params, socket) do
     section_id = Map.fetch!(params, "section_id")
     block_id = Map.fetch!(params, "block_id")
-    block = get_block_from_assigns(socket, section_id, block_id)
+    block = get_block_from_socket(socket, section_id, block_id)
 
     new_choice = %{"key" => nil, "text" => "Another answer"}
 
@@ -272,7 +285,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
     section_id = Map.fetch!(params, "section_id")
     block_id = Map.fetch!(params, "block_id")
     choice_key = Map.fetch!(params, "choice_key")
-    block = get_block_from_assigns(socket, section_id, block_id)
+    block = get_block_from_socket(socket, section_id, block_id)
 
     updated_choices =
       block.mcq_answer_choices
@@ -283,7 +296,21 @@ defmodule MnemoWeb.Live.Subject.Editor do
       |> elem(1)
       |> Enum.reverse()
 
-    {:ok, updated_block} = Course.save_block(block, %{mcq_answer_choices: updated_choices})
+    <<previous_correct_codepoint>> = block.mcq_answer_correct
+    <<choice_key_codepoint>> = choice_key
+
+    updated_answer_correct_key =
+      if choice_key_codepoint <= previous_correct_codepoint do
+        <<previous_correct_codepoint - 1>>
+      else
+        <<previous_correct_codepoint>>
+      end
+
+    {:ok, updated_block} =
+      Course.save_block(block, %{
+        mcq_answer_choices: updated_choices,
+        mcq_answer_correct: updated_answer_correct_key
+      })
 
     updated_sections =
       update_block_in_section(
@@ -301,7 +328,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
     block_id = Map.fetch!(saq_answer_form, "block_id")
     choice_idx = Map.fetch!(saq_answer_form, "choice_idx")
     choice_text = Map.fetch!(saq_answer_form, "choice_text")
-    block = get_block_from_assigns(socket, section_id, block_id)
+    block = get_block_from_socket(socket, section_id, block_id)
 
     updated_choices =
       block.saq_answer_choices
@@ -327,7 +354,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
     section_id = Map.fetch!(params, "section_id")
     block_id = Map.fetch!(params, "block_id")
 
-    block = get_block_from_assigns(socket, section_id, block_id)
+    block = get_block_from_socket(socket, section_id, block_id)
 
     new_choice = %{"text" => nil}
 
@@ -350,7 +377,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
     section_id = Map.fetch!(params, "section_id")
     block_id = Map.fetch!(params, "block_id")
     choice_idx = Map.fetch!(params, "choice_idx")
-    block = get_block_from_assigns(socket, section_id, block_id)
+    block = get_block_from_socket(socket, section_id, block_id)
 
     updated_choices =
       block.saq_answer_choices
@@ -369,7 +396,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
     {:noreply, assign(socket, sections: updated_sections)}
   end
 
-  defp get_block_from_assigns(socket, section_id, block_id) do
+  defp get_block_from_socket(socket, section_id, block_id) do
     [[block]] =
       get_in(
         socket.assigns.sections,
@@ -414,7 +441,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
     )
   end
 
-  defp replace_section_while_keeping_blocks(sections, updated_section) do
+  defp update_section_while_keeping_blocks(sections, updated_section) do
     # TODO: this is kind of hacky, but avoids having to preload blocks every time.
     section_id = updated_section.id
 

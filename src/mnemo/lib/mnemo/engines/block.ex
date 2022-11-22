@@ -2,59 +2,75 @@ defmodule Mnemo.Engines.Block do
   alias Mnemo.Access.Schemas.{Block, ReviewBlock, Section, Enrollment}
   alias Mnemo.Resources.Postgres.Repo, as: PGRepo
 
+  def next_block(enrollment, "review") do
+    ReviewBlock
+    |> ReviewBlock.where_student(enrollment.student_id)
+    |> ReviewBlock.where_subject(enrollment.subject_id)
+    |> ReviewBlock.limit(1)
+    |> PGRepo.one()
+  end
+
+  def next_block(enrollment, "study") do
+    enrollment.block_cursor
+    |> next_study_block()
+  end
+
   # Checks whether there are any scheduled blocks for today, returns those.
   # Otherwise returns the next block in the subject.
   def next_block(enrollment = %Enrollment{}) do
-    current_block = enrollment.block_cursor
+    review_block = next_block(enrollment, "review")
+    review_limit = Application.fetch_env!(:mnemo, :daily_review_limit)
 
-    review_block =
-      ReviewBlock
-      |> ReviewBlock.where_student(enrollment.student_id)
-      |> ReviewBlock.where_subject(enrollment.subject_id)
-      |> ReviewBlock.limit()
-      |> PGRepo.one()
-
-    if not is_nil(review_block) do
+    if not is_nil(review_block) and enrollment.num_reviewed_today < review_limit do
       {"review", review_block}
     else
-      next_block_in_current_section =
-        Block
-        |> Block.where_section(current_block.section_id)
-        |> Block.where_order(current_block.order_in_section + 1)
-        |> PGRepo.one()
-
-      case next_block_in_current_section do
-        nil ->
-          current_section =
-            Section
-            |> Section.where_id(current_block.section_id)
-            |> PGRepo.one()
-
-          next_section =
-            Section
-            |> Section.where_subject(current_section.subject_id)
-            |> Section.where_order(current_section.order_in_subject + 1)
-            |> PGRepo.one()
-
-          case next_section do
-            nil ->
-              {"subject", nil}
-
-            section ->
-              next_subject_block =
-                Block
-                |> Block.where_section(section.id)
-                |> Block.ordered()
-                |> Block.limit()
-                |> PGRepo.one()
-
-              {"subject", next_subject_block}
-          end
-
-        block ->
-          {"subject", block}
-      end
+      {"study", next_block(enrollment, "study")}
     end
+  end
+
+  defp next_study_block(nil), do: nil
+
+  defp next_study_block(block_cursor) do
+    case next_block_in_current_section(block_cursor) do
+      nil ->
+        current_section = block_cursor_section(block_cursor)
+
+        case next_section(current_section) do
+          nil -> nil
+          section -> first_block_in_section(section)
+        end
+
+      block ->
+        block
+    end
+  end
+
+  defp next_block_in_current_section(block_cursor) do
+    Block
+    |> Block.where_section(block_cursor.section_id)
+    |> Block.where_order(block_cursor.order_in_section + 1)
+    |> PGRepo.one()
+  end
+
+  defp block_cursor_section(block_cursor) do
+    Section
+    |> Section.where_id(block_cursor.section_id)
+    |> PGRepo.one()
+  end
+
+  defp next_section(section) do
+    Section
+    |> Section.where_subject(section.subject_id)
+    |> Section.where_order(section.order_in_subject + 1)
+    |> PGRepo.one()
+  end
+
+  defp first_block_in_section(section) do
+    Block
+    |> Block.where_section(section.id)
+    |> Block.ordered()
+    |> Block.limit()
+    |> PGRepo.one()
   end
 
   def test_block(block_id, answer) when is_binary(block_id) do
@@ -101,7 +117,7 @@ defmodule Mnemo.Engines.Block do
       end)
 
     is_block_correct =
-      Enum.all?(graded_answers, fn {idx, answer_struct} -> answer_struct["correct"] end)
+      Enum.all?(graded_answers, fn {_idx, answer_struct} -> answer_struct["correct"] end)
 
     {:ok, {is_block_correct, graded_answers |> Enum.into(%{})}}
   end
