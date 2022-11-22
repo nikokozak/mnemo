@@ -46,7 +46,9 @@ defmodule Mnemo.Access.Schemas.ReviewBlock do
     |> foreign_key_constraint(:student_id)
     |> foreign_key_constraint(:subject_id)
     |> foreign_key_constraint(:block_id)
-    |> unique_constraint([:student_id, :subject_id], name: :student_id_subject_id_block_id_unique_index)
+    |> unique_constraint([:student_id, :subject_id],
+      name: :student_id_subject_id_block_id_unique_index
+    )
   end
 
   def delete_changeset(scheduled_block) do

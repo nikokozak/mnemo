@@ -112,17 +112,17 @@ defmodule MnemoWeb.Live.Subject.Editor do
       case block.type do
         "static" ->
           updated_content = block.static_content ++ [new_content_brick]
-          Course.save_block(block, %{static_content: updated_content})
+          Course.update_block(block, %{static_content: updated_content})
 
         "fc" ->
           case params["side"] do
             "front" ->
               updated_content = block.fc_front_content ++ [new_content_brick]
-              Course.save_block(block, %{fc_front_content: updated_content})
+              Course.update_block(block, %{fc_front_content: updated_content})
 
             "back" ->
               updated_content = block.fc_back_content ++ [new_content_brick]
-              Course.save_block(block, %{fc_back_content: updated_content})
+              Course.update_block(block, %{fc_back_content: updated_content})
           end
       end
 
@@ -150,17 +150,17 @@ defmodule MnemoWeb.Live.Subject.Editor do
       case block.type do
         "static" ->
           updated_content = update_brick_content(block.static_content, brick_idx, content)
-          Course.save_block(block, %{static_content: updated_content})
+          Course.update_block(block, %{static_content: updated_content})
 
         "fc" ->
           case brick_form["side"] do
             "front" ->
               updated_content = update_brick_content(block.fc_front_content, brick_idx, content)
-              Course.save_block(block, %{fc_front_content: updated_content})
+              Course.update_block(block, %{fc_front_content: updated_content})
 
             "back" ->
               updated_content = update_brick_content(block.fc_back_content, brick_idx, content)
-              Course.save_block(block, %{fc_back_content: updated_content})
+              Course.update_block(block, %{fc_back_content: updated_content})
           end
       end
 
@@ -185,13 +185,13 @@ defmodule MnemoWeb.Live.Subject.Editor do
     {:ok, updated_block} =
       case block.type do
         "mcq" ->
-          Course.save_block(block, %{mcq_question_text: question})
+          Course.update_block(block, %{mcq_question_text: question})
 
         "fibq" ->
-          Course.save_block(block, %{fibq_question_text_template: question})
+          Course.update_block(block, %{fibq_question_text_template: question})
 
         "saq" ->
-          Course.save_block(block, %{saq_question_text: question})
+          Course.update_block(block, %{saq_question_text: question})
       end
 
     updated_sections =
@@ -221,7 +221,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
       )
 
     {:ok, updated_block} =
-      Course.save_block(block, %{mcq_answer_choices: updated_mcq_answer_choices})
+      Course.update_block(block, %{mcq_answer_choices: updated_mcq_answer_choices})
 
     updated_sections =
       update_block_in_section(
@@ -240,7 +240,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
     choice_key = Map.fetch!(params, "choice_key")
     block = get_block_from_socket(socket, section_id, block_id)
 
-    {:ok, updated_block} = Course.save_block(block, %{mcq_answer_correct: choice_key})
+    {:ok, updated_block} = Course.update_block(block, %{mcq_answer_correct: choice_key})
 
     updated_sections =
       update_block_in_section(
@@ -268,7 +268,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
       |> elem(1)
       |> Enum.reverse()
 
-    {:ok, updated_block} = Course.save_block(block, %{mcq_answer_choices: updated_choices})
+    {:ok, updated_block} = Course.update_block(block, %{mcq_answer_choices: updated_choices})
 
     updated_sections =
       update_block_in_section(
@@ -307,7 +307,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
       end
 
     {:ok, updated_block} =
-      Course.save_block(block, %{
+      Course.update_block(block, %{
         mcq_answer_choices: updated_choices,
         mcq_answer_correct: updated_answer_correct_key
       })
@@ -337,7 +337,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
         fn _old_text -> choice_text end
       )
 
-    {:ok, updated_block} = Course.save_block(block, %{saq_answer_choices: updated_choices})
+    {:ok, updated_block} = Course.update_block(block, %{saq_answer_choices: updated_choices})
 
     updated_sections =
       update_block_in_section(
@@ -360,7 +360,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
 
     updated_choices = block.saq_answer_choices ++ [new_choice]
 
-    {:ok, updated_block} = Course.save_block(block, %{saq_answer_choices: updated_choices})
+    {:ok, updated_block} = Course.update_block(block, %{saq_answer_choices: updated_choices})
 
     updated_sections =
       update_block_in_section(
@@ -383,7 +383,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
       block.saq_answer_choices
       |> List.delete_at(String.to_integer(choice_idx))
 
-    {:ok, updated_block} = Course.save_block(block, %{saq_answer_choices: updated_choices})
+    {:ok, updated_block} = Course.update_block(block, %{saq_answer_choices: updated_choices})
 
     updated_sections =
       update_block_in_section(

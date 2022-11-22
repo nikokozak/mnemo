@@ -89,11 +89,13 @@ defmodule Mnemo.Engines.Block do
   end
 
   defp block_cursor_in_completed_blocks?(%{block_cursor: nil}), do: false
+
   defp block_cursor_in_completed_blocks?(enrollment) do
     Enum.any?(enrollment.completed_blocks, &(&1.id == enrollment.block_cursor.id))
   end
 
   defp block_in_completed_blocks?(_enrollment, nil), do: false
+
   defp block_in_completed_blocks?(enrollment, block) do
     Enum.any?(enrollment.completed_blocks, &(&1.id == block.id))
   end

@@ -1,6 +1,15 @@
 defmodule Test.Fixtures do
   alias Mnemo.Resources.Postgres.Repo, as: PGRepo
-  alias Mnemo.Access.Schemas.{Student, Subject, Section, Block, Enrollment, ScheduledBlock, ReviewBlock}
+
+  alias Mnemo.Access.Schemas.{
+    Student,
+    Subject,
+    Section,
+    Block,
+    Enrollment,
+    ScheduledBlock,
+    ReviewBlock
+  }
 
   def create(type, overrides \\ %{}) do
     params = params(type, overrides)
@@ -63,7 +72,10 @@ defmodule Test.Fixtures do
     |> Enrollment.create_changeset(fields)
   end
 
-  def params(:scheduled_block, %{student_id: _, subject_id: _, block_id: _, review_at: _} = overrides) do
+  def params(
+        :scheduled_block,
+        %{student_id: _, subject_id: _, block_id: _, review_at: _} = overrides
+      ) do
     fields =
       %{}
       |> Map.merge(overrides)

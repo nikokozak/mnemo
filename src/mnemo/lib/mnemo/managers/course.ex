@@ -139,6 +139,7 @@ defmodule Mnemo.Managers.Course do
         "review" ->
           {:ok, _deleted_block} = remove_block_from_review_queue(enrollment, block)
           enrollment
+
         "study" ->
           consume_and_assign_next_block_cursor(enrollment, block)
       end

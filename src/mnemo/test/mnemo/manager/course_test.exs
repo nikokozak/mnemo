@@ -148,11 +148,19 @@ defmodule Mnemo.Manager.CourseTest do
       {:ok, block_1} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
       {:ok, _block_2} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
       {:ok, _block_3} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
-      {:ok, enrollment} = Fixtures.create(:enrollment, %{student_id: student.id, subject_id: subject.id})
 
-      {:ok, review_block_1} = Fixtures.create(:review_block, %{student_id: student.id, subject_id: subject.id, block_id: block_1.id})
+      {:ok, enrollment} =
+        Fixtures.create(:enrollment, %{student_id: student.id, subject_id: subject.id})
 
-      {:correct, {_type, _next_block, _enrollment}} = Course.consume_block(enrollment, block_1, "review", ["true"])
+      {:ok, review_block_1} =
+        Fixtures.create(:review_block, %{
+          student_id: student.id,
+          subject_id: subject.id,
+          block_id: block_1.id
+        })
+
+      {:correct, {_type, _next_block, _enrollment}} =
+        Course.consume_block(enrollment, block_1, "review", ["true"])
 
       assert is_nil(ReviewBlock |> ReviewBlock.where_id(review_block_1.id) |> PGRepo.one())
     end
@@ -164,12 +172,26 @@ defmodule Mnemo.Manager.CourseTest do
       {:ok, block_1} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
       {:ok, block_2} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
       {:ok, _block_3} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
-      {:ok, enrollment} = Fixtures.create(:enrollment, %{student_id: student.id, subject_id: subject.id})
 
-      {:ok, _review_block_1} = Fixtures.create(:review_block, %{student_id: student.id, subject_id: subject.id, block_id: block_1.id})
-      {:ok, review_block_2} = Fixtures.create(:review_block, %{student_id: student.id, subject_id: subject.id, block_id: block_2.id})
+      {:ok, enrollment} =
+        Fixtures.create(:enrollment, %{student_id: student.id, subject_id: subject.id})
 
-      {:correct, {type, next_block, _enrollment}} = Course.consume_block(enrollment, block_1, "review", ["true"])
+      {:ok, _review_block_1} =
+        Fixtures.create(:review_block, %{
+          student_id: student.id,
+          subject_id: subject.id,
+          block_id: block_1.id
+        })
+
+      {:ok, review_block_2} =
+        Fixtures.create(:review_block, %{
+          student_id: student.id,
+          subject_id: subject.id,
+          block_id: block_2.id
+        })
+
+      {:correct, {type, next_block, _enrollment}} =
+        Course.consume_block(enrollment, block_1, "review", ["true"])
 
       assert type == "review"
       assert next_block.id == review_block_2.id
@@ -182,29 +204,69 @@ defmodule Mnemo.Manager.CourseTest do
       {:ok, block_1} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
       {:ok, block_2} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
       {:ok, block_3} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
-      {:ok, enrollment} = Fixtures.create(:enrollment, %{student_id: student.id, subject_id: subject.id})
 
-      {:ok, _review_block_1} = Fixtures.create(:review_block, %{student_id: student.id, subject_id: subject.id, block_id: block_1.id})
-      {:ok, _review_block_2} = Fixtures.create(:review_block, %{student_id: student.id, subject_id: subject.id, block_id: block_2.id})
+      {:ok, enrollment} =
+        Fixtures.create(:enrollment, %{student_id: student.id, subject_id: subject.id})
 
-      {:correct, {"review", _next_block, enrollment}} = Course.consume_block(enrollment, block_1, "review", ["true"])
-      {:correct, {"study", _next_block, enrollment}} = Course.consume_block(enrollment, block_2, "review", ["true"])
-      {:correct, {"study", _next_block, enrollment}} = Course.consume_block(enrollment, block_1, "study", ["true"])
-      {:correct, {"study", _next_block, enrollment}} = Course.consume_block(enrollment, block_2, "study", ["true"])
-      {:correct, {"study", next_block, enrollment}} = Course.consume_block(enrollment, block_3, "study", ["true"])
+      {:ok, _review_block_1} =
+        Fixtures.create(:review_block, %{
+          student_id: student.id,
+          subject_id: subject.id,
+          block_id: block_1.id
+        })
+
+      {:ok, _review_block_2} =
+        Fixtures.create(:review_block, %{
+          student_id: student.id,
+          subject_id: subject.id,
+          block_id: block_2.id
+        })
+
+      {:correct, {"review", _next_block, enrollment}} =
+        Course.consume_block(enrollment, block_1, "review", ["true"])
+
+      {:correct, {"study", _next_block, enrollment}} =
+        Course.consume_block(enrollment, block_2, "review", ["true"])
+
+      {:correct, {"study", _next_block, enrollment}} =
+        Course.consume_block(enrollment, block_1, "study", ["true"])
+
+      {:correct, {"study", _next_block, enrollment}} =
+        Course.consume_block(enrollment, block_2, "study", ["true"])
+
+      {:correct, {"study", next_block, enrollment}} =
+        Course.consume_block(enrollment, block_3, "study", ["true"])
 
       assert is_nil(next_block)
 
       {:ok, block_1} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
       {:ok, block_2} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
 
-      {:ok, _review_block_1} = Fixtures.create(:review_block, %{student_id: student.id, subject_id: subject.id, block_id: block_1.id})
-      {:ok, _review_block_2} = Fixtures.create(:review_block, %{student_id: student.id, subject_id: subject.id, block_id: block_2.id})
+      {:ok, _review_block_1} =
+        Fixtures.create(:review_block, %{
+          student_id: student.id,
+          subject_id: subject.id,
+          block_id: block_1.id
+        })
 
-      {:correct, {"review", _next_block, enrollment}} = Course.consume_block(enrollment, block_1, "review", ["true"])
-      {:correct, {"study", _next_block, enrollment}} = Course.consume_block(enrollment, block_2, "review", ["true"])
-      {:correct, {"study", _next_block, enrollment}} = Course.consume_block(enrollment, block_1, "study", ["true"])
-      {:correct, {"study", next_block, _enrollment}} = Course.consume_block(enrollment, block_2, "study", ["true"])
+      {:ok, _review_block_2} =
+        Fixtures.create(:review_block, %{
+          student_id: student.id,
+          subject_id: subject.id,
+          block_id: block_2.id
+        })
+
+      {:correct, {"review", _next_block, enrollment}} =
+        Course.consume_block(enrollment, block_1, "review", ["true"])
+
+      {:correct, {"study", _next_block, enrollment}} =
+        Course.consume_block(enrollment, block_2, "review", ["true"])
+
+      {:correct, {"study", _next_block, enrollment}} =
+        Course.consume_block(enrollment, block_1, "study", ["true"])
+
+      {:correct, {"study", next_block, _enrollment}} =
+        Course.consume_block(enrollment, block_2, "study", ["true"])
 
       assert is_nil(next_block)
     end
@@ -217,30 +279,40 @@ defmodule Mnemo.Manager.CourseTest do
       {:ok, block_1} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
       {:ok, _block_2} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
       {:ok, _block_3} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
-      {:ok, enrollment} = Fixtures.create(:enrollment, %{student_id: student.id, subject_id: subject.id})
+
+      {:ok, enrollment} =
+        Fixtures.create(:enrollment, %{student_id: student.id, subject_id: subject.id})
 
       daily_limit = Application.fetch_env!(:mnemo, :daily_review_limit)
 
       # Create review blocks [0..daily_limit + 1]
       review_blocks =
-        Enum.reduce(0..daily_limit + 1, [], fn _, acc ->
-          {:ok, review_block} = Fixtures.create(:review_block, %{student_id: student.id, subject_id: subject.id, block_id: block_1.id})
+        Enum.reduce(0..(daily_limit + 1), [], fn _, acc ->
+          {:ok, review_block} =
+            Fixtures.create(:review_block, %{
+              student_id: student.id,
+              subject_id: subject.id,
+              block_id: block_1.id
+            })
+
           [review_block | acc]
         end)
 
       # Exhaust our daily limit
       Enum.each(Enum.slice(review_blocks, 0, daily_limit - 1), fn rb ->
-        {:correct, {_type, next_block, _enrollment}} = Course.consume_block(enrollment, rb.block_id, "review", ["true"])
+        {:correct, {_type, next_block, _enrollment}} =
+          Course.consume_block(enrollment, rb.block_id, "review", ["true"])
+
         assert not is_nil(next_block)
       end)
 
       # We technically have one more left, but have exhausted daily limit previously.
       # Thus, return must be a "study" type
-      {:correct, {type, next_block, _enrollment}} = Course.consume_block(enrollment, List.last(review_blocks), "review", ["true"])
+      {:correct, {type, next_block, _enrollment}} =
+        Course.consume_block(enrollment, List.last(review_blocks), "review", ["true"])
 
       assert type == "study"
       assert next_block.id == block_1.id
     end
-
   end
 end
