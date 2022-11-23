@@ -1,7 +1,17 @@
 defmodule Mnemo.Manager.CourseTest do
   use Mnemo.DataCase
   alias Mnemo.Managers.Course
-  alias Mnemo.Access.Schemas.{Subject, Block, Enrollment, Section, ReviewBlock, CompletedReviewBlock, ScheduledBlock}
+
+  alias Mnemo.Access.Schemas.{
+    Subject,
+    Block,
+    Enrollment,
+    Section,
+    ReviewBlock,
+    CompletedReviewBlock,
+    ScheduledBlock
+  }
+
   alias Mnemo.Resources.Postgres.Repo, as: PGRepo
   alias Test.Fixtures
 
@@ -276,9 +286,12 @@ defmodule Mnemo.Manager.CourseTest do
       {:ok, subject} = Fixtures.create(:subject, %{student_id: student.id})
       {:ok, section} = Fixtures.create(:section, %{subject_id: subject.id})
       {:ok, block_1} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
-      {:ok, enrollment} = Fixtures.create(:enrollment, %{student_id: student.id, subject_id: subject.id})
 
-      {:correct, {"study", nil, enrollment}} = Course.consume_block(enrollment, block_1, "study", ["true"])
+      {:ok, enrollment} =
+        Fixtures.create(:enrollment, %{student_id: student.id, subject_id: subject.id})
+
+      {:correct, {"study", nil, enrollment}} =
+        Course.consume_block(enrollment, block_1, "study", ["true"])
 
       completed_block_1 =
         CompletedReviewBlock
@@ -294,7 +307,8 @@ defmodule Mnemo.Manager.CourseTest do
           block_id: block_1.id
         })
 
-      {:correct, {"study", nil, _enrollment}} = Course.consume_block(enrollment, block_1, "review", ["true"])
+      {:correct, {"study", nil, _enrollment}} =
+        Course.consume_block(enrollment, block_1, "review", ["true"])
 
       completed_block_2 =
         CompletedReviewBlock
@@ -310,9 +324,12 @@ defmodule Mnemo.Manager.CourseTest do
       {:ok, subject} = Fixtures.create(:subject, %{student_id: student.id})
       {:ok, section} = Fixtures.create(:section, %{subject_id: subject.id})
       {:ok, block_1} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
-      {:ok, enrollment} = Fixtures.create(:enrollment, %{student_id: student.id, subject_id: subject.id})
 
-      {:correct, {"study", nil, enrollment}} = Course.consume_block(enrollment, block_1, "study", ["true"])
+      {:ok, enrollment} =
+        Fixtures.create(:enrollment, %{student_id: student.id, subject_id: subject.id})
+
+      {:correct, {"study", nil, enrollment}} =
+        Course.consume_block(enrollment, block_1, "study", ["true"])
 
       scheduled_block_1 =
         ScheduledBlock
@@ -328,7 +345,8 @@ defmodule Mnemo.Manager.CourseTest do
           block_id: block_1.id
         })
 
-      {:correct, {"study", nil, _enrollment}} = Course.consume_block(enrollment, block_1, "review", ["true"])
+      {:correct, {"study", nil, _enrollment}} =
+        Course.consume_block(enrollment, block_1, "review", ["true"])
 
       scheduled_block_2 =
         ScheduledBlock
@@ -339,7 +357,6 @@ defmodule Mnemo.Manager.CourseTest do
       assert scheduled_block_1.id == scheduled_block_2.id
       assert scheduled_block_1.review_at == scheduled_block_2.review_at
     end
-
 
     @tag :skip
     test "does not return new review blocks if past the daily review limit, instead returns study blocks" do

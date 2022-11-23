@@ -54,10 +54,6 @@ defmodule Mnemo.MixProject do
       {:plug_cowboy, "~> 2.5"},
       # TailwindCSS
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
-      # Svonix
-      {:svonix, "~> 0.6.3"},
-      # CORS
-      {:cors_plug, "~> 3.0"},
       # Faker for tests
       {:faker, "~> 0.17", only: :test}
     ]
