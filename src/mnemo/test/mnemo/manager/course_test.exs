@@ -1,7 +1,7 @@
 defmodule Mnemo.Manager.CourseTest do
   use Mnemo.DataCase
   alias Mnemo.Managers.Course
-  alias Mnemo.Access.Schemas.{Subject, Block, Enrollment, Section, ReviewBlock}
+  alias Mnemo.Access.Schemas.{Subject, Block, Enrollment, Section, ReviewBlock, CompletedReviewBlock, ScheduledBlock}
   alias Mnemo.Resources.Postgres.Repo, as: PGRepo
   alias Test.Fixtures
 
@@ -270,6 +270,76 @@ defmodule Mnemo.Manager.CourseTest do
 
       assert is_nil(next_block)
     end
+
+    test "correctly inserts a block into CompletedReviewBlocks, does not re-insert if already present during same day" do
+      {:ok, student} = Fixtures.create(:student)
+      {:ok, subject} = Fixtures.create(:subject, %{student_id: student.id})
+      {:ok, section} = Fixtures.create(:section, %{subject_id: subject.id})
+      {:ok, block_1} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
+      {:ok, enrollment} = Fixtures.create(:enrollment, %{student_id: student.id, subject_id: subject.id})
+
+      {:correct, {"study", nil, enrollment}} = Course.consume_block(enrollment, block_1, "study", ["true"])
+
+      completed_block_1 =
+        CompletedReviewBlock
+        |> CompletedReviewBlock.where_block(block_1.id)
+        |> PGRepo.one()
+
+      refute is_nil(completed_block_1)
+
+      {:ok, _review_block_1} =
+        Fixtures.create(:review_block, %{
+          student_id: student.id,
+          subject_id: subject.id,
+          block_id: block_1.id
+        })
+
+      {:correct, {"study", nil, _enrollment}} = Course.consume_block(enrollment, block_1, "review", ["true"])
+
+      completed_block_2 =
+        CompletedReviewBlock
+        |> CompletedReviewBlock.where_block(block_1.id)
+        |> PGRepo.one()
+
+      refute is_nil(completed_block_2)
+      assert completed_block_1.id == completed_block_2.id
+    end
+
+    test "correctly inserts a ScheduledBlock, does not re-insert if already present during same day" do
+      {:ok, student} = Fixtures.create(:student)
+      {:ok, subject} = Fixtures.create(:subject, %{student_id: student.id})
+      {:ok, section} = Fixtures.create(:section, %{subject_id: subject.id})
+      {:ok, block_1} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
+      {:ok, enrollment} = Fixtures.create(:enrollment, %{student_id: student.id, subject_id: subject.id})
+
+      {:correct, {"study", nil, enrollment}} = Course.consume_block(enrollment, block_1, "study", ["true"])
+
+      scheduled_block_1 =
+        ScheduledBlock
+        |> ScheduledBlock.where_block(block_1.id)
+        |> PGRepo.one()
+
+      refute is_nil(scheduled_block_1)
+
+      {:ok, _review_block_1} =
+        Fixtures.create(:review_block, %{
+          student_id: student.id,
+          subject_id: subject.id,
+          block_id: block_1.id
+        })
+
+      {:correct, {"study", nil, _enrollment}} = Course.consume_block(enrollment, block_1, "review", ["true"])
+
+      scheduled_block_2 =
+        ScheduledBlock
+        |> ScheduledBlock.where_block(block_1.id)
+        |> PGRepo.one()
+
+      refute is_nil(scheduled_block_2)
+      assert scheduled_block_1.id == scheduled_block_2.id
+      assert scheduled_block_1.review_at == scheduled_block_2.review_at
+    end
+
 
     @tag :skip
     test "does not return new review blocks if past the daily review limit, instead returns study blocks" do

@@ -85,6 +85,7 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
       add(:subject_id, references(:subjects, on_delete: :delete_all))
       add(:pending, :boolean)
       add(:completed, :boolean)
+      add(:percent_complete, :integer)
       add(:block_cursor_id, references(:blocks, on_delete: :nilify_all))
 
       add(:num_reviewed_today, :integer)

@@ -138,7 +138,12 @@ defmodule Mnemo.Managers.Course do
       case block_type do
         "review" ->
           {:ok, _deleted_block} = remove_block_from_review_queue(enrollment, block)
-          enrollment
+          {:ok, updated_enrollment} =
+            enrollment
+            |> Enrollment.update_changeset(%{num_reviewed_today: enrollment.num_reviewed_today + 1})
+            |> PGRepo.update()
+
+          updated_enrollment
 
         "study" ->
           consume_and_assign_next_block_cursor(enrollment, block)
