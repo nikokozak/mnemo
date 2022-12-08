@@ -1,7 +1,6 @@
 # Mnemo TODO
 
 - Update Viewer and Editor, test to make sure nothing is broken, re: {"study" | "review", block}
-- Quantum Scheduler integration ASAP
 - Photo Uploads
 - Drag & Drop Editing
 - Ident w/Roles

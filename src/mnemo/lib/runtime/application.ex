@@ -18,6 +18,7 @@ defmodule Mnemo.Runtime.Application do
       MnemoWeb.Endpoint
       # Start a worker by calling: Mnemo.Worker.start_link(arg)
       # {Mnemo.Worker, arg}
+      Mnemo.Utils.Scheduler
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

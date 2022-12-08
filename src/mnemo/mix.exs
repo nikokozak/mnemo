@@ -55,7 +55,8 @@ defmodule Mnemo.MixProject do
       # TailwindCSS
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       # Faker for tests
-      {:faker, "~> 0.17", only: :test}
+      {:faker, "~> 0.17", only: :test},
+      {:quantum, "~> 3.0"}
     ]
   end
 
