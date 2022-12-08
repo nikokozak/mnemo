@@ -16,7 +16,11 @@ defmodule Mnemo.Utils.Scheduler do
 
     Enum.each(blocks_scheduled_for_today, fn block ->
       %ReviewBlock{}
-      |> ReviewBlock.create_changeset(%{student_id: block.student_id, subject_id: block.subject_id, block_id: block.id})
+      |> ReviewBlock.create_changeset(%{
+        student_id: block.student_id,
+        subject_id: block.subject_id,
+        block_id: block.id
+      })
       |> PGRepo.insert!()
     end)
   end

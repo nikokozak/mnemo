@@ -15,7 +15,7 @@ defmodule Mnemo.Runtime.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Mnemo.PubSub},
       # Start the Endpoint (http/https)
-      MnemoWeb.Endpoint
+      MnemoWeb.Endpoint,
       # Start a worker by calling: Mnemo.Worker.start_link(arg)
       # {Mnemo.Worker, arg}
       Mnemo.Utils.Scheduler
