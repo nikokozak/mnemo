@@ -1,6 +1,6 @@
 defmodule MnemoWeb.Live.Subject.Components.Modals do
   use Phoenix.Component
-  #import Phoenix.HTML.Form, only: [submit: 2]
+  # import Phoenix.HTML.Form, only: [submit: 2]
   alias MnemoWeb.Live.Components.Modals
 
   embed_templates("templates/*")
