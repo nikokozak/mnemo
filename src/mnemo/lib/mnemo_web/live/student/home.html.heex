@@ -5,12 +5,19 @@
     <div id="student-continue-learning-section">
     </div>
 
-    <div id="student-study-section" class="mb-12" x-data="{ editing: false }">
+    <div id="student-study-section" class="mb-12" x-data="{ editing: false, mock_time: false, mock_time_offset: 0 }">
         <div class="flex justify-between">
             <h1 class="text-lg font-semibold mb-2">currently studying</h1>
-            <svg @click="editing = !editing" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+            <div class="flex">
+            <svg @click="editing = !editing" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="gray" class="w-4 h-4 mr-2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
             </svg>
+            <%= if Mix.env() == :dev do %>
+                <svg @click="mock_time = !mock_time" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" class="w-4 h-4 mr-2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            <% end %>
+            </div>
         </div>
         <hr>
         <!-- Progressions List -->
@@ -59,6 +66,23 @@
             </div>
         <% end %>
         <!-- end Subject List -->
+
+        <!-- Time Stubber -->
+        <%= if Mix.env() == :dev do %>
+            <div x-show="mock_time" class="flex mt-2">
+                <button @click="mock_time_offset = mock_time_offset + 1" class="text-xs border border-gray-400 p-1 rounded-lg">
+                    Move date forward
+                </button>
+                <button @click="mock_time_offset = mock_time_offset - 1" class="text-xs border border-gray-400 p-1 rounded-lg ml-2">
+                    Move date backward
+                </button>
+                <button @click="mock_time_offset = 0" class="text-xs border border-gray-400 p-1 rounded-lg ml-2">
+                    Reset date
+                </button>
+                <span x-text="mock_time_offset" class="ml-2"></span>
+            </div>
+        <% end %>
+        <!-- End Time Stubber -->
     </div>
 
     <div id="student-subjects-section">
