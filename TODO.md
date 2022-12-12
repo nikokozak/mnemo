@@ -1,6 +1,6 @@
 # Mnemo TODO
 
-- Update Viewer and Editor, test to make sure nothing is broken, re: {"study" | "review", block}
+- Mocking of Time/Quantum
 - Photo Uploads
 - Drag & Drop Editing
 - Ident w/Roles
@@ -20,9 +20,6 @@
     - Student home shows us how many cards to review we have today, and what percentage of the 
       deck we've studied.
 
-- Student Home should be a liveview.
-  - Checks the Student Review Queue for reviewable cards.
-  - Tells you there are # cards to review in the future.
 - Standardize how we store answer attempts (ideally in JSON).
   - View should implement a translator into BAFS (Block Answer Format Standard)
   - This BAFS is what is passed to the block checking engine

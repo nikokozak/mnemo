@@ -10,7 +10,7 @@
 
     <!-- Inner Block Content -->
 
-    <%= for {brick, idx} <- Enum.with_index(@block.static_content) do %>
+    <%= for {brick, _idx} <- Enum.with_index(@block.static_content) do %>
         <%= if brick["type"] == "text" do %>
             <div class="ml-5 mr-4 mb-4">
                 <p><%= brick["content"] %></p>
