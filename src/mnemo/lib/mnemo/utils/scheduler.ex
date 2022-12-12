@@ -8,10 +8,10 @@ defmodule Mnemo.Utils.Scheduler do
   Resets all student's review queues. Does so by:
   - Add onto ReviewBlock any ScheduledBlocks set to review today.
   """
-  def reset_review_queues do
+  def reset_review_queues(date \\ Date.utc_today()) do
     blocks_scheduled_for_today =
       ScheduledBlock
-      |> ScheduledBlock.where_date(Date.utc_today())
+      |> ScheduledBlock.where_date(date)
       |> PGRepo.all()
 
     Enum.each(blocks_scheduled_for_today, fn block ->
