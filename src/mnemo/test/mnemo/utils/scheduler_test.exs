@@ -13,9 +13,29 @@ defmodule Mnemo.Utils.SchedulerTest do
       {:ok, block_2} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
       {:ok, block_3} = Fixtures.create(:block, %{subject_id: subject.id, section_id: section.id})
 
-      {:ok, scheduled_block_1} = Fixtures.create(:scheduled_block, %{student_id: student.id, subject_id: subject.id, block_id: block_1.id, review_at: Date.utc_today()})
-      {:ok, scheduled_block_2} = Fixtures.create(:scheduled_block, %{student_id: student.id, subject_id: subject.id, block_id: block_2.id, review_at: Date.utc_today()})
-      {:ok, scheduled_block_3} = Fixtures.create(:scheduled_block, %{student_id: student.id, subject_id: subject.id, block_id: block_3.id, review_at: Date.utc_today()})
+      {:ok, scheduled_block_1} =
+        Fixtures.create(:scheduled_block, %{
+          student_id: student.id,
+          subject_id: subject.id,
+          block_id: block_1.id,
+          review_at: Date.utc_today()
+        })
+
+      {:ok, scheduled_block_2} =
+        Fixtures.create(:scheduled_block, %{
+          student_id: student.id,
+          subject_id: subject.id,
+          block_id: block_2.id,
+          review_at: Date.utc_today()
+        })
+
+      {:ok, scheduled_block_3} =
+        Fixtures.create(:scheduled_block, %{
+          student_id: student.id,
+          subject_id: subject.id,
+          block_id: block_3.id,
+          review_at: Date.utc_today()
+        })
 
       Scheduler.refresh_review_queues()
 

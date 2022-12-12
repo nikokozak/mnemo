@@ -7,7 +7,7 @@ defmodule Mnemo.Utils.Config do
 
   defp base_config() do
     %{
-      date: Date.utc_today(),
+      date: Date.utc_today()
     }
   end
 
@@ -28,6 +28,6 @@ defmodule Mnemo.Utils.Config do
   end
 
   def reset() do
-    Agent.update(__MODULE__, fn val -> base_config() end)
+    Agent.update(__MODULE__, fn _val -> base_config() end)
   end
 end
