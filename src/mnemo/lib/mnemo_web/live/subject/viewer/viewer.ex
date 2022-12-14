@@ -10,6 +10,7 @@ defmodule MnemoWeb.Live.Subject.Viewer do
       |> Enrollment.where_id(enrollment_id)
       |> Enrollment.load_subject_with_sections_and_blocks()
       |> Enrollment.load_cursor_with_section()
+      |> Enrollment.load_completed_blocks()
       |> PGRepo.one()
 
     {block_type, block} = Course.next_block(enrollment)

@@ -3,11 +3,20 @@ defmodule Mnemo.Engines.Block do
   alias Mnemo.Resources.Postgres.Repo, as: PGRepo
 
   def next_block(enrollment, "review") do
-    ReviewBlock
-    |> ReviewBlock.where_student(enrollment.student_id)
-    |> ReviewBlock.where_subject(enrollment.subject_id)
-    |> ReviewBlock.limit(1)
-    |> PGRepo.one()
+    review_block =
+      ReviewBlock
+      |> ReviewBlock.where_student(enrollment.student_id)
+      |> ReviewBlock.where_subject(enrollment.subject_id)
+      |> ReviewBlock.limit(1)
+      |> ReviewBlock.load_block()
+      |> PGRepo.one()
+
+    if not is_nil(review_block) do
+      review_block.block
+      |> PGRepo.preload(:section)
+    else
+      review_block
+    end
   end
 
   def next_block(enrollment, "study") do

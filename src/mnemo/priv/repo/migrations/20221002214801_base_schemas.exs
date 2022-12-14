@@ -22,6 +22,7 @@ defmodule Mnemo.Resources.Postgres.Repo.Migrations.BaseSchemas do
       add(:student_id, references(:students, on_delete: :delete_all, null: false))
       add(:title, :string)
       add(:description, :string)
+      add(:image_url, :string)
       add(:published, :boolean)
       add(:private, :boolean)
       add(:institution_only, :boolean)

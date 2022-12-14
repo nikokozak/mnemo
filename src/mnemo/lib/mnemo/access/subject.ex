@@ -11,6 +11,7 @@ defmodule Mnemo.Access.Schemas.Subject do
     field(:private, :boolean, default: true)
     field(:institution_only, :boolean, default: false)
     field(:price, :integer, default: 0)
+    field(:image_url, :string)
 
     has_many :sections, Section
     has_many :blocks, Block
@@ -48,7 +49,10 @@ defmodule Mnemo.Access.Schemas.Subject do
 
   def create_changeset(item, params \\ %{}) do
     item
-    |> cast(params, ~w(title student_id description published private institution_only price)a)
+    |> cast(
+      params,
+      ~w(title student_id description image_url published private institution_only price)a
+    )
     |> foreign_key_constraint(:student_id)
   end
 

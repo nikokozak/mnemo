@@ -5,7 +5,7 @@
     <div id="student-continue-learning-section">
     </div>
 
-    <div id="student-study-section" class="mb-12" x-data="{ editing: false, mock_time: false, mock_time_offset: 0 }">
+    <div id="student-study-section" class="mb-12" x-data="{ editing: false, mock_date: false }">
         <div class="flex justify-between">
             <h1 class="text-lg font-semibold mb-2">currently studying</h1>
             <div class="flex">
@@ -13,7 +13,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
             </svg>
             <%= if Mix.env() == :dev do %>
-                <svg @click="mock_time = !mock_time" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" class="w-4 h-4 mr-2">
+                <svg @click="mock_date = !mock_date" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" class="w-4 h-4 mr-2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             <% end %>
@@ -26,7 +26,7 @@
                 <div
                     class="absolute w-4 h-4 bg-red-400 rounded-lg right-1 text-xs text-white"
                     style="top: -5px; right: -5px;">
-                    <p class="ml-1">4</p>
+                    <p class="ml-1"><%= @num_student_review_blocks %></p>
                 </div>
                 <div
                     class="absolute w-8 h-4 bg-sky-400 rounded-lg top-6 right-1 text-xs text-white"
@@ -69,17 +69,17 @@
 
         <!-- Time Stubber -->
         <%= if Mix.env() == :dev do %>
-            <div x-show="mock_time" class="flex mt-2">
-                <button @click="mock_time_offset = mock_time_offset + 1" class="text-xs border border-gray-400 p-1 rounded-lg">
+            <div x-show="mock_date" class="flex mt-2">
+                <button phx-click="increase_mock_date_offset" class="text-xs border border-gray-400 p-1 rounded-lg">
                     Move date forward
                 </button>
-                <button @click="mock_time_offset = mock_time_offset - 1" class="text-xs border border-gray-400 p-1 rounded-lg ml-2">
+                <button phx-click="decrease_mock_date_offset" class="text-xs border border-gray-400 p-1 rounded-lg ml-2">
                     Move date backward
                 </button>
-                <button @click="mock_time_offset = 0" class="text-xs border border-gray-400 p-1 rounded-lg ml-2">
+                <button phx-click="reset_mock_date_offset" class="text-xs border border-gray-400 p-1 rounded-lg ml-2">
                     Reset date
                 </button>
-                <span x-text="mock_time_offset" class="ml-2"></span>
+                <span class="ml-2"><%= @mock_date %></span>
             </div>
         <% end %>
         <!-- End Time Stubber -->
@@ -90,17 +90,28 @@
         <hr>
         <!-- Subject List -->
         <%= for subject <- @subjects do %>
-            <div class="border w-1/2 rounded-lg mt-4">
-                <div class="px-2 py-2">
+            <div class="border w-2/5 rounded-lg mt-4">
+                <div class="px-4 py-2">
                     <p class="text-md mb-4"><%= subject.title %></p>
+                    <%= if not is_nil(subject.image_url) do %>
+                        <div class="block h-40 w-full border rounded-lg border-dashed border-gray-700 mt-2 mb-4 p-2"
+                        style={"background-image: url('#{subject.image_url}'); background-position: center; background-size: cover;
+                                    #{if not is_nil(subject.image_url), do: "border: none;"}
+                                    "}>
+                            <%= if is_nil(subject.image_url) do %>
+                                <p class="text-xs text-slate-500">
+                                    An optional thumbnail (click here to add or change)
+                                </p>
+                            <% end %>
+                        </div>
+                    <%= else %>
+                        <p class="text-xs text-slate-500 my-4">
+                            Add a thumbnail in the edit menu!
+                        </p>
+                    <% end %>
                     <%= if Enum.find(@enrollments, fn enrollment -> enrollment.subject_id == subject.id end) do %>
                         <p class="text-xs text-gray-400">Enrolled</p>
                     <% end %>
-                    <div class="block h-20 w-full border rounded-lg border-dashed border-gray-700 mt-2 mb-4 p-2">
-                        <p class="text-xs text-slate-500">
-                            An optional thumbnail (click here to add or change)
-                        </p>
-                    </div>
                 </div>
 <!--
                 <button

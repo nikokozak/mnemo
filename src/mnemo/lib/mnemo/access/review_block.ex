@@ -30,6 +30,9 @@ defmodule Mnemo.Access.Schemas.ReviewBlock do
   def limit(query \\ __MODULE__, num \\ 1),
     do: from(cb in query, limit: ^num)
 
+  @spec load_block(Ecto.Query.t()) :: Ecto.Query.t()
+  def load_block(query = %Ecto.Query{}), do: Ecto.Query.preload(query, :block)
+
   def create_changeset(
         scheduled_block,
         %{

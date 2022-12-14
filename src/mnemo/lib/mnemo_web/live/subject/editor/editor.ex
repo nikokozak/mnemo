@@ -11,7 +11,10 @@ defmodule MnemoWeb.Live.Subject.Editor do
       |> Subject.load_sections_with_blocks()
       |> PGRepo.one()
 
-    {:ok, assign(socket, subject: subject, sections: subject.sections)}
+    {:ok,
+     socket
+     |> assign(subject: subject, sections: subject.sections)
+     |> allow_upload(:subject_image, accept: ~w(.jpg .jpeg .png), max_entries: 1)}
   end
 
   # Subject Information Handlers
@@ -23,7 +26,27 @@ defmodule MnemoWeb.Live.Subject.Editor do
       ) do
     subject_id = socket.assigns.subject.id
 
-    {:ok, updated_subject} = Course.update_subject(subject_id, title_and_description)
+    [file_path] =
+      case uploaded_entries(socket, :subject_image) do
+        {[_ | _] = _entries, []} ->
+          consume_uploaded_entries(socket, :subject_image, fn %{path: path}, entry ->
+            IO.inspect(path, label: "Original Filepath")
+            IO.inspect(entry, label: "Meta")
+            file_name = Path.basename(path)
+            dest = Path.join("priv/static/uploads", file_name)
+            File.cp!(path, dest)
+            {:ok, Routes.static_path(socket, "/uploads/#{Path.basename(dest)}")}
+          end)
+
+        _ ->
+          [socket.assigns.subject.image_url]
+      end
+
+    {:ok, updated_subject} =
+      Course.update_subject(
+        subject_id,
+        Map.merge(title_and_description, %{"image_url" => file_path})
+      )
 
     {:noreply, assign(socket, subject: updated_subject)}
   end

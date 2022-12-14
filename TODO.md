@@ -1,6 +1,5 @@
 # Mnemo TODO
 
-- Mocking of Time/Quantum
 - Photo Uploads
 - Drag & Drop Editing
 - Ident w/Roles

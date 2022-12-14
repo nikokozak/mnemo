@@ -24,4 +24,12 @@ defmodule Mnemo.Utils.Scheduler do
       |> PGRepo.insert!()
     end)
   end
+
+  def empty_review_queue() do
+    review_queued_blocks = PGRepo.all(ReviewBlock)
+
+    Enum.each(review_queued_blocks, fn review_block ->
+      PGRepo.delete!(review_block)
+    end)
+  end
 end
