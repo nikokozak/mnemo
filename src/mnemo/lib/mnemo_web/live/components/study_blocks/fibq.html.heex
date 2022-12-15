@@ -25,8 +25,8 @@
                 <%= text_input f,
                 Integer.to_string(brick["input_idx"]),
                 placeholder: "answer here",
-                value: @answer_status[Integer.to_string(brick["input_idx"])]["value"],
-                class: "#{ if @answer_status[Integer.to_string(brick["input_idx"])]["correct"] == false, do: "border-red-500"} ml-4 p-0"
+                value: @answer_status[brick["input_idx"]]["value"],
+                class: "#{ if @answer_status[brick["input_idx"]]["correct"] == false, do: "border-red-500"} ml-4 p-0"
                 %>
             <% end %>
         <% end %>

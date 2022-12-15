@@ -1,0 +1,13 @@
+<div class="relative block max-w-sm border mt-4 rounded-lg border-dashed border-gray-700 p-6">
+    <%= if @image_url do %>
+        <div class="w-80 h-40 rounded-lg mb-4"
+                style={"background-image: url('#{@image_url}'); background-position: center; background-size: cover;"}
+        ></div>
+    <% else %>
+        <p class="text-xs text-slate-500">
+            Add an optional thumbnail
+        </p>
+    <% end %>
+    <.live_file_input upload={@uploads_field} class="mt-2 mb-2 text-xs block hover:file:cursor-pointer file:mr-5 file:px-2 file:rounded-lg file:border-0 border border-gray-300 border-dashed rounded-lg" />
+    <%= submit "Upload", phx_disable_with: "Uploading...", class: "text-xs p-1 border border-gray-300 rounded-lg px-2" %>
+</div>

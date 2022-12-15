@@ -6,6 +6,7 @@ defmodule MnemoWeb.Live.Components.EditBlocks do
 
   attr :block, :map, required: true
   attr :section, :map, required: true
+  attr :uploads, :map
 
   def static(assigns)
 
@@ -29,8 +30,10 @@ defmodule MnemoWeb.Live.Components.EditBlocks do
 
   def saq(assigns)
 
-  def block(type, section, block) do
-    assigns = %{section: section, block: block}
+  def block(type, section, block, opts \\ %{}) do
+    assigns =
+      %{section: section, block: block}
+      |> Map.merge(opts)
 
     case type do
       "static" -> static(assigns)

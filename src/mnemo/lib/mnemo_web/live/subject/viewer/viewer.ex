@@ -92,7 +92,8 @@ defmodule MnemoWeb.Live.Subject.Viewer do
            answer_status: if(is_nil(details), do: false, else: details),
            answer_attempts: answer_attempts,
            answer_value: raw_answer
-         )}
+         )
+         |> IO.inspect(label: "socket")}
     end
   end
 end

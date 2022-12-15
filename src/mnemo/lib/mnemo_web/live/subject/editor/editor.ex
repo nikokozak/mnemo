@@ -25,27 +25,12 @@ defmodule MnemoWeb.Live.Subject.Editor do
         socket
       ) do
     subject_id = socket.assigns.subject.id
-
-    [file_path] =
-      case uploaded_entries(socket, :subject_image) do
-        {[_ | _] = _entries, []} ->
-          consume_uploaded_entries(socket, :subject_image, fn %{path: path}, entry ->
-            IO.inspect(path, label: "Original Filepath")
-            IO.inspect(entry, label: "Meta")
-            file_name = Path.basename(path)
-            dest = Path.join("priv/static/uploads", file_name)
-            File.cp!(path, dest)
-            {:ok, Routes.static_path(socket, "/uploads/#{Path.basename(dest)}")}
-          end)
-
-        _ ->
-          [socket.assigns.subject.image_url]
-      end
+    image_file_path = process_image_upload(socket, :subject_image)
 
     {:ok, updated_subject} =
       Course.update_subject(
         subject_id,
-        Map.merge(title_and_description, %{"image_url" => file_path})
+        Map.merge(title_and_description, %{"image_url" => image_file_path})
       )
 
     {:noreply, assign(socket, subject: updated_subject)}
@@ -129,6 +114,7 @@ defmodule MnemoWeb.Live.Subject.Editor do
 
     block = get_block_from_socket(socket, section_id, block_id)
     new_content_brick = %{"type" => brick_type, "content" => ""}
+    brick_idx = length(block.static_content)
 
     # We can only add text bricks to FC and STATIC
     {:ok, updated_block} =
@@ -157,7 +143,9 @@ defmodule MnemoWeb.Live.Subject.Editor do
         fn _old_block -> updated_block end
       )
 
-    {:noreply, assign(socket, sections: updated_sections)}
+    {:noreply,
+     socket
+     |> assign(sections: updated_sections)}
   end
 
   def handle_event("update_content_brick", %{"brick_form" => brick_form}, socket) do
@@ -417,6 +405,26 @@ defmodule MnemoWeb.Live.Subject.Editor do
       )
 
     {:noreply, assign(socket, sections: updated_sections)}
+  end
+
+  defp process_image_upload(socket, image_name_atom) do
+    [file_path] =
+      case uploaded_entries(socket, image_name_atom) do
+        {[_ | _] = _entries, []} ->
+          consume_uploaded_entries(socket, image_name_atom, fn %{path: path}, entry ->
+            IO.inspect(path, label: "Original Filepath")
+            IO.inspect(entry, label: "Meta")
+            file_name = Path.basename(path)
+            dest = Path.join("priv/static/uploads", file_name)
+            File.cp!(path, dest)
+            {:ok, Routes.static_path(socket, "/uploads/#{Path.basename(dest)}")}
+          end)
+
+        _ ->
+          [socket.assigns.subject.image_url]
+      end
+
+    file_path
   end
 
   defp get_block_from_socket(socket, section_id, block_id) do

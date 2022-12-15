@@ -1,6 +1,7 @@
 # Mnemo TODO
 
-- Photo Uploads
+- Photo upload html template
+- Photo upload separate functions (whipes previous uploaded photo if new upload)
 - Drag & Drop Editing
 - Ident w/Roles
 - Profile page

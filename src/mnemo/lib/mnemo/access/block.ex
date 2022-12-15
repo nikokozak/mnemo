@@ -37,6 +37,7 @@ defmodule Mnemo.Access.Schemas.Block do
 
     # This should be an array of maps of 
     # %{ type: "text" | "img", content: :string }
+    # In case of type "img", the "content" should be the url of the img
     field :static_content, {:array, :map}, default: []
 
     # This should be an array of maps of 

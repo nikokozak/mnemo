@@ -6,7 +6,9 @@
 
     <.form for={:subject_title_and_description}
     :let={f}
-    phx-change="update_subject" phx-submit="update_subject" class="mt-6" >
+    phx-change="update_subject"
+    phx-submit="update_subject"
+    class="mt-6" >
 
         <%= label f, :title, "Title", class: "text-xs text-gray-400" %>
         <%= text_input f,
@@ -26,7 +28,8 @@
         "phx-debounce": "300"
         %>
 
-    <div class="relative block w-5/6 border mt-4 rounded-lg border-dashed border-gray-700 p-6">
+    <%= MnemoWeb.Live.Components.Global.image_upload(%{ uploads_field: @uploads.subject_image, image_url: @subject.image_url }) %>
+    <!--<div class="relative block w-5/6 border mt-4 rounded-lg border-dashed border-gray-700 p-6">
         <%= if @subject.image_url do %>
             <div class="w-80 h-40 rounded-lg mb-4"
                  style={"background-image: url('#{@subject.image_url}'); background-position: center; background-size: cover;"}
@@ -38,7 +41,7 @@
         <% end %>
         <.live_file_input upload={@uploads.subject_image} class="mt-2 mb-2 text-xs block hover:file:cursor-pointer file:mr-5 file:px-2 file:rounded-lg file:border-0 border border-gray-300 border-dashed rounded-lg" />
         <%= submit "Upload", phx_disable_with: "Uploading...", class: "text-xs p-1 border border-gray-300 rounded-lg px-2" %>
-    </div>
+    </div>-->
 
     </.form>
 </div>
@@ -83,7 +86,7 @@
 
         <%= for block <- section.blocks do %>
             <div>
-                <%= MnemoWeb.Live.Components.EditBlocks.block(block.type, section, block) %>
+                <%= MnemoWeb.Live.Components.EditBlocks.block(block.type, section, block, %{uploads: @uploads}) %>
             </div>
         <% end %>
 
